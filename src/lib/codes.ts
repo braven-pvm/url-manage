@@ -3,7 +3,7 @@ import { customAlphabet } from "nanoid";
 const alphabet = "23456789abcdefghijkmnopqrstuvwxyz";
 const createNanoid = customAlphabet(alphabet, 8);
 const codePattern = /^[a-z0-9][a-z0-9_-]{1,62}[a-z0-9]$/;
-const reservedCodes = new Set(["admin", "sign-in", "sign-up"]);
+const reservedCodes = new Set(["admin", "not-authorized", "sign-in", "sign-up"]);
 
 export type CodeValidationResult =
   | { ok: true; code: string }

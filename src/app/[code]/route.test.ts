@@ -57,7 +57,7 @@ describe("public redirect route", () => {
     expect(response.headers.get("location")).toBe("https://shop.pvm.co.za/care");
     expect(getRedirectDestination).toHaveBeenCalledWith(prisma, "Care");
     expect(getGlobalFallbackUrl).not.toHaveBeenCalled();
-    expect(logClickBestEffort).toHaveBeenCalledWith(prisma, {
+    expect(logClickBestEffortMock).toHaveBeenCalledWith(prisma, {
       redirectId: "redirect-1",
       requestedCode: "care",
       outcome: "matched",
@@ -89,7 +89,7 @@ describe("public redirect route", () => {
     expect(response.status).toBe(302);
     expect(response.headers.get("location")).toBe("https://www.pvm.co.za/");
     expect(getGlobalFallbackUrl).toHaveBeenCalledWith(prisma);
-    expect(logClickBestEffort).toHaveBeenCalledWith(prisma, {
+    expect(logClickBestEffortMock).toHaveBeenCalledWith(prisma, {
       redirectId: null,
       requestedCode: "../admin",
       outcome: "fallback",

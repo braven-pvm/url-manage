@@ -33,6 +33,7 @@ describe("codes", () => {
 
   it("rejects reserved codes", () => {
     expect(validateCode("admin").ok).toBe(false);
+    expect(validateCode("not-authorized").ok).toBe(false);
     expect(validateCode("sign-in").ok).toBe(false);
     expect(validateCode("sign-up").ok).toBe(false);
   });
