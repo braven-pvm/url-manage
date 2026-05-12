@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Redirect {
+  id             String       @id @default(cuid())
+  code           String       @unique
+  destinationUrl String       @map("destination_url")
+  title          String
+  description    String?
+  notes          String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  createdBy      String       @map("created_by")
+  updatedBy      String       @map("updated_by")
+  clickEvents    ClickEvent[]
+
+  @@index([createdAt])
+  @@map("redirects")
+}
+
+model ClickEvent {
+  id            String    @id @default(cuid())
+  redirectId    String?   @map("redirect_id")
+  redirect      Redirect? @relation(fields: [redirectId], references: [id], onDelete: SetNull)
+  requestedCode String    @map("requested_code")
+  outcome       String
+  referrer      String?
+  userAgent     String?   @map("user_agent")
+  ipHash        String?   @map("ip_hash")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([redirectId, createdAt])
+  @@index([requestedCode, createdAt])
+  @@map("click_events")
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy String   @map("updated_by")
+
+  @@map("settings")
+}
