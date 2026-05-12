@@ -33,6 +33,11 @@ function fakeDb(): FakeDb {
 }
 
 describe("redirect-service", () => {
+  const duplicateCodeError = {
+    code: "P2002",
+    meta: { target: ["code"] },
+  };
+
   it("returns destination for a known code", async () => {
     const db = fakeDb();
     db.redirect.findUnique.mockResolvedValue({
@@ -121,7 +126,7 @@ describe("redirect-service", () => {
 
   it("maps duplicate code errors to a friendly result", async () => {
     const db = fakeDb();
-    db.redirect.create.mockRejectedValue({ code: "P2002" });
+    db.redirect.create.mockRejectedValue(duplicateCodeError);
 
     await expect(
       createRedirect(db, {
@@ -131,6 +136,83 @@ describe("redirect-service", () => {
         actorEmail: "admin@pvm.co.za",
       }),
     ).resolves.toEqual({ ok: false, message: "That code already exists" });
+  });
+
+  it("retries generated code collisions and succeeds with a later code", async () => {
+    const db = fakeDb();
+    const generate = vi
+      .fn<() => string>()
+      .mockReturnValueOnce("abc12345")
+      .mockReturnValueOnce("xyz98765");
+
+    db.redirect.create
+      .mockRejectedValueOnce(duplicateCodeError)
+      .mockResolvedValueOnce({ id: "r1" });
+
+    await expect(
+      createRedirect(
+        db,
+        {
+          code: "",
+          destinationUrl: "https://shop.pvm.co.za/care",
+          title: "Care",
+          actorEmail: "admin@pvm.co.za",
+        },
+        { generateCode: generate },
+      ),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(generate).toHaveBeenCalledTimes(2);
+    expect(db.redirect.create).toHaveBeenCalledTimes(2);
+    expect(db.redirect.create.mock.calls[0]?.[0].data.code).toBe("abc12345");
+    expect(db.redirect.create.mock.calls[1]?.[0].data.code).toBe("xyz98765");
+  });
+
+  it("returns a clear failure when generated code retries are exhausted", async () => {
+    const db = fakeDb();
+    const generate = vi.fn<() => string>().mockReturnValue("abc12345");
+    db.redirect.create.mockRejectedValue(duplicateCodeError);
+
+    await expect(
+      createRedirect(
+        db,
+        {
+          code: "   ",
+          destinationUrl: "https://shop.pvm.co.za/care",
+          title: "Care",
+          actorEmail: "admin@pvm.co.za",
+        },
+        { generateCode: generate },
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      message: "Could not generate a unique code. Try again.",
+    });
+
+    expect(generate).toHaveBeenCalledTimes(5);
+    expect(db.redirect.create).toHaveBeenCalledTimes(5);
+  });
+
+  it("does not retry manual duplicate codes", async () => {
+    const db = fakeDb();
+    const generate = vi.fn<() => string>();
+    db.redirect.create.mockRejectedValue(duplicateCodeError);
+
+    await expect(
+      createRedirect(
+        db,
+        {
+          code: "care",
+          destinationUrl: "https://shop.pvm.co.za/care",
+          title: "Care",
+          actorEmail: "admin@pvm.co.za",
+        },
+        { generateCode: generate },
+      ),
+    ).resolves.toEqual({ ok: false, message: "That code already exists" });
+
+    expect(generate).not.toHaveBeenCalled();
+    expect(db.redirect.create).toHaveBeenCalledTimes(1);
   });
 
   it("rejects invalid create destinations without creating", async () => {

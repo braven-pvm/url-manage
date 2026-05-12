@@ -1,6 +1,10 @@
 import { generateCode, normalizeCode, validateCode } from "./codes";
 import { parseDestinationUrl } from "./url-validation";
 
+const GENERATED_CODE_MAX_ATTEMPTS = 5;
+const GENERATED_CODE_RETRY_EXHAUSTED_MESSAGE =
+  "Could not generate a unique code. Try again.";
+
 type RedirectLookupRecord = {
   id: string;
   code: string;
@@ -71,6 +75,10 @@ export type CreateRedirectInput = {
   actorEmail: string;
 };
 
+type CreateRedirectOptions = {
+  generateCode?: () => string;
+};
+
 export type UpdateRedirectInput = Omit<CreateRedirectInput, "code">;
 
 export type RedirectMutationResult =
@@ -116,11 +124,12 @@ export async function getRedirectDestination(
 export async function createRedirect(
   db: RedirectDb,
   input: CreateRedirectInput,
+  options: CreateRedirectOptions = {},
 ): Promise<RedirectMutationResult> {
-  const code = resolveCreateCode(input.code);
+  const codeSource = resolveCreateCode(input.code, options.generateCode);
 
-  if (!code.ok) {
-    return code;
+  if (!codeSource.ok) {
+    return codeSource;
   }
 
   const destination = parseDestinationUrl(input.destinationUrl);
@@ -129,27 +138,40 @@ export async function createRedirect(
     return destination;
   }
 
-  try {
-    const redirect = await db.redirect.create({
-      data: {
-        code: code.code,
-        destinationUrl: destination.url,
-        title: input.title?.trim() ?? "",
-        description: emptyToNull(input.description),
-        notes: emptyToNull(input.notes),
-        createdBy: input.actorEmail,
-        updatedBy: input.actorEmail,
-      },
-    });
+  const attempts = codeSource.generated ? GENERATED_CODE_MAX_ATTEMPTS : 1;
 
-    return { ok: true, id: redirect.id };
-  } catch (error) {
-    if (isDuplicateCodeError(error)) {
-      return { ok: false, message: "That code already exists" };
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const code =
+      codeSource.generated && attempt > 1
+        ? options.generateCode?.() ?? generateCode()
+        : codeSource.code;
+
+    try {
+      const redirect = await db.redirect.create({
+        data: {
+          code,
+          destinationUrl: destination.url,
+          title: input.title?.trim() ?? "",
+          description: emptyToNull(input.description),
+          notes: emptyToNull(input.notes),
+          createdBy: input.actorEmail,
+          updatedBy: input.actorEmail,
+        },
+      });
+
+      return { ok: true, id: redirect.id };
+    } catch (error) {
+      if (!isDuplicateCodeError(error)) {
+        throw error;
+      }
+
+      if (!codeSource.generated) {
+        return { ok: false, message: "That code already exists" };
+      }
     }
-
-    throw error;
   }
+
+  return { ok: false, message: GENERATED_CODE_RETRY_EXHAUSTED_MESSAGE };
 }
 
 export async function updateRedirect(
@@ -199,12 +221,25 @@ export async function logClickBestEffort(
 
 function resolveCreateCode(
   inputCode: string | undefined,
-): { ok: true; code: string } | { ok: false; message: string } {
+  codeGenerator: (() => string) | undefined,
+):
+  | { ok: true; code: string; generated: boolean }
+  | { ok: false; message: string } {
   if (!inputCode?.trim()) {
-    return { ok: true, code: generateCode() };
+    return {
+      ok: true,
+      code: codeGenerator?.() ?? generateCode(),
+      generated: true,
+    };
   }
 
-  return validateCode(inputCode);
+  const validation = validateCode(inputCode);
+
+  if (!validation.ok) {
+    return validation;
+  }
+
+  return { ok: true, code: validation.code, generated: false };
 }
 
 function emptyToNull(value: string | undefined): string | null {
@@ -213,10 +248,26 @@ function emptyToNull(value: string | undefined): string | null {
 }
 
 function isDuplicateCodeError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  if (!("code" in error) || error.code !== "P2002") {
+    return false;
+  }
+
+  if (!("meta" in error)) {
+    return true;
+  }
+
+  const target =
+    error.meta && typeof error.meta === "object" && "target" in error.meta
+      ? error.meta.target
+      : undefined;
+
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "P2002"
+    target === "code" ||
+    (Array.isArray(target) && target.includes("code")) ||
+    target === undefined
   );
 }
