@@ -7,7 +7,7 @@ import {
   logClickBestEffort,
 } from "@/lib/redirect-service";
 import { getGlobalFallbackUrl } from "@/lib/settings-service";
-import { GET, hashIp } from "./route";
+import { GET, getIpHashSalt, hashIp } from "./route";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: { test: "prisma" },
@@ -103,8 +103,11 @@ describe("public redirect route", () => {
 });
 
 describe("hashIp", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
   beforeEach(() => {
     delete process.env.IP_HASH_SALT;
+    vi.stubEnv("NODE_ENV", originalNodeEnv);
   });
 
   it("returns null for empty IP values", () => {
@@ -118,5 +121,11 @@ describe("hashIp", () => {
     expect(hashIp("203.0.113.10")).toBe(
       createHash("sha256").update("test-salt:203.0.113.10").digest("hex"),
     );
+  });
+
+  it("requires a configured salt in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    expect(() => getIpHashSalt()).toThrow("IP_HASH_SALT is required");
   });
 });

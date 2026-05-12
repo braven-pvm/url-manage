@@ -36,8 +36,20 @@ export function hashIp(ip: string | null | undefined): string | null {
     return null;
   }
 
-  const salt = process.env.IP_HASH_SALT ?? LOCAL_IP_HASH_SALT;
+  const salt = getIpHashSalt();
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
+}
+
+export function getIpHashSalt(): string {
+  if (process.env.IP_HASH_SALT) {
+    return process.env.IP_HASH_SALT;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("IP_HASH_SALT is required in production");
+  }
+
+  return LOCAL_IP_HASH_SALT;
 }
 
 function getRequestIp(request: NextRequest): string | null {
