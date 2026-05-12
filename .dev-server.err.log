@@ -1,0 +1,64 @@
+⨯ Error [PrismaClientInitializationError]: 
+Invalid `db.redirect.findUnique()` invocation in
+F:\Repositories\pvm-url\.next\dev\server\chunks\[root-of-the-server]__0206r4z._.js:186:40
+
+  183         code: (0, {imported module ./src/lib/codes.ts}["normalizeCode"])(inputCode) || inputCode
+  184     };
+  185 }
+→ 186 const redirect = await db.redirect.findUnique(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "postgresql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (src\lib\redirect-service.ts:107:38)
+    at <unknown> (-->  schema.prisma:7)
+    at async getRedirectDestination (src\lib\redirect-service.ts:107:20)
+    at async GET (src\app\[code]\route.ts:17:18)
+  105 |   }
+  106 |
+> 107 |   const redirect = await db.redirect.findUnique({
+      |                                      ^
+  108 |     where: { code: validation.code },
+  109 |     select: { id: true, code: true, destinationUrl: true },
+  110 |   }); {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
+⨯ Error: @clerk/backend: Missing publishableKey. You can get your key at https://dashboard.clerk.com/last-active?path=api-keys.
+    at ignore-listed frames
+⨯ Error [PrismaClientInitializationError]: 
+Invalid `db.redirect.findUnique()` invocation in
+F:\Repositories\pvm-url\.next\dev\server\chunks\[root-of-the-server]__0206r4z._.js:186:40
+
+  183         code: (0, {imported module ./src/lib/codes.ts}["normalizeCode"])(inputCode) || inputCode
+  184     };
+  185 }
+→ 186 const redirect = await db.redirect.findUnique(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "postgresql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (src\lib\redirect-service.ts:107:38)
+    at <unknown> (-->  schema.prisma:7)
+    at async getRedirectDestination (src\lib\redirect-service.ts:107:20)
+    at async GET (src\app\[code]\route.ts:17:18)
+  105 |   }
+  106 |
+> 107 |   const redirect = await db.redirect.findUnique({
+      |                                      ^
+  108 |     where: { code: validation.code },
+  109 |     select: { id: true, code: true, destinationUrl: true },
+  110 |   }); {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
