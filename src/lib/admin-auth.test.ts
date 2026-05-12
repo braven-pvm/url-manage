@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requireAdminEmail } from "./admin-auth";
 
-const currentUserMock = vi.hoisted(() => vi.fn());
+const authMock = vi.hoisted(() => vi.fn());
+const getUserMock = vi.hoisted(() => vi.fn());
 const redirectMock = vi.hoisted(() =>
   vi.fn((url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);
@@ -9,7 +10,12 @@ const redirectMock = vi.hoisted(() =>
 );
 
 vi.mock("@clerk/nextjs/server", () => ({
-  currentUser: currentUserMock,
+  auth: authMock,
+  clerkClient: vi.fn(async () => ({
+    users: {
+      getUser: getUserMock,
+    },
+  })),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -24,7 +30,8 @@ describe("requireAdminEmail", () => {
   });
 
   it("returns the lowercased primary email for an allowed admin", async () => {
-    currentUserMock.mockResolvedValue({
+    authMock.mockResolvedValue({ userId: "user_123" });
+    getUserMock.mockResolvedValue({
       primaryEmailAddress: { emailAddress: "Admin@PVM.co.za" },
     });
 
@@ -33,7 +40,8 @@ describe("requireAdminEmail", () => {
   });
 
   it("redirects when the signed-in user email is not allowed", async () => {
-    currentUserMock.mockResolvedValue({
+    authMock.mockResolvedValue({ userId: "user_123" });
+    getUserMock.mockResolvedValue({
       primaryEmailAddress: { emailAddress: "person@example.com" },
     });
 
@@ -44,11 +52,12 @@ describe("requireAdminEmail", () => {
   });
 
   it("redirects when there is no signed-in user", async () => {
-    currentUserMock.mockResolvedValue(null);
+    authMock.mockResolvedValue({ userId: null });
 
     await expect(requireAdminEmail()).rejects.toThrow(
       "NEXT_REDIRECT:/not-authorized",
     );
     expect(redirectMock).toHaveBeenCalledWith("/not-authorized");
+    expect(getUserMock).not.toHaveBeenCalled();
   });
 });
