@@ -15,6 +15,8 @@ Configure these domains on the same Vercel project:
 
 The same deployment serves both domains. Admin pages live under `/admin`; public redirect URLs use `https://go.pvm.co.za/<code>`.
 
+Vercel domain assignment and DNS control which hostnames expose the deployment today. `PUBLIC_REDIRECT_HOST` and `ADMIN_HOST` are parsed application metadata values, not host-enforcement controls. The app protects admin access by path: `/admin` routes require Clerk authentication and the admin email allowlist.
+
 ## Environment Variables
 
 Set these in Vercel:
@@ -34,19 +36,23 @@ Use the same values locally in `.env` when testing database-backed routes.
 
 ## Database
 
-Run production migrations during deployment:
+Provision a real managed Postgres database first and set `DATABASE_URL` for the environment that will create the initial migration.
 
-```powershell
-npm run prisma:deploy
-```
-
-This runs `prisma migrate deploy`, which requires committed migration files in `prisma/migrations`. Once a real managed Postgres database is provisioned, create the first migration against a real Postgres connection if no migrations exist yet:
+If no committed migrations exist yet, create the first migration against that real Postgres connection locally or in an approved migration environment:
 
 ```powershell
 npm run prisma:migrate -- --name init
 ```
 
-Commit the generated migration before relying on `npm run prisma:deploy` in Vercel.
+Commit the generated `prisma/migrations/...` directory.
+
+After committed migrations exist, production deployments can run:
+
+```powershell
+npm run prisma:deploy
+```
+
+This runs `prisma migrate deploy`, which applies committed migration files from `prisma/migrations`. Deployment alone is not enough before the initial migration exists.
 
 ## Clerk
 
@@ -58,13 +64,15 @@ Put internal administrator email addresses in `ADMIN_EMAILS` as a comma-separate
 
 1. Confirm the Vercel project has both `go.pvm.co.za` and `admin.pvm.co.za` assigned.
 2. Confirm all required Vercel environment variables are set.
-3. Run `npm run prisma:deploy` against the managed Postgres database.
-4. Sign in to `https://admin.pvm.co.za/admin` with an email listed in `ADMIN_EMAILS`.
-5. Create a redirect with code `care-test`.
-6. Open `https://go.pvm.co.za/care-test` and confirm it redirects to the configured destination.
-7. Open `https://go.pvm.co.za/unknown-test-code` and confirm it redirects to the global fallback URL.
-8. Edit the redirect destination in the admin console and confirm the code stays unchanged.
-9. Return to the redirect edit page and confirm recent click activity appears.
+3. Confirm a real Postgres `DATABASE_URL` is provisioned.
+4. If this is the first database setup, run `npm run prisma:migrate -- --name init` locally or in an approved migration environment and commit the generated `prisma/migrations/...`.
+5. Run `npm run prisma:deploy` against the managed Postgres database after migrations are committed.
+6. Sign in to `https://admin.pvm.co.za/admin` with an email listed in `ADMIN_EMAILS`.
+7. Create a redirect with code `care-test`.
+8. Open `https://go.pvm.co.za/care-test` and confirm it redirects to the configured destination.
+9. Open `https://go.pvm.co.za/unknown-test-code` and confirm it redirects to the global fallback URL.
+10. Edit the redirect destination in the admin console and confirm the code stays unchanged.
+11. Return to the redirect edit page and confirm recent click activity appears.
 
 Local browser verification is limited without real `DATABASE_URL` and Clerk values. Port `3000` may also be occupied by another local repository process; use an alternate port such as:
 
