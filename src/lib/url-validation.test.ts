@@ -16,11 +16,22 @@ describe("parseDestinationUrl", () => {
     });
   });
 
+  it("trims URLs before parsing", () => {
+    expect(parseDestinationUrl(" https://shop.pvm.co.za/care ")).toEqual({
+      ok: true,
+      url: "https://shop.pvm.co.za/care",
+    });
+  });
+
   it("rejects relative URLs", () => {
     expect(parseDestinationUrl("/internal").ok).toBe(false);
   });
 
   it("rejects javascript URLs", () => {
     expect(parseDestinationUrl("javascript:alert(1)").ok).toBe(false);
+  });
+
+  it("rejects ftp URLs", () => {
+    expect(parseDestinationUrl("ftp://example.com/file").ok).toBe(false);
   });
 });
