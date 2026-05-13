@@ -1,13 +1,38 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CopyButton } from "@/components/admin/CopyButton";
+import type { ReactNode } from "react";
+
 import { RedirectForm } from "@/components/admin/RedirectForm";
+import {
+  AdminCard,
+  Badge,
+  CardHeader,
+  MetricCard,
+  PageHeader,
+  SecondaryAnchor,
+  TagChip,
+  UrlDisplay,
+} from "@/components/admin/ui";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { mergeCategorySuggestions } from "@/lib/redirect-metadata";
 import { updateRedirectAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
+
+const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
+const timestampFormatter = new Intl.DateTimeFormat("en-ZA", {
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  month: "short",
+  year: "numeric",
+});
 
 export default async function EditRedirectPage({
   params,
@@ -40,204 +65,199 @@ export default async function EditRedirectPage({
   }
 
   const action = updateRedirectAction.bind(null, redirect.id);
-  const shortUrl = `https://${env.PUBLIC_REDIRECT_HOST}/${redirect.code}`;
+  const shortUrlBase = `https://${env.PUBLIC_REDIRECT_HOST}`;
+  const shortUrl = `${shortUrlBase}/${redirect.code}`;
   const destinationHost = getDestinationHost(redirect.destinationUrl);
   const lastClick = redirect.clickEvents[0];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-        <div>
-          <Link
-            className="text-sm font-semibold text-slate-600 underline-offset-2 hover:text-slate-950 hover:underline"
-            href="/admin"
-          >
-            Back to redirects
-          </Link>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <span className="rounded-full bg-[#f6c900] px-3 py-1 text-xs font-bold uppercase tracking-wide text-slate-950">
-              {redirect.category}
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Stable code
-            </span>
-          </div>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-            {redirect.title}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            Edit the destination and admin metadata for this printed or QR URL.
-            The public code remains fixed.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <a
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:border-slate-950"
-            href={redirect.destinationUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Open destination
-          </a>
-          <a
-            className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#00539b]"
-            href={shortUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Test short URL
-          </a>
-        </div>
+      <Link
+        className="text-sm font-semibold text-[var(--pvm-muted)] underline-offset-2 hover:text-[var(--pvm-fg)] hover:underline"
+        href="/admin"
+      >
+        Back to redirects
+      </Link>
+
+      <PageHeader
+        actions={
+          <>
+            <SecondaryAnchor href={redirect.destinationUrl}>
+              Open destination
+            </SecondaryAnchor>
+            <SecondaryAnchor href={shortUrl}>Test short URL</SecondaryAnchor>
+          </>
+        }
+        description="Edit the destination and admin metadata for this printed or QR URL. The public code remains fixed."
+        eyebrow="Redirect editor"
+        title={redirect.title}
+      />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone={categoryTone(redirect.category)}>{redirect.category}</Badge>
+        <Badge tone="purple">{redirect.purpose}</Badge>
+        <Badge tone="green">Active</Badge>
+        {redirect.tags.map((tag) => (
+          <TagChip key={tag}>{tag}</TagChip>
+        ))}
       </div>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <UrlCard label="Short URL" url={shortUrl} />
-        <UrlCard label="Destination" meta={destinationHost} url={redirect.destinationUrl} />
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Click activity
+        <AdminCard className="p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
+            Short URL
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <Metric label="Total" value={redirect._count.clickEvents.toString()} />
-            <Metric
-              label="Latest"
-              value={lastClick ? lastClick.createdAt.toLocaleDateString("en-ZA") : "None"}
-            />
+          <div className="mt-3">
+            <UrlDisplay href={shortUrl} showCopy />
           </div>
-        </div>
+        </AdminCard>
+        <AdminCard className="p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
+            Destination
+          </p>
+          <div className="mt-3">
+            <UrlDisplay href={redirect.destinationUrl} showCopy />
+          </div>
+          <p className="mt-2 text-[11.5px] text-[var(--pvm-muted)]">
+            {destinationHost}
+          </p>
+        </AdminCard>
+        <MetricCard
+          detail={
+            lastClick
+              ? `Latest ${dateFormatter.format(lastClick.createdAt)}`
+              : "No clicks recorded yet"
+          }
+          label="Click activity"
+          value={redirect._count.clickEvents.toLocaleString("en-ZA")}
+        />
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-        <section>
-          <RedirectForm
-            action={action}
-            error={query.error}
-            redirect={redirect}
-            suggestedCategories={mergeCategorySuggestions(
-              categories.map((item) => item.category),
-            )}
-          />
-        </section>
-        <aside className="space-y-6">
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-950">
-                Recent clicks
-              </h2>
-              <p className="mt-1 text-sm text-slate-600">
-                Latest recorded redirect attempts for this code.
-              </p>
-            </div>
-            {redirect.clickEvents.length > 0 ? (
-              <div className="divide-y divide-slate-100">
+      <RedirectForm
+        action={action}
+        error={query.error}
+        redirect={redirect}
+        shortUrlBase={shortUrlBase}
+        suggestedCategories={mergeCategorySuggestions(
+          categories.map((item) => item.category),
+        )}
+      />
+
+      <AdminCard>
+        <CardHeader
+          subtitle="Latest recorded redirect attempts for this code."
+          title="Recent clicks"
+        />
+        {redirect.clickEvents.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-[var(--pvm-border)] text-left text-sm">
+              <thead className="bg-[var(--pvm-bg)]">
+                <tr>
+                  <ColumnHeader>Referrer</ColumnHeader>
+                  <ColumnHeader>Device / Browser</ColumnHeader>
+                  <ColumnHeader>Result</ColumnHeader>
+                  <ColumnHeader>Timestamp</ColumnHeader>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--pvm-border)]">
                 {redirect.clickEvents.map((event) => (
-                  <div className="px-5 py-4" key={event.id}>
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">
-                        {event.outcome}
-                      </span>
-                      <time className="text-xs text-slate-500">
-                        {event.createdAt.toLocaleString("en-ZA")}
-                      </time>
-                    </div>
-                    <p className="mt-3 break-words text-sm text-slate-700">
-                      {event.referrerHost ?? event.referrer ?? "No referrer"}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-600">
-                      {event.city || event.country ? (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5">
-                          {[event.city, event.country].filter(Boolean).join(", ")}
-                        </span>
-                      ) : null}
-                      {event.region ? (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5">
-                          {event.region}
-                        </span>
-                      ) : null}
-                      {event.timezone ? (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5">
-                          {event.timezone}
-                        </span>
-                      ) : null}
-                      {event.utmCampaign ? (
-                        <span className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-[#00539b]">
-                          {event.utmCampaign}
-                        </span>
-                      ) : null}
-                      {event.utmSource || event.utmMedium ? (
-                        <span className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-[#00539b]">
-                          {[event.utmSource, event.utmMedium]
-                            .filter(Boolean)
-                            .join(" / ")}
-                        </span>
+                  <tr key={event.id} className="align-top">
+                    <td className="max-w-[260px] px-5 py-4">
+                      <p className="break-words font-medium text-[var(--pvm-fg)]">
+                        {event.referrerHost?.trim() ||
+                          event.referrer?.trim() ||
+                          "Direct / No referrer"}
+                      </p>
+                      <ChipRow>
+                        {locationLabel(event) ? (
+                          <TagChip>{locationLabel(event)}</TagChip>
+                        ) : null}
+                        {event.region ? <TagChip>{event.region}</TagChip> : null}
+                        {event.timezone ? <TagChip>{event.timezone}</TagChip> : null}
+                      </ChipRow>
+                    </td>
+                    <td className="max-w-[340px] px-5 py-4">
+                      <p className="text-sm font-medium text-[var(--pvm-fg)]">
+                        {event.userAgent ? "Captured user agent" : "Unknown"}
+                      </p>
+                      {event.userAgent ? (
+                        <p className="mt-1 line-clamp-3 break-words text-xs text-[var(--pvm-muted)]">
+                          {event.userAgent}
+                        </p>
                       ) : null}
                       {event.ipHash ? (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono">
+                        <p className="mt-2 font-mono text-[11px] text-[var(--pvm-muted)]">
                           ip:{event.ipHash.slice(0, 10)}
-                        </span>
+                        </p>
                       ) : null}
-                    </div>
-                    {event.userAgent ? (
-                      <p className="mt-1 line-clamp-2 break-words text-xs text-slate-500">
-                        {event.userAgent}
-                      </p>
-                    ) : null}
-                  </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <Badge tone={clickOutcomeTone(event.outcome)}>
+                        {event.outcome}
+                      </Badge>
+                      <ChipRow>
+                        {utmChips(event).map((chip) => (
+                          <span
+                            className="inline-flex items-center rounded border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[11px] font-medium text-blue-700"
+                            key={chip}
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </ChipRow>
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-sm text-[var(--pvm-muted)]">
+                      {timestampFormatter.format(event.createdAt)}
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            ) : (
-              <p className="px-5 py-6 text-sm text-slate-600">
-                No clicks recorded yet.
-              </p>
-            )}
-          </section>
-        </aside>
-      </div>
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="px-5 py-6 text-sm text-[var(--pvm-muted)]">
+            No clicks recorded yet.
+          </p>
+        )}
+      </AdminCard>
     </div>
   );
 }
 
-function UrlCard({
-  label,
-  meta,
-  url,
-}: {
-  label: string;
-  meta?: string;
-  url: string;
-}) {
+function ColumnHeader({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-          {label}
-        </p>
-        <CopyButton value={url} />
-      </div>
-      <a
-        className="mt-4 block break-all font-mono text-sm font-semibold text-slate-950 underline-offset-2 hover:underline"
-        href={url}
-        rel="noreferrer"
-        target="_blank"
-      >
-        {url}
-      </a>
-      {meta ? <p className="mt-2 text-xs text-slate-500">{meta}</p> : null}
-    </div>
+    <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
+      {children}
+    </th>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-2xl font-semibold tracking-tight text-slate-950">
-        {value}
-      </p>
-      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        {label}
-      </p>
-    </div>
-  );
+function ChipRow({ children }: Readonly<{ children: ReactNode }>) {
+  return <div className="mt-2 flex flex-wrap gap-1.5">{children}</div>;
+}
+
+function categoryTone(category: string) {
+  if (category === "Fixed") {
+    return "green" as const;
+  }
+
+  if (category === "Temporary") {
+    return "amber" as const;
+  }
+
+  return "blue" as const;
+}
+
+function clickOutcomeTone(outcome: string) {
+  if (outcome === "matched") {
+    return "green" as const;
+  }
+
+  if (outcome === "fallback") {
+    return "amber" as const;
+  }
+
+  return "red" as const;
 }
 
 function getDestinationHost(url: string): string {
@@ -246,4 +266,27 @@ function getDestinationHost(url: string): string {
   } catch {
     return "Invalid URL";
   }
+}
+
+function locationLabel(event: {
+  city: string | null;
+  country: string | null;
+}) {
+  return [event.city, event.country].filter(Boolean).join(", ");
+}
+
+function utmChips(event: {
+  utmCampaign: string | null;
+  utmContent: string | null;
+  utmMedium: string | null;
+  utmSource: string | null;
+  utmTerm: string | null;
+}) {
+  return [
+    event.utmSource ? `source:${event.utmSource}` : null,
+    event.utmMedium ? `medium:${event.utmMedium}` : null,
+    event.utmCampaign ? `campaign:${event.utmCampaign}` : null,
+    event.utmContent ? `content:${event.utmContent}` : null,
+    event.utmTerm ? `term:${event.utmTerm}` : null,
+  ].filter((chip): chip is string => Boolean(chip));
 }
