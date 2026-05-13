@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { requireAdminEmail } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { createRedirect, updateRedirect } from "@/lib/redirect-service";
+import {
+  normalizeCatalogName,
+  normalizeTag,
+} from "@/lib/redirect-taxonomy";
 import { updateGlobalFallbackUrl } from "@/lib/settings-service";
 
 export async function createRedirectAction(formData: FormData) {
@@ -63,6 +67,55 @@ export async function updateFallbackAction(formData: FormData) {
   }
 
   revalidatePath("/admin/settings");
+}
+
+export async function createCategoryAction(formData: FormData) {
+  const actorEmail = await requireAdminEmail();
+  const nameSource = fieldValue(formData, "name");
+  const name = nameSource.trim() ? normalizeCatalogName(nameSource) : "";
+
+  if (!name) {
+    redirect("/admin/tags?error=Enter%20a%20category%20name");
+  }
+
+  await prisma.redirectCategory.upsert({
+    where: { name },
+    create: {
+      name,
+      createdBy: actorEmail,
+      updatedBy: actorEmail,
+    },
+    update: {
+      updatedBy: actorEmail,
+    },
+  });
+
+  revalidatePath("/admin/tags");
+}
+
+export async function createTagAction(formData: FormData) {
+  const actorEmail = await requireAdminEmail();
+  const slug = normalizeTag(fieldValue(formData, "name"));
+
+  if (!slug) {
+    redirect("/admin/tags?error=Enter%20a%20tag%20name");
+  }
+
+  await prisma.redirectTag.upsert({
+    where: { slug },
+    create: {
+      slug,
+      label: slug,
+      createdBy: actorEmail,
+      updatedBy: actorEmail,
+    },
+    update: {
+      label: slug,
+      updatedBy: actorEmail,
+    },
+  });
+
+  revalidatePath("/admin/tags");
 }
 
 function fieldValue(formData: FormData, name: string): string {

@@ -3,6 +3,7 @@ import {
   buildTaxonomySummary,
   canDeleteTaxonomyItem,
   normalizeCatalogName,
+  normalizeTag,
 } from "./redirect-taxonomy";
 
 describe("redirect-taxonomy", () => {
@@ -13,6 +14,10 @@ describe("redirect-taxonomy", () => {
     expect(normalizeCatalogName("summer qr campaign")).toBe(
       "Summer Qr Campaign",
     );
+  });
+
+  it("normalizes tag names to stable slugs", () => {
+    expect(normalizeTag(" Race 2026 ")).toBe("race-2026");
   });
 
   it("builds a sorted taxonomy summary with default categories", () => {

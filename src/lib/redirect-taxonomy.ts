@@ -1,5 +1,7 @@
 import { DEFAULT_CATEGORIES, normalizeTag } from "./redirect-metadata";
 
+export { normalizeTag } from "./redirect-metadata";
+
 export type RedirectTaxonomySource = {
   category: string;
   tags: string[];
