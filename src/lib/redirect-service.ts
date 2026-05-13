@@ -378,31 +378,35 @@ async function upsertRedirectTaxonomy(
   tags: string[],
   actorEmail: string,
 ): Promise<void> {
-  await db.redirectCategory?.upsert({
-    where: { name: category },
-    create: {
-      name: category,
-      createdBy: actorEmail,
-      updatedBy: actorEmail,
-    },
-    update: { updatedBy: actorEmail },
-  });
-
-  for (const slug of tags) {
-    const label = catalogLabelFromTag(slug);
-
-    await db.redirectTag?.upsert({
-      where: { slug },
+  try {
+    await db.redirectCategory?.upsert({
+      where: { name: category },
       create: {
-        slug,
-        label,
+        name: category,
         createdBy: actorEmail,
         updatedBy: actorEmail,
       },
-      update: {
-        label,
-        updatedBy: actorEmail,
-      },
+      update: { updatedBy: actorEmail },
     });
+
+    for (const slug of tags) {
+      const label = catalogLabelFromTag(slug);
+
+      await db.redirectTag?.upsert({
+        where: { slug },
+        create: {
+          slug,
+          label,
+          createdBy: actorEmail,
+          updatedBy: actorEmail,
+        },
+        update: {
+          label,
+          updatedBy: actorEmail,
+        },
+      });
+    }
+  } catch {
+    // Redirect mutations are source of truth; catalog sync is admin convenience.
   }
 }

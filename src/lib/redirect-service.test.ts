@@ -199,6 +199,26 @@ describe("redirect-service", () => {
     });
   });
 
+  it("still creates a redirect when taxonomy sync fails", async () => {
+    const db = fakeDb({ catalog: true });
+    db.redirect.create.mockResolvedValue({ id: "r1" });
+    db.redirectCategory.upsert.mockRejectedValue(new Error("catalog down"));
+
+    await expect(
+      createRedirect(db, {
+        code: "care",
+        category: "Promotion",
+        tags: "QR",
+        destinationUrl: "https://shop.pvm.co.za/care",
+        title: "Care",
+        actorEmail: "admin@pvm.co.za",
+      }),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(db.redirect.create).toHaveBeenCalledTimes(1);
+    expect(db.redirectCategory.upsert).toHaveBeenCalledTimes(1);
+  });
+
   it("generates a valid code when create code is blank", async () => {
     const db = fakeDb();
     db.redirect.create.mockResolvedValue({ id: "r1" });
@@ -417,6 +437,26 @@ describe("redirect-service", () => {
         updatedBy: "editor@pvm.co.za",
       },
     });
+  });
+
+  it("still updates a redirect when taxonomy sync fails", async () => {
+    const db = fakeDb({ catalog: true });
+    db.redirect.update.mockResolvedValue({ id: "r1" });
+    db.redirectCategory.upsert.mockResolvedValue({});
+    db.redirectTag.upsert.mockRejectedValue(new Error("catalog down"));
+
+    await expect(
+      updateRedirect(db, "r1", {
+        destinationUrl: "https://shop.pvm.co.za/new",
+        category: "Promotion",
+        tags: "QR",
+        title: "New",
+        actorEmail: "editor@pvm.co.za",
+      }),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(db.redirect.update).toHaveBeenCalledTimes(1);
+    expect(db.redirectTag.upsert).toHaveBeenCalledTimes(1);
   });
 
   it("rejects invalid update destinations without updating", async () => {
