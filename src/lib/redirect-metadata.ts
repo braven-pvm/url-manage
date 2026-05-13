@@ -1,12 +1,9 @@
 export const DEFAULT_CATEGORIES = [
   "General",
-  "Product",
-  "Campaign",
+  "Fixed",
+  "Temporary",
+  "Referral",
   "Promotion",
-  "Event",
-  "Retail",
-  "Packaging",
-  "Support",
   "Internal",
 ];
 
