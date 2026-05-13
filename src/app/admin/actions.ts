@@ -13,6 +13,7 @@ export async function createRedirectAction(formData: FormData) {
     code: fieldValue(formData, "code"),
     destinationUrl: fieldValue(formData, "destinationUrl"),
     title: fieldValue(formData, "title"),
+    category: fieldValue(formData, "category"),
     description: fieldValue(formData, "description"),
     notes: fieldValue(formData, "notes"),
     actorEmail,
@@ -31,6 +32,7 @@ export async function updateRedirectAction(id: string, formData: FormData) {
   const result = await updateRedirect(prisma, id, {
     destinationUrl: fieldValue(formData, "destinationUrl"),
     title: fieldValue(formData, "title"),
+    category: fieldValue(formData, "category"),
     description: fieldValue(formData, "description"),
     notes: fieldValue(formData, "notes"),
     actorEmail,

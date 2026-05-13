@@ -26,6 +26,7 @@ export type RedirectDb = {
         code: string;
         destinationUrl: string;
         title: string;
+        category: string;
         description: string | null;
         notes: string | null;
         createdBy: string;
@@ -37,6 +38,7 @@ export type RedirectDb = {
       data: {
         destinationUrl: string;
         title: string;
+        category: string;
         description: string | null;
         notes: string | null;
         updatedBy: string;
@@ -70,6 +72,7 @@ export type CreateRedirectInput = {
   code?: string;
   destinationUrl: string;
   title?: string;
+  category?: string;
   description?: string;
   notes?: string;
   actorEmail: string;
@@ -152,6 +155,7 @@ export async function createRedirect(
           code,
           destinationUrl: destination.url,
           title: input.title?.trim() ?? "",
+          category: normalizeCategory(input.category),
           description: emptyToNull(input.description),
           notes: emptyToNull(input.notes),
           createdBy: input.actorEmail,
@@ -190,6 +194,7 @@ export async function updateRedirect(
     data: {
       destinationUrl: destination.url,
       title: input.title?.trim() ?? "",
+      category: normalizeCategory(input.category),
       description: emptyToNull(input.description),
       notes: emptyToNull(input.notes),
       updatedBy: input.actorEmail,
@@ -245,6 +250,11 @@ function resolveCreateCode(
 function emptyToNull(value: string | undefined): string | null {
   const trimmed = value?.trim() ?? "";
   return trimmed ? trimmed : null;
+}
+
+function normalizeCategory(value: string | undefined): string {
+  const trimmed = value?.trim() ?? "";
+  return trimmed || "General";
 }
 
 function isDuplicateCodeError(error: unknown): boolean {

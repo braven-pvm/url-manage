@@ -5,6 +5,7 @@ type RedirectFormProps = {
     code: string;
     destinationUrl: string;
     title: string;
+    category: string;
     description: string | null;
     notes: string | null;
   };
@@ -46,6 +47,18 @@ export function RedirectForm({ action, error, redirect }: RedirectFormProps) {
           id="title"
           name="title"
           required
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium" htmlFor="category">
+          Category
+        </label>
+        <input
+          className="mt-1 w-full rounded border px-3 py-2"
+          defaultValue={redirect?.category ?? "General"}
+          id="category"
+          name="category"
+          placeholder="Product, Promo, Event..."
         />
       </div>
       <div>

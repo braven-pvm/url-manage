@@ -86,6 +86,7 @@ describe("redirect-service", () => {
 
     const result = await createRedirect(db, {
       code: " Care ",
+      category: " Product ",
       destinationUrl: " https://shop.pvm.co.za/care ",
       title: " Care ",
       description: "",
@@ -97,6 +98,7 @@ describe("redirect-service", () => {
     expect(db.redirect.create).toHaveBeenCalledWith({
       data: {
         code: "care",
+        category: "Product",
         destinationUrl: "https://shop.pvm.co.za/care",
         title: "Care",
         description: null,
@@ -113,6 +115,7 @@ describe("redirect-service", () => {
 
     const result = await createRedirect(db, {
       code: "   ",
+      category: "   ",
       destinationUrl: "https://shop.pvm.co.za/care",
       title: "Care",
       actorEmail: "admin@pvm.co.za",
@@ -122,6 +125,7 @@ describe("redirect-service", () => {
     const call = db.redirect.create.mock.calls[0]?.[0];
     expect(call).toBeDefined();
     expect(validateCode(call?.data.code ?? "").ok).toBe(true);
+    expect(call?.data.category).toBe("General");
   });
 
   it("maps duplicate code errors to a friendly result", async () => {
@@ -235,6 +239,7 @@ describe("redirect-service", () => {
 
     const result = await updateRedirect(db, "r1", {
       destinationUrl: " https://shop.pvm.co.za/new ",
+      category: " Promo ",
       title: " New ",
       description: " Updated ",
       notes: "",
@@ -246,6 +251,7 @@ describe("redirect-service", () => {
       where: { id: "r1" },
       data: {
         destinationUrl: "https://shop.pvm.co.za/new",
+        category: "Promo",
         title: "New",
         description: "Updated",
         notes: null,

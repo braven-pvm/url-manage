@@ -12,6 +12,7 @@ model Redirect {
   code           String       @unique
   destinationUrl String       @map("destination_url")
   title          String
+  category       String       @default("General")
   description    String?
   notes          String?
   createdAt      DateTime     @default(now()) @map("created_at")
@@ -21,6 +22,7 @@ model Redirect {
   clickEvents    ClickEvent[]
 
   @@index([createdAt])
+  @@index([category])
   @@map("redirects")
 }
 

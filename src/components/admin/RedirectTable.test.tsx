@@ -10,21 +10,29 @@ describe("RedirectTable", () => {
           {
             id: "r1",
             code: "care",
+            category: "Product",
             title: "Care",
             destinationUrl: "https://shop.pvm.co.za/care",
             updatedAt: new Date("2026-05-12T00:00:00.000Z"),
             _count: { clickEvents: 7 },
           },
         ]}
+        shortUrlBase="https://go.pvm.co.za"
       />,
     );
 
-    expect(screen.getByRole("link", { name: "care" })).toHaveAttribute(
+    expect(screen.getByText("Product")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "https://go.pvm.co.za/care" }),
+    ).toHaveAttribute("href", "https://go.pvm.co.za/care");
+    expect(screen.getByRole("link", { name: "Edit" })).toHaveAttribute(
       "href",
       "/admin/redirects/r1",
     );
     expect(screen.getByText("Care")).toBeInTheDocument();
-    expect(screen.getByText("https://shop.pvm.co.za/care")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "https://shop.pvm.co.za/care" }),
+    ).toHaveAttribute("href", "https://shop.pvm.co.za/care");
     expect(screen.getByText("7")).toBeInTheDocument();
   });
 });

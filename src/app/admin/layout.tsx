@@ -10,8 +10,8 @@ export default async function AdminLayout({
   await requireAdminEmail();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-950">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-slate-100 text-slate-950">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <nav className="flex items-center gap-5 text-sm">
             <Link className="text-base font-semibold" href="/admin">
