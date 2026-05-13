@@ -24,6 +24,7 @@ model Redirect {
   clickEvents    ClickEvent[]
 
   @@index([createdAt])
+  @@index([updatedAt])
   @@index([category])
   @@index([purpose])
   @@map("redirects")
@@ -54,6 +55,7 @@ model ClickEvent {
 
   @@index([redirectId, createdAt])
   @@index([requestedCode, createdAt])
+  @@index([createdAt])
   @@index([country, createdAt])
   @@index([utmCampaign, createdAt])
   @@map("click_events")

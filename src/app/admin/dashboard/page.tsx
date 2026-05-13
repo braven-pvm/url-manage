@@ -45,6 +45,18 @@ function categoryTone(category: string) {
   return "blue" as const;
 }
 
+function clickOutcomeTone(outcome: string) {
+  if (outcome === "matched") {
+    return "green" as const;
+  }
+
+  if (outcome === "fallback") {
+    return "amber" as const;
+  }
+
+  return "red" as const;
+}
+
 function ReferrerRows({ referrers }: Readonly<{ referrers: TopReferrer[] }>) {
   if (referrers.length === 0) {
     return (
@@ -247,7 +259,7 @@ export default async function AdminDashboardPage() {
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <Badge tone={click.outcome === "redirected" ? "green" : "red"}>
+                    <Badge tone={clickOutcomeTone(click.outcome)}>
                       {click.outcome}
                     </Badge>
                     <p className="mt-2 text-[11px] tabular-nums text-[var(--pvm-muted)]">
