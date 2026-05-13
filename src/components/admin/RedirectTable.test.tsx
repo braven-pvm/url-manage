@@ -23,6 +23,21 @@ describe("RedirectTable", () => {
       />,
     );
 
+    expect(
+      screen.getByRole("columnheader", { name: "SHORT URL" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "TITLE / DESTINATION" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "CATEGORY" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "PURPOSE" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "TAGS" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Product")).toBeInTheDocument();
     expect(screen.getByText("Product packaging")).toBeInTheDocument();
     expect(screen.getByText("energy-bar")).toBeInTheDocument();

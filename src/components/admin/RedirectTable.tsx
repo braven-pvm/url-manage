@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminCard, Badge, TagChip, UrlDisplay, type BadgeTone } from "./ui";
 
 type RedirectTableRow = {
   id: string;
@@ -17,85 +18,96 @@ type RedirectTableProps = {
   shortUrlBase: string;
 };
 
+function badgeTone(value: string): BadgeTone {
+  const normalized = value.toLowerCase();
+
+  if (normalized === "fixed" || normalized === "print") {
+    return "blue";
+  }
+
+  if (normalized === "temporary" || normalized === "promotion") {
+    return "amber";
+  }
+
+  if (normalized === "referral") {
+    return "green";
+  }
+
+  if (normalized === "event") {
+    return "purple";
+  }
+
+  return "grey";
+}
+
 export function RedirectTable({ rows, shortUrlBase }: RedirectTableProps) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-8 text-sm text-slate-600 shadow-sm">
-        <p className="font-medium text-slate-950">No redirects found.</p>
-        <p className="mt-1">Create a redirect or adjust your filters.</p>
-      </div>
+      <AdminCard className="p-8 text-sm text-[var(--pvm-muted)]">
+        <p className="font-semibold text-[var(--pvm-fg)]">No redirects found.</p>
+        <p className="mt-1">
+          Create a redirect, broaden your search, or reset the current filters.
+        </p>
+      </AdminCard>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-      <table className="w-full min-w-[1180px] text-left text-sm">
-        <thead className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
+    <AdminCard>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[1260px] text-left text-sm">
+        <thead className="border-b border-[var(--pvm-border)] bg-[var(--pvm-surface-2)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--pvm-muted)]">
           <tr>
-            <th className="w-44 px-4 py-3">Category</th>
-            <th className="w-72 px-4 py-3">Short URL</th>
-            <th className="px-4 py-3">Title</th>
-            <th className="px-4 py-3">Destination</th>
-            <th className="w-20 px-4 py-3">Clicks</th>
-            <th className="w-32 px-4 py-3">Updated</th>
+            <th className="w-72 px-4 py-3">SHORT URL</th>
+            <th className="min-w-96 px-4 py-3">TITLE / DESTINATION</th>
+            <th className="w-40 px-4 py-3">CATEGORY</th>
+            <th className="w-48 px-4 py-3">PURPOSE</th>
+            <th className="w-56 px-4 py-3">TAGS</th>
+            <th className="w-24 px-4 py-3">CLICKS</th>
+            <th className="w-32 px-4 py-3">UPDATED</th>
             <th className="w-20 px-4 py-3"></th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[var(--pvm-border)]">
           {rows.map((row) => (
-            <tr className="align-top hover:bg-slate-50" key={row.id}>
+            <tr className="align-top transition hover:bg-[var(--pvm-surface-2)]" key={row.id}>
               <td className="px-4 py-4">
-                <span className="inline-flex max-w-32 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                  <span className="truncate">{row.category}</span>
-                </span>
-                <span className="mt-2 block text-xs font-medium text-slate-500">
-                  {row.purpose}
-                </span>
+                <UrlDisplay href={`${shortUrlBase}/${row.code}`} />
               </td>
-              <td className="px-4 py-4 font-mono text-xs">
-                <a
-                  className="break-all text-slate-950 underline-offset-2 hover:underline"
-                  href={`${shortUrlBase}/${row.code}`}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {shortUrlBase}/{row.code}
-                </a>
+              <td className="px-4 py-4">
+                <span className="block font-semibold text-[var(--pvm-fg)]">
+                  {row.title}
+                </span>
+                <div className="mt-2">
+                  <UrlDisplay href={row.destinationUrl} />
+                </div>
               </td>
-              <td className="px-4 py-4 font-medium text-slate-950">
-                <span className="block">{row.title}</span>
+              <td className="px-4 py-4">
+                <Badge tone={badgeTone(row.category)}>{row.category}</Badge>
+              </td>
+              <td className="px-4 py-4">
+                <Badge tone={badgeTone(row.purpose)}>{row.purpose}</Badge>
+              </td>
+              <td className="px-4 py-4">
                 {row.tags.length > 0 ? (
-                  <span className="mt-2 flex flex-wrap gap-1.5">
-                    {row.tags.slice(0, 4).map((tag) => (
-                      <span
-                        className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-xs font-medium text-[#00539b]"
-                        key={tag}
-                      >
-                        {tag}
-                      </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {row.tags.map((tag) => (
+                      <TagChip key={tag}>{tag}</TagChip>
                     ))}
-                  </span>
-                ) : null}
+                  </div>
+                ) : (
+                  <span className="text-[12px] text-[var(--pvm-muted)]">None</span>
+                )}
               </td>
-              <td className="px-4 py-4 font-mono text-xs">
-                <a
-                  className="break-all text-slate-700 underline-offset-2 hover:text-slate-950 hover:underline"
-                  href={row.destinationUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {row.destinationUrl}
-                </a>
-              </td>
-              <td className="px-4 py-4 tabular-nums">
+              <td className="px-4 py-4 tabular-nums text-[var(--pvm-fg)]">
                 {row._count.clickEvents}
               </td>
-              <td className="px-4 py-4 text-slate-600">
+              <td className="px-4 py-4 text-[var(--pvm-muted)]">
                 {row.updatedAt.toLocaleDateString("en-ZA")}
               </td>
               <td className="px-4 py-4 text-right">
                 <Link
-                  className="font-medium text-slate-950 underline-offset-2 hover:underline"
+                  className="text-sm font-semibold text-[var(--pvm-teal)] underline-offset-2 hover:underline"
                   href={`/admin/redirects/${row.id}`}
                 >
                   Edit
@@ -105,6 +117,7 @@ export function RedirectTable({ rows, shortUrlBase }: RedirectTableProps) {
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </AdminCard>
   );
 }
