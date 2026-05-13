@@ -18,30 +18,45 @@ describe("AdminLayout", () => {
     expect(requireAdminEmail).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Protected admin content")).toBeInTheDocument();
     expect(screen.getByRole("banner")).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", {
-      name: "Admin navigation",
+    const desktopNavigation = screen.getByRole("navigation", {
+      name: "Desktop admin navigation",
+    });
+    const mobileNavigation = screen.getByRole("navigation", {
+      name: "Mobile admin navigation",
     });
 
-    expect(navigation).toBeInTheDocument();
-    expect(within(navigation).getByRole("link", { name: "Dashboard" })).toHaveAttribute(
-      "href",
-      "/admin/dashboard",
-    );
-    expect(within(navigation).getByRole("link", { name: "All Redirects" })).toHaveAttribute(
-      "href",
-      "/admin",
-    );
-    expect(within(navigation).getByRole("link", { name: "New Redirect" })).toHaveAttribute(
-      "href",
-      "/admin/redirects/new",
-    );
+    expect(desktopNavigation).toBeInTheDocument();
+    expect(mobileNavigation).toBeInTheDocument();
     expect(
-      within(navigation).getByRole("link", { name: "Tags & Categories" }),
+      within(mobileNavigation).getByRole("link", { name: "Dashboard" }),
+    ).toHaveAttribute("href", "/admin/dashboard");
+    expect(
+      within(mobileNavigation).getByRole("link", { name: "All Redirects" }),
+    ).toHaveAttribute("href", "/admin");
+    expect(
+      within(mobileNavigation).getByRole("link", { name: "New Redirect" }),
+    ).toHaveAttribute("href", "/admin/redirects/new");
+    expect(
+      within(mobileNavigation).getByRole("link", { name: "Tags & Categories" }),
     ).toHaveAttribute("href", "/admin/tags");
-    expect(within(navigation).getByRole("link", { name: "Settings" })).toHaveAttribute(
-      "href",
-      "/admin/settings",
-    );
+    expect(
+      within(mobileNavigation).getByRole("link", { name: "Settings" }),
+    ).toHaveAttribute("href", "/admin/settings");
+    expect(
+      within(desktopNavigation).getByRole("link", { name: "Dashboard" }),
+    ).toHaveAttribute("href", "/admin/dashboard");
+    expect(
+      within(desktopNavigation).getByRole("link", { name: "All Redirects" }),
+    ).toHaveAttribute("href", "/admin");
+    expect(
+      within(desktopNavigation).getByRole("link", { name: "New Redirect" }),
+    ).toHaveAttribute("href", "/admin/redirects/new");
+    expect(
+      within(desktopNavigation).getByRole("link", { name: "Tags & Categories" }),
+    ).toHaveAttribute("href", "/admin/tags");
+    expect(
+      within(desktopNavigation).getByRole("link", { name: "Settings" }),
+    ).toHaveAttribute("href", "/admin/settings");
     expect(screen.getByRole("button", { name: "User menu" })).toBeInTheDocument();
   });
 });

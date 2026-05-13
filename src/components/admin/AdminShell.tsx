@@ -27,7 +27,7 @@ export function AdminShell({ children }: Readonly<{ children: ReactNode }>) {
             </Link>
           </div>
           <nav
-            aria-label="Admin navigation"
+            aria-label="Desktop admin navigation"
             className="flex flex-1 flex-col gap-1 px-3 py-4"
           >
             {navLinks.map((link) => (
@@ -71,6 +71,20 @@ export function AdminShell({ children }: Readonly<{ children: ReactNode }>) {
                 <UserButton />
               </div>
             </div>
+            <nav
+              aria-label="Mobile admin navigation"
+              className="flex gap-2 overflow-x-auto border-t border-[var(--pvm-border)] px-4 py-2 md:hidden"
+            >
+              {navLinks.map((link) => (
+                <Link
+                  className="shrink-0 rounded-md px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-[var(--pvm-fg)]"
+                  href={link.href}
+                  key={link.href}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </header>
           <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             {children}
