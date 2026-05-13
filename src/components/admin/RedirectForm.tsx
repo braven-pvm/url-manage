@@ -1,4 +1,7 @@
-import { REDIRECT_PURPOSES } from "@/lib/redirect-metadata";
+import {
+  DEFAULT_CATEGORIES,
+  REDIRECT_PURPOSES,
+} from "@/lib/redirect-metadata";
 
 type RedirectFormProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -25,7 +28,13 @@ export function RedirectForm({
   suggestedCategories = [],
 }: RedirectFormProps) {
   const isEdit = Boolean(redirect);
-  const categoryListId = `category-options-${redirect?.code ?? "new"}`;
+  const categoryOptions = [
+    ...new Set([
+      ...DEFAULT_CATEGORIES,
+      ...suggestedCategories,
+      redirect?.category ?? "General",
+    ]),
+  ];
   const fieldClass =
     "mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#00539b] focus:ring-2 focus:ring-[#00539b]/15 disabled:bg-slate-100 disabled:text-slate-600";
 
@@ -87,21 +96,18 @@ export function RedirectForm({
             >
               Category
             </label>
-            <input
+            <select
               className={fieldClass}
               defaultValue={redirect?.category ?? "General"}
               id="category"
-              list={categoryListId}
               name="category"
-              placeholder="Product, Promo, Event"
-            />
-            {suggestedCategories.length > 0 ? (
-              <datalist id={categoryListId}>
-                {suggestedCategories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
-            ) : null}
+            >
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">

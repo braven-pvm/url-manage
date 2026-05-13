@@ -4,11 +4,22 @@ import { RedirectForm } from "./RedirectForm";
 
 describe("RedirectForm", () => {
   it("renders required create fields and an error message", () => {
-    render(<RedirectForm action={vi.fn()} error="Enter a valid URL" />);
+    render(
+      <RedirectForm
+        action={vi.fn()}
+        error="Enter a valid URL"
+        suggestedCategories={["General", "Fixed", "Temporary", "Referral"]}
+      />,
+    );
 
     expect(screen.getByText("Enter a valid URL")).toBeInTheDocument();
     expect(screen.getByLabelText("Title")).toBeRequired();
     expect(screen.getByLabelText("Category")).toHaveValue("General");
+    expect(screen.getByRole("option", { name: "Fixed" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Temporary" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Referral" })).toBeInTheDocument();
     expect(screen.getByLabelText("Purpose")).toHaveValue("General");
     expect(screen.getByLabelText("Tags")).toHaveValue("");
     expect(screen.getByLabelText("Destination URL")).toBeRequired();
@@ -21,6 +32,7 @@ describe("RedirectForm", () => {
     render(
       <RedirectForm
         action={vi.fn()}
+        suggestedCategories={["General", "Fixed", "Temporary", "Product"]}
         redirect={{
           code: "care",
           category: "Product",
