@@ -24,25 +24,28 @@ describe("redirect-taxonomy", () => {
     const summary = buildTaxonomySummary([
       { category: " referalls ", tags: ["Energy Bar", "QR"] },
       { category: "referrals", tags: ["energy bar", "Retail"] },
+      { category: "Referral", tags: ["QR"] },
       { category: "temporary", tags: ["QR", ""] },
       { category: "new category", tags: ["Retail"] },
     ]);
 
     expect(summary.categories).toEqual([
-      { name: "Referrals", count: 2 },
+      { name: "Referrals", count: 3 },
       { name: "New Category", count: 1 },
       { name: "Temporary", count: 1 },
       { name: "Fixed", count: 0 },
       { name: "General", count: 0 },
       { name: "Internal", count: 0 },
       { name: "Promotion", count: 0 },
-      { name: "Referral", count: 0 },
     ]);
     expect(summary.tags).toEqual([
+      { name: "qr", count: 3 },
       { name: "energy-bar", count: 2 },
-      { name: "qr", count: 2 },
       { name: "retail", count: 2 },
     ]);
+    expect(
+      summary.categories.filter((item) => item.name.startsWith("Referral")),
+    ).toEqual([{ name: "Referrals", count: 3 }]);
   });
 
   it("guards deletion while taxonomy items are still used", () => {

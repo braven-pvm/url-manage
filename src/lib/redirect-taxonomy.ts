@@ -48,7 +48,7 @@ export function buildTaxonomySummary(rows: RedirectTaxonomySource[]): {
   const tagCounts = new Map<string, number>();
 
   for (const category of DEFAULT_CATEGORIES) {
-    categoryCounts.set(category, 0);
+    categoryCounts.set(normalizeCatalogName(category), 0);
   }
 
   for (const row of rows) {
