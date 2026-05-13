@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+.clerk/
+.next/
+node_modules/
+*.tsbuildinfo
