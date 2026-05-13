@@ -14,6 +14,7 @@ import {
 } from "@/lib/redirect-metadata";
 
 export const dynamic = "force-dynamic";
+const REDIRECT_LIST_LIMIT = 100;
 
 function formatNumber(value: number) {
   return value.toLocaleString("en-ZA");
@@ -70,6 +71,7 @@ export default async function AdminHomePage({
         : {}),
     },
     orderBy: { updatedAt: "desc" },
+    take: REDIRECT_LIST_LIMIT,
     include: { _count: { select: { clickEvents: true } } },
   });
   const shortUrlBase = `https://${env.PUBLIC_REDIRECT_HOST}`;

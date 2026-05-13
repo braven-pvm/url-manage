@@ -44,6 +44,9 @@ describe("RedirectTable", () => {
     expect(
       screen.getByRole("columnheader", { name: "UPDATED" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Actions" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Product")).toBeInTheDocument();
     expect(screen.getByText("Product packaging")).toBeInTheDocument();
     expect(screen.getByText("energy-bar")).toBeInTheDocument();
