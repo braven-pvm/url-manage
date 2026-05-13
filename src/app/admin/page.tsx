@@ -34,7 +34,7 @@ export default async function AdminHomePage({
   const categoryFilter = category?.trim() ?? "";
   const purposeFilter = purpose?.trim() ?? "";
   const tagFilter = normalizeTag(tag ?? "");
-  const [categories, tagRows] = await Promise.all([
+  const [categories, tagRows, redirectCount, clickCount] = await Promise.all([
     prisma.redirect.findMany({
       distinct: ["category"],
       orderBy: { category: "asc" },
@@ -43,6 +43,8 @@ export default async function AdminHomePage({
     prisma.redirect.findMany({
       select: { tags: true },
     }),
+    prisma.redirect.count(),
+    prisma.clickEvent.count(),
   ]);
   const categoryOptions = mergeCategorySuggestions(
     categories.map((item) => item.category),
@@ -71,12 +73,6 @@ export default async function AdminHomePage({
     include: { _count: { select: { clickEvents: true } } },
   });
   const shortUrlBase = `https://${env.PUBLIC_REDIRECT_HOST}`;
-  const totalClicks = redirects.reduce(
-    (total, redirect) => total + redirect._count.clickEvents,
-    0,
-  );
-  const categoryCount = new Set(redirects.map((redirect) => redirect.category)).size;
-  const tagCount = new Set(redirects.flatMap((redirect) => redirect.tags)).size;
 
   return (
     <div className="space-y-6">
@@ -88,10 +84,10 @@ export default async function AdminHomePage({
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Redirects" value={formatNumber(redirects.length)} />
-        <MetricCard label="Clicks" value={formatNumber(totalClicks)} />
-        <MetricCard label="Categories" value={formatNumber(categoryCount)} />
-        <MetricCard label="Tags" value={formatNumber(tagCount)} />
+        <MetricCard label="Redirects" value={formatNumber(redirectCount)} />
+        <MetricCard label="Clicks" value={formatNumber(clickCount)} />
+        <MetricCard label="Categories" value={formatNumber(categoryOptions.length)} />
+        <MetricCard label="Tags" value={formatNumber(tagOptions.length)} />
       </div>
 
       <AdminCard className="p-5">
