@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RedirectTable } from "@/components/admin/RedirectTable";
 import {
   AdminCard,
@@ -183,12 +184,12 @@ export default async function AdminHomePage({
             >
               Apply
             </button>
-            <a
+            <Link
               className="rounded-md px-3 py-2 text-sm font-semibold text-[var(--pvm-muted)] transition hover:text-[var(--pvm-fg)]"
               href="/admin"
             >
               Reset
-            </a>
+            </Link>
           </div>
         </form>
       </AdminCard>
