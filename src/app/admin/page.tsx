@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { RedirectTable } from "@/components/admin/RedirectTable";
 import {
   AdminCard,
@@ -10,6 +11,7 @@ import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import {
   mergeCategorySuggestions,
+  normalizeCategory,
   normalizeTag,
   REDIRECT_PURPOSES,
 } from "@/lib/redirect-metadata";
@@ -33,49 +35,69 @@ export default async function AdminHomePage({
 }) {
   const { category, purpose, q, tag } = await searchParams;
   const query = q?.trim() ?? "";
-  const categoryFilter = category?.trim() ?? "";
+  const categoryFilter = category?.trim() ? normalizeCategory(category) : "";
   const purposeFilter = purpose?.trim() ?? "";
   const tagFilter = normalizeTag(tag ?? "");
-  const [categories, tagRows, redirectCount, clickCount] = await Promise.all([
+  const queryTag = normalizeTag(query);
+  const redirectWhere: Prisma.RedirectWhereInput = {
+    ...(categoryFilter ? { category: categoryFilter } : {}),
+    ...(purposeFilter ? { purpose: purposeFilter } : {}),
+    ...(tagFilter ? { tags: { has: tagFilter } } : {}),
+    ...(query
+      ? {
+          OR: [
+            { code: { contains: query, mode: "insensitive" } },
+            { title: { contains: query, mode: "insensitive" } },
+            { category: { contains: query, mode: "insensitive" } },
+            { purpose: { contains: query, mode: "insensitive" } },
+            { destinationUrl: { contains: query, mode: "insensitive" } },
+            ...(queryTag ? [{ tags: { has: queryTag } }] : []),
+          ],
+        }
+      : {}),
+  };
+  const [
+    categories,
+    catalogCategories,
+    tagRows,
+    redirectCount,
+    filteredRedirectCount,
+    clickCount,
+  ] = await Promise.all([
     prisma.redirect.findMany({
       distinct: ["category"],
       orderBy: { category: "asc" },
       select: { category: true },
     }),
+    prisma.redirectCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { name: true },
+    }),
     prisma.redirect.findMany({
       select: { tags: true },
     }),
     prisma.redirect.count(),
+    prisma.redirect.count({ where: redirectWhere }),
     prisma.clickEvent.count(),
   ]);
   const categoryOptions = mergeCategorySuggestions(
-    categories.map((item) => item.category),
+    [
+      ...categories.map((item) => item.category),
+      ...catalogCategories.map((item) => item.name),
+    ],
   );
   const tagOptions = [...new Set(tagRows.flatMap((row) => row.tags))].sort();
-  const queryTag = normalizeTag(query);
   const redirects = await prisma.redirect.findMany({
-    where: {
-      ...(categoryFilter ? { category: categoryFilter } : {}),
-      ...(purposeFilter ? { purpose: purposeFilter } : {}),
-      ...(tagFilter ? { tags: { has: tagFilter } } : {}),
-      ...(query
-        ? {
-            OR: [
-              { code: { contains: query, mode: "insensitive" } },
-              { title: { contains: query, mode: "insensitive" } },
-              { category: { contains: query, mode: "insensitive" } },
-              { purpose: { contains: query, mode: "insensitive" } },
-              { destinationUrl: { contains: query, mode: "insensitive" } },
-              ...(queryTag ? [{ tags: { has: queryTag } }] : []),
-            ],
-          }
-        : {}),
-    },
+    where: redirectWhere,
     orderBy: { updatedAt: "desc" },
     take: REDIRECT_LIST_LIMIT,
     include: { _count: { select: { clickEvents: true } } },
   });
   const shortUrlBase = `https://${env.PUBLIC_REDIRECT_HOST}`;
+  const capped = filteredRedirectCount > REDIRECT_LIST_LIMIT;
+  const visibleRedirectCount = capped
+    ? REDIRECT_LIST_LIMIT
+    : filteredRedirectCount;
 
   return (
     <div className="space-y-6">
@@ -193,6 +215,13 @@ export default async function AdminHomePage({
           </div>
         </form>
       </AdminCard>
+      <p className="text-sm text-[var(--pvm-muted)]">
+        {capped
+          ? `Showing ${formatNumber(visibleRedirectCount)} of ${formatNumber(
+              filteredRedirectCount,
+            )} matching redirects. Refine search or filters to find older records.`
+          : `Showing ${formatNumber(visibleRedirectCount)} matching redirects.`}
+      </p>
       <RedirectTable rows={redirects} shortUrlBase={shortUrlBase} />
     </div>
   );

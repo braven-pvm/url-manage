@@ -8,7 +8,7 @@ describe("RedirectForm", () => {
       <RedirectForm
         action={vi.fn()}
         error="Enter a valid URL"
-        suggestedCategories={["General", "Fixed", "Temporary", "Referral"]}
+        suggestedCategories={["General", "Fixed", "Temporary", "Referrals"]}
       />,
     );
 
@@ -29,7 +29,7 @@ describe("RedirectForm", () => {
     expect(
       screen.getByRole("option", { name: "Temporary" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Referral" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Referrals" })).toBeInTheDocument();
     expect(screen.getByLabelText("Purpose")).toHaveValue("General");
     expect(screen.getByLabelText("Tags")).toHaveValue("");
     expect(screen.getByLabelText("Destination URL")).toBeRequired();

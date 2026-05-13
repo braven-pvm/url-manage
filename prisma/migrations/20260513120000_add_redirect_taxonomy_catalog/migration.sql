@@ -26,6 +26,10 @@ CREATE UNIQUE INDEX "redirect_categories_name_key" ON "redirect_categories"("nam
 
 CREATE UNIQUE INDEX "redirect_tags_slug_key" ON "redirect_tags"("slug");
 
+UPDATE "redirects"
+SET "category" = 'Referrals'
+WHERE lower(trim("category")) IN ('referral', 'referrals', 'referalls');
+
 INSERT INTO "redirect_categories" (
     "id",
     "name",
@@ -46,11 +50,20 @@ FROM (
         ('General'),
         ('Fixed'),
         ('Temporary'),
-        ('Referral'),
+        ('Referrals'),
         ('Promotion'),
         ('Internal')
     UNION
-    SELECT DISTINCT trim("category")
+    SELECT DISTINCT
+        CASE
+            WHEN lower(trim("category")) IN ('referral', 'referrals', 'referalls') THEN 'Referrals'
+            WHEN lower(trim("category")) = 'general' THEN 'General'
+            WHEN lower(trim("category")) = 'fixed' THEN 'Fixed'
+            WHEN lower(trim("category")) = 'temporary' THEN 'Temporary'
+            WHEN lower(trim("category")) IN ('promotion', 'promotions') THEN 'Promotion'
+            WHEN lower(trim("category")) = 'internal' THEN 'Internal'
+            ELSE trim("category")
+        END
     FROM "redirects"
     WHERE trim("category") <> ''
 ) AS "categories"("name")

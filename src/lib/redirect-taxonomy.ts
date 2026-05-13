@@ -1,4 +1,8 @@
-import { DEFAULT_CATEGORIES, normalizeTag } from "./redirect-metadata";
+import {
+  DEFAULT_CATEGORIES,
+  normalizeCategory,
+  normalizeTag,
+} from "./redirect-metadata";
 
 export { normalizeTag } from "./redirect-metadata";
 
@@ -12,32 +16,14 @@ export type TaxonomyCount = {
   count: number;
 };
 
-const CATALOG_ALIASES = new Map<string, string>([
-  ["referalls", "Referrals"],
-  ["referrals", "Referrals"],
-  ["referral", "Referrals"],
-  ["fixed", "Fixed"],
-  ["temporary", "Temporary"],
-  ["general", "General"],
-  ["promotion", "Promotion"],
-  ["promotions", "Promotion"],
-  ["internal", "Internal"],
-]);
-
 export function normalizeCatalogName(value: string): string {
-  const normalized = value.trim().replace(/\s+/g, " ");
+  const normalized = normalizeCategory(value);
 
-  if (!normalized) {
+  if (normalized === "General") {
     return "General";
   }
 
-  const alias = CATALOG_ALIASES.get(normalized.toLowerCase());
-
-  if (alias) {
-    return alias;
-  }
-
-  return titleCase(normalized);
+  return DEFAULT_CATEGORIES.includes(normalized) ? normalized : titleCase(normalized);
 }
 
 export function buildTaxonomySummary(rows: RedirectTaxonomySource[]): {

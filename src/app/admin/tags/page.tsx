@@ -27,7 +27,7 @@ const purposeReferences = [
     description: "Time-bound promotions, offers, and campaign landing routes.",
   },
   {
-    title: "Referral",
+    title: "Referrals",
     description: "Partner, influencer, affiliate, or referral source tracking.",
   },
   {

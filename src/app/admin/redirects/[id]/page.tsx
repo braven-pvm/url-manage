@@ -42,7 +42,7 @@ export default async function EditRedirectPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
-  const [redirect, categories] = await Promise.all([
+  const [redirect, categories, catalogCategories] = await Promise.all([
     prisma.redirect.findUnique({
       where: { id },
       include: {
@@ -57,6 +57,10 @@ export default async function EditRedirectPage({
       distinct: ["category"],
       orderBy: { category: "asc" },
       select: { category: true },
+    }),
+    prisma.redirectCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { name: true },
     }),
   ]);
 
@@ -139,7 +143,10 @@ export default async function EditRedirectPage({
         redirect={redirect}
         shortUrlBase={shortUrlBase}
         suggestedCategories={mergeCategorySuggestions(
-          categories.map((item) => item.category),
+          [
+            ...categories.map((item) => item.category),
+            ...catalogCategories.map((item) => item.name),
+          ],
         )}
       />
 

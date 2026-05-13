@@ -1,5 +1,6 @@
 import {
-  DEFAULT_CATEGORIES,
+  mergeCategorySuggestions,
+  normalizeCategory,
   REDIRECT_PURPOSES,
 } from "@/lib/redirect-metadata";
 import { AdminCard, Badge, CardHeader, UrlDisplay } from "./ui";
@@ -33,13 +34,11 @@ export function RedirectForm({
   const isEdit = Boolean(redirect);
   const shortUrl =
     redirect?.code && shortUrlBase ? `${shortUrlBase}/${redirect.code}` : null;
-  const categoryOptions = [
-    ...new Set([
-      ...DEFAULT_CATEGORIES,
-      ...suggestedCategories,
-      redirect?.category ?? "General",
-    ]),
-  ];
+  const selectedCategory = normalizeCategory(redirect?.category);
+  const categoryOptions = mergeCategorySuggestions([
+    ...suggestedCategories,
+    selectedCategory,
+  ]);
   const fieldClass =
     "mt-1.5 w-full rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2.5 text-sm text-[var(--pvm-fg)] outline-none transition placeholder:text-[var(--pvm-muted)] focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-600";
   const labelClass =
@@ -139,7 +138,7 @@ export function RedirectForm({
                 </label>
                 <select
                   className={fieldClass}
-                  defaultValue={redirect?.category ?? "General"}
+                  defaultValue={selectedCategory}
                   id="category"
                   name="category"
                 >

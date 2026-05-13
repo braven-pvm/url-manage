@@ -10,12 +10,16 @@ export default async function NewRedirectPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const [params, categories] = await Promise.all([
+  const [params, categories, catalogCategories] = await Promise.all([
     searchParams,
     prisma.redirect.findMany({
       distinct: ["category"],
       orderBy: { category: "asc" },
       select: { category: true },
+    }),
+    prisma.redirectCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { name: true },
     }),
   ]);
 
@@ -31,7 +35,10 @@ export default async function NewRedirectPage({
         error={params.error}
         shortUrlBase={`https://${env.PUBLIC_REDIRECT_HOST}`}
         suggestedCategories={mergeCategorySuggestions(
-          categories.map((item) => item.category),
+          [
+            ...categories.map((item) => item.category),
+            ...catalogCategories.map((item) => item.name),
+          ],
         )}
       />
     </div>
