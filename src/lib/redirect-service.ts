@@ -1,9 +1,12 @@
 import { generateCode, normalizeCode, validateCode } from "./codes";
 import {
-  normalizeCategory,
   normalizePurpose,
   normalizeTags,
 } from "./redirect-metadata";
+import {
+  catalogLabelFromTag,
+  normalizeCatalogName,
+} from "./redirect-taxonomy";
 import { parseDestinationUrl } from "./url-validation";
 
 const GENERATED_CODE_MAX_ATTEMPTS = 5;
@@ -18,6 +21,32 @@ type RedirectLookupRecord = {
 
 type RedirectMutationRecord = {
   id: string;
+};
+
+type RedirectCategoryUpsertArgs = {
+  where: { name: string };
+  create: {
+    name: string;
+    createdBy: string;
+    updatedBy: string;
+  };
+  update: {
+    updatedBy: string;
+  };
+};
+
+type RedirectTagUpsertArgs = {
+  where: { slug: string };
+  create: {
+    slug: string;
+    label: string;
+    createdBy: string;
+    updatedBy: string;
+  };
+  update: {
+    label: string;
+    updatedBy: string;
+  };
 };
 
 export type RedirectDb = {
@@ -77,6 +106,12 @@ export type RedirectDb = {
         utmTerm: string | null;
       };
     }): Promise<unknown>;
+  };
+  redirectCategory?: {
+    upsert(args: RedirectCategoryUpsertArgs): Promise<unknown>;
+  };
+  redirectTag?: {
+    upsert(args: RedirectTagUpsertArgs): Promise<unknown>;
   };
 };
 
@@ -177,6 +212,8 @@ export async function createRedirect(
   }
 
   const attempts = codeSource.generated ? GENERATED_CODE_MAX_ATTEMPTS : 1;
+  const category = normalizeCatalogName(input.category ?? "");
+  const tags = normalizeTags(input.tags);
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const code =
@@ -190,15 +227,17 @@ export async function createRedirect(
           code,
           destinationUrl: destination.url,
           title: input.title?.trim() ?? "",
-          category: normalizeCategory(input.category),
+          category,
           purpose: normalizePurpose(input.purpose),
-          tags: normalizeTags(input.tags),
+          tags,
           description: emptyToNull(input.description),
           notes: emptyToNull(input.notes),
           createdBy: input.actorEmail,
           updatedBy: input.actorEmail,
         },
       });
+
+      await upsertRedirectTaxonomy(db, category, tags, input.actorEmail);
 
       return { ok: true, id: redirect.id };
     } catch (error) {
@@ -226,19 +265,24 @@ export async function updateRedirect(
     return destination;
   }
 
+  const category = normalizeCatalogName(input.category ?? "");
+  const tags = normalizeTags(input.tags);
+
   const redirect = await db.redirect.update({
     where: { id },
     data: {
       destinationUrl: destination.url,
       title: input.title?.trim() ?? "",
-      category: normalizeCategory(input.category),
+      category,
       purpose: normalizePurpose(input.purpose),
-      tags: normalizeTags(input.tags),
+      tags,
       description: emptyToNull(input.description),
       notes: emptyToNull(input.notes),
       updatedBy: input.actorEmail,
     },
   });
+
+  await upsertRedirectTaxonomy(db, category, tags, input.actorEmail);
 
   return { ok: true, id: redirect.id };
 }
@@ -326,4 +370,39 @@ function isDuplicateCodeError(error: unknown): boolean {
     (Array.isArray(target) && target.includes("code")) ||
     target === undefined
   );
+}
+
+async function upsertRedirectTaxonomy(
+  db: RedirectDb,
+  category: string,
+  tags: string[],
+  actorEmail: string,
+): Promise<void> {
+  await db.redirectCategory?.upsert({
+    where: { name: category },
+    create: {
+      name: category,
+      createdBy: actorEmail,
+      updatedBy: actorEmail,
+    },
+    update: { updatedBy: actorEmail },
+  });
+
+  for (const slug of tags) {
+    const label = catalogLabelFromTag(slug);
+
+    await db.redirectTag?.upsert({
+      where: { slug },
+      create: {
+        slug,
+        label,
+        createdBy: actorEmail,
+        updatedBy: actorEmail,
+      },
+      update: {
+        label,
+        updatedBy: actorEmail,
+      },
+    });
+  }
 }
