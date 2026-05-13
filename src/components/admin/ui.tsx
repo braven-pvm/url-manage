@@ -158,13 +158,12 @@ export function MetricCard({
 
 export function UrlDisplay({
   href,
-  label,
   showCopy = false,
-}: Readonly<{ href: string; label: string; showCopy?: boolean }>) {
+}: Readonly<{ href: string; label?: string; showCopy?: boolean }>) {
   return (
     <div className="inline-flex max-w-full items-center gap-2 rounded-md border border-[var(--pvm-border)] bg-[var(--pvm-bg)] px-3 py-2 font-mono text-[12.5px] text-[var(--pvm-teal)]">
       <a className="break-all hover:underline" href={href} rel="noreferrer" target="_blank">
-        {label}
+        {href}
       </a>
       {showCopy ? (
         <CopyButton

@@ -22,13 +22,8 @@ describe("admin UI primitives", () => {
     expect(screen.getByText("energy-bar")).toHaveClass("bg-[var(--pvm-bg)]");
   });
 
-  it("renders full clickable URLs in monospace", () => {
-    render(
-      <UrlDisplay
-        href="https://go.pvm.co.za/ptn-1"
-        label="https://go.pvm.co.za/ptn-1"
-      />,
-    );
+  it("renders the href as the full clickable URL in monospace", () => {
+    render(<UrlDisplay href="https://go.pvm.co.za/ptn-1" />);
 
     expect(
       screen.getByRole("link", { name: "https://go.pvm.co.za/ptn-1" }),
