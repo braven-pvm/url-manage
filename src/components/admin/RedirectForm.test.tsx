@@ -33,7 +33,7 @@ describe("RedirectForm", () => {
     expect(screen.getByLabelText("Code")).toBeDisabled();
     expect(screen.getByLabelText("Category")).toHaveValue("Product");
     expect(
-      screen.getByRole("button", { name: "Save redirect" }),
+      screen.getByRole("button", { name: "Save changes" }),
     ).toBeInTheDocument();
   });
 });

@@ -17,10 +17,9 @@ describe("AdminLayout", () => {
 
     expect(requireAdminEmail).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Protected admin content")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "PVM URL Admin" })).toHaveAttribute(
-      "href",
-      "/admin",
-    );
+    expect(
+      screen.getByRole("link", { name: /PVM URL Admin/ }),
+    ).toHaveAttribute("href", "/admin");
     expect(screen.getByRole("link", { name: "New redirect" })).toHaveAttribute(
       "href",
       "/admin/redirects/new",
