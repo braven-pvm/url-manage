@@ -42,14 +42,23 @@ describe("public redirect route", () => {
     });
 
     const response = await GET(
-      new NextRequest("https://go.pvm.co.za/Care", {
+      new NextRequest(
+        "https://go.pvm.co.za/Care?utm_source=qr&utm_medium=packaging&utm_campaign=energy&utm_content=front&utm_term=bar",
+        {
         headers: {
-          referer: "https://referrer.example/",
+          referer: "https://referrer.example/path",
           "user-agent": "Vitest Browser",
           "x-forwarded-for": "203.0.113.10, 198.51.100.2",
           "x-real-ip": "198.51.100.9",
+          "x-vercel-ip-country": "ZA",
+          "x-vercel-ip-country-region": "Gauteng",
+          "x-vercel-ip-city": "Johannesburg",
+          "x-vercel-ip-timezone": "Africa/Johannesburg",
+          "x-vercel-ip-latitude": "-26.2041",
+          "x-vercel-ip-longitude": "28.0473",
         },
-      }),
+        },
+      ),
       { params: Promise.resolve({ code: "Care" }) },
     );
 
@@ -61,11 +70,23 @@ describe("public redirect route", () => {
       redirectId: "redirect-1",
       requestedCode: "care",
       outcome: "matched",
-      referrer: "https://referrer.example/",
+      referrer: "https://referrer.example/path",
+      referrerHost: "referrer.example",
       userAgent: "Vitest Browser",
       ipHash: createHash("sha256")
         .update("test-salt:203.0.113.10")
         .digest("hex"),
+      country: "ZA",
+      region: "Gauteng",
+      city: "Johannesburg",
+      timezone: "Africa/Johannesburg",
+      latitude: "-26.2041",
+      longitude: "28.0473",
+      utmSource: "qr",
+      utmMedium: "packaging",
+      utmCampaign: "energy",
+      utmContent: "front",
+      utmTerm: "bar",
     });
   });
 
@@ -94,10 +115,22 @@ describe("public redirect route", () => {
       requestedCode: "../admin",
       outcome: "fallback",
       referrer: null,
+      referrerHost: null,
       userAgent: "Vitest Browser",
       ipHash: createHash("sha256")
         .update("pvm-url-local:198.51.100.9")
         .digest("hex"),
+      country: null,
+      region: null,
+      city: null,
+      timezone: null,
+      latitude: null,
+      longitude: null,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+      utmContent: null,
+      utmTerm: null,
     });
   });
 });

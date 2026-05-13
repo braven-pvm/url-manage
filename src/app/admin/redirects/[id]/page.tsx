@@ -4,6 +4,7 @@ import { CopyButton } from "@/components/admin/CopyButton";
 import { RedirectForm } from "@/components/admin/RedirectForm";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { mergeCategorySuggestions } from "@/lib/redirect-metadata";
 import { updateRedirectAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
@@ -112,7 +113,9 @@ export default async function EditRedirectPage({
             action={action}
             error={query.error}
             redirect={redirect}
-            suggestedCategories={categories.map((item) => item.category)}
+            suggestedCategories={mergeCategorySuggestions(
+              categories.map((item) => item.category),
+            )}
           />
         </section>
         <aside className="space-y-6">
@@ -138,8 +141,42 @@ export default async function EditRedirectPage({
                       </time>
                     </div>
                     <p className="mt-3 break-words text-sm text-slate-700">
-                      {event.referrer ?? "No referrer"}
+                      {event.referrerHost ?? event.referrer ?? "No referrer"}
                     </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-600">
+                      {event.city || event.country ? (
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                          {[event.city, event.country].filter(Boolean).join(", ")}
+                        </span>
+                      ) : null}
+                      {event.region ? (
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                          {event.region}
+                        </span>
+                      ) : null}
+                      {event.timezone ? (
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                          {event.timezone}
+                        </span>
+                      ) : null}
+                      {event.utmCampaign ? (
+                        <span className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-[#00539b]">
+                          {event.utmCampaign}
+                        </span>
+                      ) : null}
+                      {event.utmSource || event.utmMedium ? (
+                        <span className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-[#00539b]">
+                          {[event.utmSource, event.utmMedium]
+                            .filter(Boolean)
+                            .join(" / ")}
+                        </span>
+                      ) : null}
+                      {event.ipHash ? (
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono">
+                          ip:{event.ipHash.slice(0, 10)}
+                        </span>
+                      ) : null}
+                    </div>
                     {event.userAgent ? (
                       <p className="mt-1 line-clamp-2 break-words text-xs text-slate-500">
                         {event.userAgent}

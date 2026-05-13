@@ -9,6 +9,8 @@ describe("RedirectForm", () => {
     expect(screen.getByText("Enter a valid URL")).toBeInTheDocument();
     expect(screen.getByLabelText("Title")).toBeRequired();
     expect(screen.getByLabelText("Category")).toHaveValue("General");
+    expect(screen.getByLabelText("Purpose")).toHaveValue("General");
+    expect(screen.getByLabelText("Tags")).toHaveValue("");
     expect(screen.getByLabelText("Destination URL")).toBeRequired();
     expect(
       screen.getByRole("button", { name: "Create redirect" }),
@@ -22,6 +24,8 @@ describe("RedirectForm", () => {
         redirect={{
           code: "care",
           category: "Product",
+          purpose: "Product packaging",
+          tags: ["energy-bar", "qr"],
           destinationUrl: "https://shop.pvm.co.za/care",
           title: "Care",
           description: null,
@@ -32,6 +36,8 @@ describe("RedirectForm", () => {
 
     expect(screen.getByLabelText("Code")).toBeDisabled();
     expect(screen.getByLabelText("Category")).toHaveValue("Product");
+    expect(screen.getByLabelText("Purpose")).toHaveValue("Product packaging");
+    expect(screen.getByLabelText("Tags")).toHaveValue("energy-bar, qr");
     expect(
       screen.getByRole("button", { name: "Save changes" }),
     ).toBeInTheDocument();

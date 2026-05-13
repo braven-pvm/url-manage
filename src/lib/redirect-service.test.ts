@@ -87,6 +87,8 @@ describe("redirect-service", () => {
     const result = await createRedirect(db, {
       code: " Care ",
       category: " Product ",
+      purpose: " Product packaging ",
+      tags: " Energy Bar, QR , energy bar ,, ",
       destinationUrl: " https://shop.pvm.co.za/care ",
       title: " Care ",
       description: "",
@@ -99,6 +101,8 @@ describe("redirect-service", () => {
       data: {
         code: "care",
         category: "Product",
+        purpose: "Product packaging",
+        tags: ["energy-bar", "qr"],
         destinationUrl: "https://shop.pvm.co.za/care",
         title: "Care",
         description: null,
@@ -116,6 +120,8 @@ describe("redirect-service", () => {
     const result = await createRedirect(db, {
       code: "   ",
       category: "   ",
+      purpose: "   ",
+      tags: "   ",
       destinationUrl: "https://shop.pvm.co.za/care",
       title: "Care",
       actorEmail: "admin@pvm.co.za",
@@ -126,6 +132,8 @@ describe("redirect-service", () => {
     expect(call).toBeDefined();
     expect(validateCode(call?.data.code ?? "").ok).toBe(true);
     expect(call?.data.category).toBe("General");
+    expect(call?.data.purpose).toBe("General");
+    expect(call?.data.tags).toEqual([]);
   });
 
   it("maps duplicate code errors to a friendly result", async () => {
@@ -240,6 +248,8 @@ describe("redirect-service", () => {
     const result = await updateRedirect(db, "r1", {
       destinationUrl: " https://shop.pvm.co.za/new ",
       category: " Promo ",
+      purpose: " Event ",
+      tags: "Retail, In-store Demo",
       title: " New ",
       description: " Updated ",
       notes: "",
@@ -252,6 +262,8 @@ describe("redirect-service", () => {
       data: {
         destinationUrl: "https://shop.pvm.co.za/new",
         category: "Promo",
+        purpose: "Event",
+        tags: ["retail", "in-store-demo"],
         title: "New",
         description: "Updated",
         notes: null,
@@ -283,8 +295,20 @@ describe("redirect-service", () => {
         requestedCode: "care",
         outcome: "matched",
         referrer: null,
+        referrerHost: null,
         userAgent: null,
         ipHash: null,
+        country: null,
+        region: null,
+        city: null,
+        timezone: null,
+        latitude: null,
+        longitude: null,
+        utmSource: null,
+        utmMedium: null,
+        utmCampaign: null,
+        utmContent: null,
+        utmTerm: null,
       }),
     ).resolves.toBeUndefined();
   });
@@ -298,8 +322,20 @@ describe("redirect-service", () => {
       requestedCode: "Care",
       outcome: "matched",
       referrer: "https://referrer.example/",
+      referrerHost: "referrer.example",
       userAgent: "Test Browser",
       ipHash: "hash",
+      country: "ZA",
+      region: "Gauteng",
+      city: "Johannesburg",
+      timezone: "Africa/Johannesburg",
+      latitude: "-26.2041",
+      longitude: "28.0473",
+      utmSource: "qr",
+      utmMedium: "packaging",
+      utmCampaign: "energy",
+      utmContent: "front",
+      utmTerm: "bar",
     });
 
     expect(db.clickEvent.create).toHaveBeenCalledWith({
@@ -308,8 +344,20 @@ describe("redirect-service", () => {
         requestedCode: "Care",
         outcome: "matched",
         referrer: "https://referrer.example/",
+        referrerHost: "referrer.example",
         userAgent: "Test Browser",
         ipHash: "hash",
+        country: "ZA",
+        region: "Gauteng",
+        city: "Johannesburg",
+        timezone: "Africa/Johannesburg",
+        latitude: "-26.2041",
+        longitude: "28.0473",
+        utmSource: "qr",
+        utmMedium: "packaging",
+        utmCampaign: "energy",
+        utmContent: "front",
+        utmTerm: "bar",
       },
     });
   });
@@ -323,8 +371,20 @@ describe("redirect-service", () => {
       requestedCode: "../admin",
       outcome: "fallback",
       referrer: null,
+      referrerHost: null,
       userAgent: null,
       ipHash: null,
+      country: null,
+      region: null,
+      city: null,
+      timezone: null,
+      latitude: null,
+      longitude: null,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+      utmContent: null,
+      utmTerm: null,
     });
 
     expect(db.clickEvent.create).toHaveBeenCalledWith({
@@ -333,8 +393,20 @@ describe("redirect-service", () => {
         requestedCode: "../admin",
         outcome: "fallback",
         referrer: null,
+        referrerHost: null,
         userAgent: null,
         ipHash: null,
+        country: null,
+        region: null,
+        city: null,
+        timezone: null,
+        latitude: null,
+        longitude: null,
+        utmSource: null,
+        utmMedium: null,
+        utmCampaign: null,
+        utmContent: null,
+        utmTerm: null,
       },
     });
   });

@@ -1,4 +1,9 @@
 import { generateCode, normalizeCode, validateCode } from "./codes";
+import {
+  normalizeCategory,
+  normalizePurpose,
+  normalizeTags,
+} from "./redirect-metadata";
 import { parseDestinationUrl } from "./url-validation";
 
 const GENERATED_CODE_MAX_ATTEMPTS = 5;
@@ -27,6 +32,8 @@ export type RedirectDb = {
         destinationUrl: string;
         title: string;
         category: string;
+        purpose: string;
+        tags: string[];
         description: string | null;
         notes: string | null;
         createdBy: string;
@@ -39,6 +46,8 @@ export type RedirectDb = {
         destinationUrl: string;
         title: string;
         category: string;
+        purpose: string;
+        tags: string[];
         description: string | null;
         notes: string | null;
         updatedBy: string;
@@ -52,8 +61,20 @@ export type RedirectDb = {
         requestedCode: string;
         outcome: "matched" | "fallback";
         referrer: string | null;
+        referrerHost: string | null;
         userAgent: string | null;
         ipHash: string | null;
+        country: string | null;
+        region: string | null;
+        city: string | null;
+        timezone: string | null;
+        latitude: string | null;
+        longitude: string | null;
+        utmSource: string | null;
+        utmMedium: string | null;
+        utmCampaign: string | null;
+        utmContent: string | null;
+        utmTerm: string | null;
       };
     }): Promise<unknown>;
   };
@@ -73,6 +94,8 @@ export type CreateRedirectInput = {
   destinationUrl: string;
   title?: string;
   category?: string;
+  purpose?: string;
+  tags?: string | string[];
   description?: string;
   notes?: string;
   actorEmail: string;
@@ -93,8 +116,20 @@ export type LogClickInput = {
   requestedCode: string;
   outcome: "matched" | "fallback";
   referrer: string | null;
+  referrerHost: string | null;
   userAgent: string | null;
   ipHash: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  timezone: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  utmContent: string | null;
+  utmTerm: string | null;
 };
 
 export async function getRedirectDestination(
@@ -156,6 +191,8 @@ export async function createRedirect(
           destinationUrl: destination.url,
           title: input.title?.trim() ?? "",
           category: normalizeCategory(input.category),
+          purpose: normalizePurpose(input.purpose),
+          tags: normalizeTags(input.tags),
           description: emptyToNull(input.description),
           notes: emptyToNull(input.notes),
           createdBy: input.actorEmail,
@@ -195,6 +232,8 @@ export async function updateRedirect(
       destinationUrl: destination.url,
       title: input.title?.trim() ?? "",
       category: normalizeCategory(input.category),
+      purpose: normalizePurpose(input.purpose),
+      tags: normalizeTags(input.tags),
       description: emptyToNull(input.description),
       notes: emptyToNull(input.notes),
       updatedBy: input.actorEmail,
@@ -215,8 +254,20 @@ export async function logClickBestEffort(
         requestedCode: input.requestedCode,
         outcome: input.outcome,
         referrer: input.referrer,
+        referrerHost: input.referrerHost,
         userAgent: input.userAgent,
         ipHash: input.ipHash,
+        country: input.country,
+        region: input.region,
+        city: input.city,
+        timezone: input.timezone,
+        latitude: input.latitude,
+        longitude: input.longitude,
+        utmSource: input.utmSource,
+        utmMedium: input.utmMedium,
+        utmCampaign: input.utmCampaign,
+        utmContent: input.utmContent,
+        utmTerm: input.utmTerm,
       },
     });
   } catch {
@@ -250,11 +301,6 @@ function resolveCreateCode(
 function emptyToNull(value: string | undefined): string | null {
   const trimmed = value?.trim() ?? "";
   return trimmed ? trimmed : null;
-}
-
-function normalizeCategory(value: string | undefined): string {
-  const trimmed = value?.trim() ?? "";
-  return trimmed || "General";
 }
 
 function isDuplicateCodeError(error: unknown): boolean {

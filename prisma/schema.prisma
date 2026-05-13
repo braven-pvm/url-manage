@@ -13,6 +13,8 @@ model Redirect {
   destinationUrl String       @map("destination_url")
   title          String
   category       String       @default("General")
+  purpose        String       @default("General")
+  tags           String[]     @default([])
   description    String?
   notes          String?
   createdAt      DateTime     @default(now()) @map("created_at")
@@ -23,6 +25,7 @@ model Redirect {
 
   @@index([createdAt])
   @@index([category])
+  @@index([purpose])
   @@map("redirects")
 }
 
@@ -33,12 +36,26 @@ model ClickEvent {
   requestedCode String    @map("requested_code")
   outcome       String
   referrer      String?
+  referrerHost  String?   @map("referrer_host")
   userAgent     String?   @map("user_agent")
   ipHash        String?   @map("ip_hash")
+  country       String?
+  region        String?
+  city          String?
+  timezone      String?
+  latitude      String?
+  longitude     String?
+  utmSource     String?   @map("utm_source")
+  utmMedium     String?   @map("utm_medium")
+  utmCampaign   String?   @map("utm_campaign")
+  utmContent    String?   @map("utm_content")
+  utmTerm       String?   @map("utm_term")
   createdAt     DateTime  @default(now()) @map("created_at")
 
   @@index([redirectId, createdAt])
   @@index([requestedCode, createdAt])
+  @@index([country, createdAt])
+  @@index([utmCampaign, createdAt])
   @@map("click_events")
 }
 

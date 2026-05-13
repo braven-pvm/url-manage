@@ -1,3 +1,5 @@
+import { REDIRECT_PURPOSES } from "@/lib/redirect-metadata";
+
 type RedirectFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   cancelHref?: string;
@@ -7,6 +9,8 @@ type RedirectFormProps = {
     destinationUrl: string;
     title: string;
     category: string;
+    purpose: string;
+    tags: string[];
     description: string | null;
     notes: string | null;
   };
@@ -98,6 +102,43 @@ export function RedirectForm({
                 ))}
               </datalist>
             ) : null}
+          </div>
+        </div>
+        <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
+          <div>
+            <label
+              className="block text-sm font-semibold text-slate-800"
+              htmlFor="purpose"
+            >
+              Purpose
+            </label>
+            <select
+              className={fieldClass}
+              defaultValue={redirect?.purpose ?? "General"}
+              id="purpose"
+              name="purpose"
+            >
+              {REDIRECT_PURPOSES.map((purpose) => (
+                <option key={purpose} value={purpose}>
+                  {purpose}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-slate-800" htmlFor="tags">
+              Tags
+            </label>
+            <input
+              className={fieldClass}
+              defaultValue={redirect?.tags.join(", ") ?? ""}
+              id="tags"
+              name="tags"
+              placeholder="energy-bar, qr, 2026-campaign"
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Separate tags with commas. They are normalized for search.
+            </p>
           </div>
         </div>
         <div>

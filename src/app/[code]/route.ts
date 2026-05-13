@@ -24,8 +24,20 @@ export async function GET(
     requestedCode: result.code,
     outcome: result.found ? "matched" : "fallback",
     referrer: request.headers.get("referer"),
+    referrerHost: getReferrerHost(request.headers.get("referer")),
     userAgent: request.headers.get("user-agent"),
     ipHash: hashIp(getRequestIp(request)),
+    country: headerValue(request, "x-vercel-ip-country"),
+    region: headerValue(request, "x-vercel-ip-country-region"),
+    city: headerValue(request, "x-vercel-ip-city"),
+    timezone: headerValue(request, "x-vercel-ip-timezone"),
+    latitude: headerValue(request, "x-vercel-ip-latitude"),
+    longitude: headerValue(request, "x-vercel-ip-longitude"),
+    utmSource: searchValue(request, "utm_source"),
+    utmMedium: searchValue(request, "utm_medium"),
+    utmCampaign: searchValue(request, "utm_campaign"),
+    utmContent: searchValue(request, "utm_content"),
+    utmTerm: searchValue(request, "utm_term"),
   });
 
   return NextResponse.redirect(destinationUrl, 302);
@@ -59,4 +71,29 @@ function getRequestIp(request: NextRequest): string | null {
     ?.trim();
 
   return forwardedFor || request.headers.get("x-real-ip");
+}
+
+function headerValue(request: NextRequest, name: string): string | null {
+  return emptyToNull(request.headers.get(name));
+}
+
+function searchValue(request: NextRequest, name: string): string | null {
+  return emptyToNull(request.nextUrl.searchParams.get(name));
+}
+
+function emptyToNull(value: string | null): string | null {
+  const trimmed = value?.trim() ?? "";
+  return trimmed || null;
+}
+
+function getReferrerHost(referrer: string | null): string | null {
+  if (!referrer) {
+    return null;
+  }
+
+  try {
+    return new URL(referrer).hostname;
+  } catch {
+    return null;
+  }
 }

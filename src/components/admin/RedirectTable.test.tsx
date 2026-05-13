@@ -11,6 +11,8 @@ describe("RedirectTable", () => {
             id: "r1",
             code: "care",
             category: "Product",
+            purpose: "Product packaging",
+            tags: ["energy-bar", "qr"],
             title: "Care",
             destinationUrl: "https://shop.pvm.co.za/care",
             updatedAt: new Date("2026-05-12T00:00:00.000Z"),
@@ -22,6 +24,9 @@ describe("RedirectTable", () => {
     );
 
     expect(screen.getByText("Product")).toBeInTheDocument();
+    expect(screen.getByText("Product packaging")).toBeInTheDocument();
+    expect(screen.getByText("energy-bar")).toBeInTheDocument();
+    expect(screen.getByText("qr")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "https://go.pvm.co.za/care" }),
     ).toHaveAttribute("href", "https://go.pvm.co.za/care");

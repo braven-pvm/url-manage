@@ -4,6 +4,8 @@ type RedirectTableRow = {
   id: string;
   code: string;
   category: string;
+  purpose: string;
+  tags: string[];
   title: string;
   destinationUrl: string;
   updatedAt: Date;
@@ -27,10 +29,10 @@ export function RedirectTable({ rows, shortUrlBase }: RedirectTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-      <table className="w-full min-w-[1080px] text-left text-sm">
+      <table className="w-full min-w-[1180px] text-left text-sm">
         <thead className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
           <tr>
-            <th className="w-36 px-4 py-3">Category</th>
+            <th className="w-44 px-4 py-3">Category</th>
             <th className="w-72 px-4 py-3">Short URL</th>
             <th className="px-4 py-3">Title</th>
             <th className="px-4 py-3">Destination</th>
@@ -46,6 +48,9 @@ export function RedirectTable({ rows, shortUrlBase }: RedirectTableProps) {
                 <span className="inline-flex max-w-32 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
                   <span className="truncate">{row.category}</span>
                 </span>
+                <span className="mt-2 block text-xs font-medium text-slate-500">
+                  {row.purpose}
+                </span>
               </td>
               <td className="px-4 py-4 font-mono text-xs">
                 <a
@@ -58,7 +63,19 @@ export function RedirectTable({ rows, shortUrlBase }: RedirectTableProps) {
                 </a>
               </td>
               <td className="px-4 py-4 font-medium text-slate-950">
-                {row.title}
+                <span className="block">{row.title}</span>
+                {row.tags.length > 0 ? (
+                  <span className="mt-2 flex flex-wrap gap-1.5">
+                    {row.tags.slice(0, 4).map((tag) => (
+                      <span
+                        className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-xs font-medium text-[#00539b]"
+                        key={tag}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
               </td>
               <td className="px-4 py-4 font-mono text-xs">
                 <a

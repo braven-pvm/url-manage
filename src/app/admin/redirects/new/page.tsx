@@ -1,5 +1,6 @@
 import { RedirectForm } from "@/components/admin/RedirectForm";
 import { prisma } from "@/lib/prisma";
+import { mergeCategorySuggestions } from "@/lib/redirect-metadata";
 import { createRedirectAction } from "../../actions";
 
 export default async function NewRedirectPage({
@@ -28,7 +29,9 @@ export default async function NewRedirectPage({
       <RedirectForm
         action={createRedirectAction}
         error={params.error}
-        suggestedCategories={categories.map((item) => item.category)}
+        suggestedCategories={mergeCategorySuggestions(
+          categories.map((item) => item.category),
+        )}
       />
     </div>
   );
