@@ -9,6 +9,7 @@ type TagEditorProps = {
   label?: string;
   name: string;
   placeholder?: string;
+  suggestedTags?: string[];
 };
 
 export function TagEditor({
@@ -17,10 +18,16 @@ export function TagEditor({
   label = "Tags",
   name,
   placeholder = "energy-bar, qr, 2026-campaign",
+  suggestedTags = [],
 }: TagEditorProps) {
   const inputId = useId();
   const helpId = useId();
   const [tags, setTags] = useState(() => normalizeTags(defaultTags));
+  const normalizedSuggestions = useMemo(
+    () => normalizeTags(suggestedTags).filter((tag) => tag.length > 0),
+    [suggestedTags],
+  );
+  const customTags = tags.filter((tag) => !normalizedSuggestions.includes(tag));
   const [draft, setDraft] = useState("");
   const hiddenValue = useMemo(() => tags.join(", "), [tags]);
 
@@ -40,6 +47,14 @@ export function TagEditor({
     setTags((current) => current.filter((item) => item !== tag));
   }
 
+  function toggleTag(tag: string) {
+    setTags((current) =>
+      current.includes(tag)
+        ? current.filter((item) => item !== tag)
+        : [...current, tag],
+    );
+  }
+
   return (
     <div>
       <label
@@ -50,9 +65,27 @@ export function TagEditor({
       </label>
       <input name={name} type="hidden" value={hiddenValue} />
       <div className="mt-1.5 rounded-md border border-[var(--pvm-border)] bg-white px-2 py-2 transition focus-within:border-[var(--pvm-teal)] focus-within:ring-2 focus-within:ring-blue-100">
-        {tags.length > 0 ? (
-          <div className="mb-2 flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
+        <div className="flex flex-wrap gap-1.5">
+          {normalizedSuggestions.map((tag) => {
+            const selected = tags.includes(tag);
+
+            return (
+              <button
+                aria-pressed={selected}
+                className={`rounded-md border px-2 py-1 text-xs font-semibold transition ${
+                  selected
+                    ? "border-[var(--pvm-fg)] bg-[var(--pvm-fg)] text-white"
+                    : "border-[var(--pvm-border)] bg-[var(--pvm-bg)] text-[var(--pvm-muted)] hover:border-[var(--pvm-fg)] hover:text-[var(--pvm-fg)]"
+                }`}
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                type="button"
+              >
+                {tag}
+              </button>
+            );
+          })}
+          {customTags.map((tag) => (
               <span
                 className="inline-flex max-w-full items-center gap-1 rounded-md border border-[var(--pvm-border)] bg-[var(--pvm-bg)] px-2 py-1 text-xs font-medium text-[var(--pvm-fg)]"
                 key={tag}
@@ -67,12 +100,11 @@ export function TagEditor({
                   x
                 </button>
               </span>
-            ))}
-          </div>
-        ) : null}
+          ))}
+        </div>
         <input
           aria-describedby={helpId}
-          className="w-full min-w-0 bg-transparent px-1 py-1 text-sm text-[var(--pvm-fg)] outline-none placeholder:text-[var(--pvm-muted)]"
+          className={`${normalizedSuggestions.length || customTags.length ? "mt-2" : ""} w-full min-w-0 bg-transparent px-1 py-1 text-sm text-[var(--pvm-fg)] outline-none placeholder:text-[var(--pvm-muted)]`}
           id={inputId}
           onBlur={() => addTags(draft)}
           onChange={(event) => {

@@ -10,6 +10,7 @@ describe("RedirectForm", () => {
         action={vi.fn()}
         error="Enter a valid URL"
         suggestedCategories={["General", "Fixed", "Temporary", "Referrals"]}
+        suggestedTags={["packaging", "product-page", "social"]}
       />,
     );
 
@@ -17,13 +18,20 @@ describe("RedirectForm", () => {
     expect(screen.getByText("Classification")).toBeInTheDocument();
     expect(screen.getByText("Short URL preview")).toBeInTheDocument();
     expect(screen.getByText("QR Code")).toBeInTheDocument();
+    expect(screen.getByText("Status")).toBeInTheDocument();
     expect(screen.getByText("Coming soon")).toBeInTheDocument();
-    expect(screen.queryByText("Active")).not.toBeInTheDocument();
+    expect(screen.getByText("Active")).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText("Leave blank to auto-generate"),
+      screen.getByPlaceholderText("e.g. oct-22, fusion-v2"),
     ).toBeInTheDocument();
+    expect(screen.getAllByText("go.pvm.co.za/").length).toBeGreaterThan(0);
     expect(screen.getByText("Enter a valid URL")).toBeInTheDocument();
     expect(screen.getByLabelText("Title")).toBeRequired();
+    expect(
+      screen.getByPlaceholderText(
+        "e.g. Fusion Meal Replacement - Packaging Q1 2025",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Category")).toHaveValue("General");
     expect(screen.getByRole("option", { name: "Fixed" })).toBeInTheDocument();
     expect(
@@ -33,6 +41,10 @@ describe("RedirectForm", () => {
     expect(screen.getByLabelText("Purpose")).toHaveValue("General");
     expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue("");
     expect(screen.getByLabelText("Destination URL")).toBeRequired();
+    expect(screen.getByRole("button", { name: "Test" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "packaging" }),
+    ).toHaveAttribute("aria-pressed", "false");
     expect(screen.queryByRole("button", { name: "Create redirect" })).not.toBeInTheDocument();
   });
 
@@ -42,6 +54,7 @@ describe("RedirectForm", () => {
         action={vi.fn()}
         shortUrlBase="https://go.pvm.co.za"
         suggestedCategories={["General", "Fixed", "Temporary", "Product"]}
+        suggestedTags={["energy-bar", "qr", "packaging"]}
         redirect={{
           code: "care",
           category: "Product",
@@ -57,11 +70,14 @@ describe("RedirectForm", () => {
 
     expect(screen.getByText("Short URL preview")).toBeInTheDocument();
     expect(screen.getByText("https://go.pvm.co.za/care")).toBeInTheDocument();
-    expect(screen.getByLabelText("Code")).toBeDisabled();
+    expect(screen.getByLabelText(/Short code/)).toBeDisabled();
     expect(screen.getByLabelText("Category")).toHaveValue("Product");
     expect(screen.getByLabelText("Purpose")).toHaveValue("Product packaging");
     expect(screen.getByText("energy-bar")).toBeInTheDocument();
     expect(screen.getByText("qr")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "energy-bar" }),
+    ).toHaveAttribute("aria-pressed", "true");
     expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue(
       "energy-bar, qr",
     );
@@ -72,7 +88,10 @@ describe("RedirectForm", () => {
     const user = userEvent.setup();
     const { container } = render(<RedirectForm action={vi.fn()} />);
 
-    await user.type(screen.getByLabelText("Tags"), "Retail activation{enter}");
+    await user.type(
+      screen.getByLabelText("Tags - select all that apply"),
+      "Retail activation{enter}",
+    );
 
     expect(screen.getByText("retail-activation")).toBeInTheDocument();
     expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue(

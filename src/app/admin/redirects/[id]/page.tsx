@@ -53,7 +53,7 @@ export default async function RedirectDetailPage({
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const actor = await requireAdminRole(query.mode === "edit" ? "EDITOR" : "VIEWER");
   const canEdit = hasAdminRole(actor.role, "EDITOR");
-  const [redirect, categories, catalogCategories] = await Promise.all([
+  const [redirect, categories, catalogCategories, tagRows, catalogTags] = await Promise.all([
     prisma.redirect.findUnique({
       where: { id },
     }),
@@ -65,6 +65,13 @@ export default async function RedirectDetailPage({
     prisma.redirectCategory.findMany({
       orderBy: { name: "asc" },
       select: { name: true },
+    }),
+    prisma.redirect.findMany({
+      select: { tags: true },
+    }),
+    prisma.redirectTag.findMany({
+      orderBy: { slug: "asc" },
+      select: { slug: true },
     }),
   ]);
 
@@ -111,6 +118,13 @@ export default async function RedirectDetailPage({
     ...categories.map((item) => item.category),
     ...catalogCategories.map((item) => item.name),
   ]);
+  const suggestedTags = [
+    ...new Set([
+      ...tagRows.flatMap((row) => row.tags),
+      ...catalogTags.map((tag) => tag.slug),
+      ...redirect.tags,
+    ]),
+  ].sort();
 
   if (query.mode === "edit") {
     return (
@@ -147,6 +161,7 @@ export default async function RedirectDetailPage({
           redirect={redirect}
           shortUrlBase={shortUrlBase}
           suggestedCategories={suggestedCategories}
+          suggestedTags={suggestedTags}
         />
       </div>
     );

@@ -14,7 +14,7 @@ export default async function NewRedirectPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   await requireAdminRole("EDITOR");
-  const [params, categories, catalogCategories] = await Promise.all([
+  const [params, categories, catalogCategories, tagRows, catalogTags] = await Promise.all([
     searchParams,
     prisma.redirect.findMany({
       distinct: ["category"],
@@ -25,7 +25,20 @@ export default async function NewRedirectPage({
       orderBy: { name: "asc" },
       select: { name: true },
     }),
+    prisma.redirect.findMany({
+      select: { tags: true },
+    }),
+    prisma.redirectTag.findMany({
+      orderBy: { slug: "asc" },
+      select: { slug: true },
+    }),
   ]);
+  const suggestedTags = [
+    ...new Set([
+      ...tagRows.flatMap((row) => row.tags),
+      ...catalogTags.map((tag) => tag.slug),
+    ]),
+  ].sort();
 
   return (
     <div className="space-y-6">
@@ -72,6 +85,7 @@ export default async function NewRedirectPage({
             ...catalogCategories.map((item) => item.name),
           ],
         )}
+        suggestedTags={suggestedTags}
       />
     </div>
   );
