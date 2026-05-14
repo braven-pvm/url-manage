@@ -23,15 +23,17 @@ export function PendingButton({
   type = "submit",
 }: PendingButtonProps) {
   const [clicked, setClicked] = useState(false);
+  const isSubmit = type === "submit";
 
   return (
     <button
       className={className}
       aria-label={ariaLabel}
-      disabled={clicked || disabled}
+      disabled={(!isSubmit && clicked) || disabled}
       form={form}
       onClick={(event) => {
-        if (type !== "submit") {
+        if (!isSubmit) {
+          setClicked(true);
           return;
         }
 
@@ -42,12 +44,10 @@ export function PendingButton({
         if (formElement instanceof HTMLFormElement && !formElement.reportValidity()) {
           return;
         }
-
-        setClicked(true);
       }}
       type={type}
     >
-      {clicked ? pendingText : children}
+      {!isSubmit && clicked ? pendingText : children}
     </button>
   );
 }

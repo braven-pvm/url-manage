@@ -7,6 +7,8 @@ node_modules/
 !.env.example
 next-env.d.ts
 *.tsbuildinfo
+.dev-server*.log
+dev-server*.log
 
 # clerk configuration (can include secrets)
 /.clerk/
