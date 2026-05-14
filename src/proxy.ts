@@ -21,6 +21,39 @@ function isAdminHost(req: Request) {
   );
 }
 
+function requestHost(req: Request) {
+  return req.headers.get("host")?.split(":")[0]?.toLowerCase() ?? null;
+}
+
+export function getPublicAdminHostRedirectUrl(
+  nextUrl: URL,
+  publicHost: string | undefined,
+  adminHost: string | undefined,
+): URL | null {
+  if (
+    !publicHost ||
+    !adminHost ||
+    nextUrl.hostname.toLowerCase() !== publicHost
+  ) {
+    return null;
+  }
+
+  if (
+    !isLegacyAdminRoute(
+      { nextUrl } as Parameters<typeof isLegacyAdminRoute>[0],
+    ) &&
+    !isCleanAdminPath(nextUrl.pathname)
+  ) {
+    return null;
+  }
+
+  const redirectUrl = new URL(nextUrl);
+  redirectUrl.hostname = adminHost;
+  redirectUrl.pathname = cleanAdminPath(nextUrl.pathname);
+
+  return redirectUrl;
+}
+
 export default clerkMiddleware(async (auth, req) => {
   if (
     process.env.NODE_ENV !== "production" &&
@@ -37,6 +70,15 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   const adminHost = isAdminHost(req);
+  const publicAdminRedirectUrl = getPublicAdminHostRedirectUrl(
+    req.nextUrl,
+    process.env.PUBLIC_REDIRECT_HOST?.toLowerCase(),
+    process.env.ADMIN_HOST?.toLowerCase(),
+  );
+
+  if (requestHost(req) && publicAdminRedirectUrl) {
+    return NextResponse.redirect(publicAdminRedirectUrl);
+  }
 
   if (adminHost && req.nextUrl.pathname === "/") {
     const dashboardUrl = req.nextUrl.clone();
