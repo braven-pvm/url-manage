@@ -1,0 +1,661 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PVM URL Admin — Managed Redirects</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#EEF1F5;--surface:#FFFFFF;--fg:#0D1F35;--muted:#6B7280;
+  --border:#E5E7EB;--accent:#F5C400;--navy:#0D1F35;--teal:#0284C7;
+  --green:#16A34A;--amber:#D97706;--purple:#7C3AED;--red:#DC2626;
+  --surface2:#F8FAFC;--sw:224px;--th:54px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code',ui-monospace,'Cascadia Code',monospace;
+  --sh:0 1px 2px rgba(13,31,53,.05),0 1px 3px rgba(13,31,53,.04)
+}
+body{font-family:var(--font);background:var(--bg);color:var(--fg);font-size:14px;line-height:1.5;min-height:100vh}
+.top-stripe{position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);z-index:999}
+.app{display:flex;min-height:100vh;padding-top:3px}
+.sidebar{width:var(--sw);background:var(--navy);position:fixed;top:3px;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sb-brand{height:var(--th);display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.sb-logo{width:30px;height:30px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--navy);flex-shrink:0;letter-spacing:-.02em}
+.sb-name{font-size:12.5px;font-weight:600;color:#fff;letter-spacing:-.01em;line-height:1.1}
+.sb-sub{font-size:9.5px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.sb-nav{flex:1;padding:10px;display:flex;flex-direction:column;gap:2px}
+.sb-section{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.09em;padding:12px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;transition:all .1s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(245,196,0,.11);color:var(--accent)}
+.nav-icon{width:15px;height:15px;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:600;padding:1px 5px;border-radius:8px;background:rgba(255,255,255,.09);color:rgba(255,255,255,.45);font-variant-numeric:tabular-nums}
+.nav-item.active .nav-badge{background:rgba(245,196,0,.18);color:var(--accent)}
+.sb-footer{padding:10px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.user-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;cursor:pointer}
+.user-row:hover{background:rgba(255,255,255,.06)}
+.user-av{width:26px;height:26px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#fff;flex-shrink:0}
+.user-nm{font-size:12px;font-weight:500;color:rgba(255,255,255,.7)}
+.user-rl{font-size:9.5px;color:rgba(255,255,255,.32);margin-top:1px}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:var(--th);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;position:sticky;top:3px;z-index:50;gap:10px}
+.bc{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted)}
+.bc .active{color:var(--fg);font-weight:500}
+.bc .sep{color:var(--border)}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.content{flex:1;padding:24px}
+.view{display:none}
+.view.active{display:block}
+.pg-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:16px}
+.pg-eyebrow{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.pg-title{font-size:22px;font-weight:700;color:var(--fg);letter-spacing:-.02em;line-height:1.2}
+.pg-desc{font-size:13px;color:var(--muted);margin-top:3px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:all .1s;line-height:1;white-space:nowrap}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:#1a3a5c}
+.btn-secondary{background:var(--surface);color:var(--fg);border:1px solid var(--border);box-shadow:var(--sh)}
+.btn-secondary:hover{background:var(--bg)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid transparent}
+.btn-ghost:hover{background:var(--bg);color:var(--fg)}
+.btn-danger{background:#FEF2F2;color:var(--red);border:1px solid #FECACA}
+.btn-danger:hover{background:#FEE2E2}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11.5px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--sh);overflow:hidden}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:var(--fg);letter-spacing:-.01em}
+.card-sub{font-size:11.5px;color:var(--muted);margin-top:1px}
+.card-bd{padding:18px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:var(--sh)}
+.kpi-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.kpi-icon{border-radius:7px;padding:5px;display:flex}
+.kpi-icon.blue{background:#EFF6FF;color:#2563EB}
+.kpi-icon.green{background:#F0FDF4;color:var(--green)}
+.kpi-icon.amber{background:#FFFBEB;color:var(--amber)}
+.kpi-icon.purple{background:#F5F3FF;color:var(--purple)}
+.kpi-val{font-size:26px;font-weight:700;color:var(--fg);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:5px}
+.kpi-delta{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:3px}
+.kpi-delta.up{color:var(--green)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.t-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:9px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 16px;border-bottom:1px solid var(--bg);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--surface2);cursor:pointer}
+.td-code{font-family:var(--mono);font-size:12px;color:var(--teal)}
+.td-dest{font-family:var(--mono);font-size:11.5px;color:var(--muted);max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;font-size:11px;font-weight:500;white-space:nowrap;line-height:1.4}
+.bg-grey{background:#F3F4F6;color:#4B5563}
+.bg-green{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0}
+.bg-amber{background:#FFFBEB;color:#B45309;border:1px solid #FDE68A}
+.bg-blue{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.bg-purple{background:#F5F3FF;color:#6D28D9;border:1px solid #DDD6FE}
+.bg-red{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+.bg-navy{background:rgba(13,31,53,.07);color:#0D1F35;border:1px solid rgba(13,31,53,.18)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);font-weight:500}
+.form-g{margin-bottom:16px}
+.form-g:last-child{margin-bottom:0}
+label{display:block;font-size:12.5px;font-weight:500;color:var(--fg);margin-bottom:4px}
+.lbl-hint{font-weight:400;color:var(--muted);font-size:11.5px}
+input[type=text],input[type=url],input[type=search],input[type=email],input[type=number],select,textarea{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--font);color:var(--fg);background:var(--surface);transition:border-color .12s,box-shadow .12s;outline:none;line-height:1.5}
+input:focus,select:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,31,53,.08)}
+input.mono{font-family:var(--mono);font-size:12.5px}
+.input-pfx-wrap{display:flex;align-items:stretch}
+.input-pfx{display:flex;align-items:center;padding:7px 11px;background:var(--bg);border:1px solid var(--border);border-right:none;border-radius:6px 0 0 6px;font-size:12px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.input-pfx-wrap input{border-radius:0 6px 6px 0}
+textarea{resize:vertical;min-height:72px}
+.form-hint{font-size:11.5px;color:var(--muted);margin-top:3px}
+.grid-2f{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tag-ms{display:flex;flex-wrap:wrap;gap:5px;padding:7px;border:1px solid var(--border);border-radius:6px;min-height:40px;cursor:text;transition:border-color .12s}
+.tag-ms:focus-within{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,31,53,.08)}
+.tag-opt{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:4px;font-size:11.5px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--muted);transition:all .1s}
+.tag-opt:hover{border-color:var(--navy);color:var(--fg)}
+.tag-opt.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+.filter-bar{display:flex;align-items:center;gap:7px;padding:12px 18px;border-bottom:1px solid var(--border)}
+.search-w{position:relative;flex:1;max-width:380px}
+.s-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.s-input{padding-left:32px !important}
+select.flt{width:auto !important;min-width:120px;font-size:12.5px}
+.act-list{list-style:none}
+.act-item{display:flex;align-items:flex-start;gap:11px;padding:11px 18px;border-bottom:1px solid var(--bg)}
+.act-item:last-child{border-bottom:none}
+.dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.d-green{background:var(--green)}.d-blue{background:var(--teal)}.d-amber{background:var(--amber)}.d-grey{background:#D1D5DB}
+.act-body{flex:1}
+.act-main{font-size:13px;color:var(--fg);line-height:1.4}
+.act-main strong{font-weight:600}
+.act-meta{font-size:11.5px;color:var(--muted);margin-top:1px;font-family:var(--mono)}
+.act-time{font-size:11px;color:var(--muted);white-space:nowrap;padding-top:2px}
+.prog{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:5px}
+.prog-fill{height:100%;border-radius:2px;background:var(--navy)}
+.prog-fill.green{background:var(--green)}.prog-fill.amber{background:var(--amber)}.prog-fill.teal{background:var(--teal)}.prog-fill.purple{background:var(--purple)}
+.mbars{display:flex;align-items:flex-end;gap:2px;height:20px}
+.mbar{width:4px;border-radius:1px;background:var(--border)}
+.mbar.hi{background:var(--navy)}
+.url-box{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12.5px;color:var(--teal);white-space:nowrap}
+.copy-btn{margin-left:4px;font-family:var(--font);font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:var(--surface);transition:all .1s}
+.copy-btn:hover{color:var(--fg)}
+.click-hd,.click-row{display:grid;grid-template-columns:1fr 150px 90px 130px;gap:12px;padding:9px 18px;align-items:center;border-bottom:1px solid var(--bg);font-size:12.5px}
+.click-row:last-child{border-bottom:none}
+.click-hd{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);padding-bottom:7px}
+.qr-stub{width:108px;height:108px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;color:var(--muted);font-size:10.5px;text-align:center;line-height:1.3}
+.tgl-wrap{display:flex;align-items:center;gap:10px}
+.tgl{position:relative;width:34px;height:18px;cursor:pointer;flex-shrink:0}
+.tgl input{display:none}
+.tgl-track{position:absolute;inset:0;background:var(--border);border-radius:9px;transition:background .15s}
+.tgl input:checked~.tgl-track{background:var(--navy)}
+.tgl-thumb{position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tgl input:checked~.tgl-thumb{transform:translateX(16px)}
+.mg-item{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--bg)}
+.mg-item:last-child{border-bottom:none}
+.mg-name{font-size:13px;font-weight:500}
+.mg-meta{font-size:11.5px;color:var(--muted);margin-top:1px}
+.mg-actions{display:flex;gap:4px}
+.back-link{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted);cursor:pointer;margin-bottom:14px}
+.back-link:hover{color:var(--fg)}
+.flex{display:flex}.items-center{align-items:center}.gap-6{gap:6px}.gap-8{gap:8px}.gap-12{gap:12px}.ml-auto{margin-left:auto}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.muted{color:var(--muted)}.sm{font-size:12.5px}.xs{font-size:11.5px}.mono{font-family:var(--mono)}.semibold{font-weight:600}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* Access */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.5;margin-bottom:16px;border:1px solid}
+.alert-info{background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF}
+.access-user-row{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--bg);transition:background .08s}
+.access-user-row:last-child{border-bottom:none}
+.access-user-row:hover{background:var(--surface2)}
+.pending-row{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--bg);background:#FAFBFC}
+.pending-row:last-child{border-bottom:none}
+.access-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.pending-av{width:36px;height:36px;border-radius:50%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.access-info{flex:1;min-width:0}
+.access-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.access-email{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:2px}
+.access-audit{font-size:11px;color:#9CA3AF;margin-top:3px}
+.access-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.you-badge{font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;background:var(--bg);color:var(--muted);border:1px solid var(--border);letter-spacing:.02em}
+.role-select{width:auto !important;min-width:140px;padding:5px 9px !important;font-size:12px !important;border-radius:5px;cursor:pointer}
+.role-locked-badge{cursor:default;display:inline-flex;align-items:center;gap:5px;padding:4px 10px}
+.saved-flash{font-size:11px;font-weight:500;color:var(--green);display:flex;align-items:center;gap:3px;animation:flashFade 1.6s ease-out forwards}
+@keyframes flashFade{0%,60%{opacity:1}100%{opacity:0}}
+.cap-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.cap-list li{font-size:12.5px;color:var(--fg);display:flex;align-items:center;gap:8px;line-height:1.4}
+.cap-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cap-dot.yes{background:var(--green)}.cap-dot.no{background:var(--border)}
+.cap-list li.no{color:var(--muted)}
+.modal-overlay{position:fixed;inset:0;background:rgba(13,31,53,.4);display:none;align-items:center;justify-content:center;z-index:800}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 40px rgba(13,31,53,.15);padding:24px;width:420px;max-width:92vw}
+.modal-hd{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px}
+.modal-body{font-size:13px;color:var(--fg);line-height:1.6}
+.modal-body.sub{color:var(--muted);margin-top:4px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:22px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bg);gap:24px}
+.setting-row:last-child{border-bottom:none}
+.setting-lbl{font-size:13px;font-weight:500}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.setting-ctrl{flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="top-stripe"></div>
+<div class="app">
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">P</div>
+    <div><div class="sb-name">PVM URL Admin</div><div class="sb-sub">Managed Redirects</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <div class="nav-item active" data-view="dashboard">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>Dashboard
+    </div>
+    <div class="sb-section">Redirects</div>
+    <div class="nav-item" data-view="redirects">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h9m0 0-3-3m3 3-3 3"/><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/></svg>All Redirects <span class="nav-badge">42</span>
+    </div>
+    <div class="nav-item" data-view="create">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>New Redirect
+    </div>
+    <div class="sb-section">Organisation</div>
+    <div class="nav-item" data-view="tags">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h5.5l6.5 6.5a1.5 1.5 0 0 1 0 2.12l-3.38 3.38a1.5 1.5 0 0 1-2.12 0L2 7.5V2z"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>Tags &amp; Categories
+    </div>
+    <div class="sb-section">System</div>
+    <div class="nav-item" data-view="access">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5h.5"/><rect x="9" y="9" width="6" height="5" rx="1"/><path d="M11 9V7.5a1 1 0 0 1 2 0V9"/></svg>Access
+    </div>
+    <div class="nav-item" data-view="settings">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/></svg>Settings
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="user-row">
+      <div class="user-av">M</div>
+      <div><div class="user-nm">Marius</div><div class="user-rl">Administrator</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="bc" id="bc"><span>PVM URL Admin</span><span class="sep">›</span><span class="active">Dashboard</span></div>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary btn-sm" data-go="settings"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2"/></svg>Settings</button>
+      <button class="btn btn-primary btn-sm" data-go="create"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3v10M3 8h10"/></svg>New redirect</button>
+    </div>
+  </header>
+  <main class="content">
+
+<!-- DASHBOARD -->
+<section class="view active" id="view-dashboard">
+  <div class="pg-header"><div><div class="pg-eyebrow">Admin Console</div><h1 class="pg-title">Dashboard</h1><p class="pg-desc">Overview of redirects and recent activity.</p></div><button class="btn btn-primary" data-go="create"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3v10M3 8h10"/></svg>New redirect</button></div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-lbl">Total Redirects<span class="kpi-icon blue"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h9m0 0-3-3m3 3-3 3"/><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/></svg></span></div><div class="kpi-val">42</div><div class="kpi-delta up"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3l5 8H3l5-8z"/></svg>3 added this week</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total Clicks<span class="kpi-icon green"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v4l2.5 1.5"/></svg></span></div><div class="kpi-val">1,287</div><div class="kpi-delta up"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3l5 8H3l5-8z"/></svg>127 this week</div></div>
+    <div class="kpi"><div class="kpi-lbl">Clicks Today<span class="kpi-icon amber"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v4l2 2"/></svg></span></div><div class="kpi-val">14</div><div class="kpi-delta">As of 10:32 AM</div></div>
+    <div class="kpi"><div class="kpi-lbl">Active<span class="kpi-icon purple"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h5.5l6.5 6.5a1.5 1.5 0 0 1 0 2.12l-3.38 3.38a1.5 1.5 0 0 1-2.12 0L2 7.5V2z"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg></span></div><div class="kpi-val">38</div><div class="kpi-delta">4 paused or expired</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Top Redirects</div><div class="card-sub">By total clicks, all time</div></div><button class="btn btn-ghost btn-sm" data-go="redirects">View all</button></div>
+      <table><thead><tr><th>Redirect</th><th>Purpose</th><th style="text-align:right">Clicks</th></tr></thead>
+      <tbody>
+        <tr data-go="detail"><td><div class="semibold" style="font-size:13px">PVM Energy Bar</div><div class="mono muted xs">go.pvm.co.za/4frr2zc5</div></td><td><span class="badge bg-amber">Campaign</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">286</div><div class="mbars" style="justify-content:flex-end;margin-top:3px"><div class="mbar" style="height:40%"></div><div class="mbar hi" style="height:80%"></div><div class="mbar" style="height:70%"></div><div class="mbar hi" style="height:100%"></div><div class="mbar" style="height:55%"></div></div></td></tr>
+        <tr><td><div class="semibold" style="font-size:13px">Octane Pre-workout</div><div class="mono muted xs">go.pvm.co.za/oct-22</div></td><td><span class="badge bg-blue">Print / QR</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">214</div></td></tr>
+        <tr><td><div class="semibold" style="font-size:13px">Protein XTR — Combo</div><div class="mono muted xs">go.pvm.co.za/xtr-cmb</div></td><td><span class="badge bg-green">Referral</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">198</div></td></tr>
+        <tr><td><div class="semibold" style="font-size:13px">Fusion Meal Replacement</div><div class="mono muted xs">go.pvm.co.za/ptn-1</div></td><td><span class="badge bg-blue">Print / QR</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">147</div></td></tr>
+        <tr><td><div class="semibold" style="font-size:13px">Reignite — Recovery Stack</div><div class="mono muted xs">go.pvm.co.za/rgn-r</div></td><td><span class="badge bg-purple">Event</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">112</div></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Recent Activity</div><div class="card-sub">Latest clicks and changes</div></div></div>
+      <ul class="act-list">
+        <li class="act-item"><div class="dot d-green"></div><div class="act-body"><div class="act-main"><strong>PVM Energy Bar</strong> — matched click</div><div class="act-meta">go.pvm.co.za/4frr2zc5 · No referrer</div></div><div class="act-time">10:32</div></li>
+        <li class="act-item"><div class="dot d-blue"></div><div class="act-body"><div class="act-main">New redirect — <strong>Reactor Sample Pack</strong></div><div class="act-meta">go.pvm.co.za/rct-sp · Print / QR</div></div><div class="act-time">09:15</div></li>
+        <li class="act-item"><div class="dot d-green"></div><div class="act-body"><div class="act-main"><strong>Octane Pre-workout</strong> — matched click</div><div class="act-meta">go.pvm.co.za/oct-22 · instagram.com</div></div><div class="act-time">08:47</div></li>
+        <li class="act-item"><div class="dot d-amber"></div><div class="act-body"><div class="act-main"><strong>Fusion Meal Replacement</strong> — destination updated</div><div class="act-meta" style="font-family:var(--font)">Edited by Marius</div></div><div class="act-time">Yesterday</div></li>
+        <li class="act-item"><div class="dot d-green"></div><div class="act-body"><div class="act-main"><strong>Protein XTR Combo</strong> — matched click</div><div class="act-meta">go.pvm.co.za/xtr-cmb · google.com</div></div><div class="act-time">Yesterday</div></li>
+        <li class="act-item"><div class="dot d-grey"></div><div class="act-body"><div class="act-main"><strong>Summer Promo 2025</strong> — redirect paused</div><div class="act-meta" style="font-family:var(--font)">Campaign expired</div></div><div class="act-time">2 days ago</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card mt-20">
+    <div class="card-hd"><div class="card-title">Purpose breakdown</div><div class="card-sub">Distribution across 42 redirects</div></div>
+    <div class="card-bd g4">
+      <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge bg-blue">Print / QR</span><span class="semibold ml-auto" style="font-variant-numeric:tabular-nums">18</span></div><div class="prog"><div class="prog-fill" style="width:43%"></div></div><div class="xs muted mt-4">43% · 18 redirects</div></div>
+      <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge bg-amber">Campaign</span><span class="semibold ml-auto" style="font-variant-numeric:tabular-nums">12</span></div><div class="prog"><div class="prog-fill amber" style="width:29%"></div></div><div class="xs muted mt-4">29% · 12 redirects</div></div>
+      <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge bg-green">Referral</span><span class="semibold ml-auto" style="font-variant-numeric:tabular-nums">8</span></div><div class="prog"><div class="prog-fill green" style="width:19%"></div></div><div class="xs muted mt-4">19% · 8 redirects</div></div>
+      <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge bg-purple">Event</span><span class="semibold ml-auto" style="font-variant-numeric:tabular-nums">4</span></div><div class="prog"><div class="prog-fill purple" style="width:10%"></div></div><div class="xs muted mt-4">10% · 4 redirects</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REDIRECTS -->
+<section class="view" id="view-redirects">
+  <div class="pg-header"><div><div class="pg-eyebrow">Admin Console</div><h1 class="pg-title">Redirects</h1><p class="pg-desc">Manage stable printed, QR, and campaign URLs.</p></div><button class="btn btn-primary" data-go="create"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3v10M3 8h10"/></svg>New redirect</button></div>
+  <div class="card">
+    <div class="filter-bar">
+      <div class="search-w"><svg class="s-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10L14 14"/></svg><input type="search" class="s-input" placeholder="Code, title, tag, or destination…"></div>
+      <select class="flt"><option>All categories</option><option>General</option><option>Products</option><option>Campaigns</option><option>Events</option><option>Partners</option></select>
+      <select class="flt"><option>All purposes</option><option>Print / QR</option><option>Campaign</option><option>Referral</option><option>Event</option></select>
+      <select class="flt"><option>All statuses</option><option>Active</option><option>Paused</option><option>Expired</option></select>
+      <button class="btn btn-ghost btn-sm ml-auto">Reset</button>
+    </div>
+    <div style="padding:8px 18px;border-bottom:1px solid var(--border);display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+      <span class="xs muted" style="margin-right:2px">Tags:</span>
+      <span class="tag" style="background:var(--navy);color:#fff;border-color:var(--navy);cursor:pointer">All</span>
+      <span class="tag" style="cursor:pointer">packaging</span><span class="tag" style="cursor:pointer">product-page</span><span class="tag" style="cursor:pointer">social</span><span class="tag" style="cursor:pointer">influencer</span><span class="tag" style="cursor:pointer">race-2025</span><span class="tag" style="cursor:pointer">print-run-q1</span><span class="tag" style="cursor:pointer">email</span>
+    </div>
+    <div class="t-wrap">
+      <table>
+        <thead><tr><th style="width:185px">Short URL</th><th>Title / Destination</th><th>Category</th><th>Purpose</th><th>Tags</th><th style="text-align:right">Clicks</th><th>Status</th><th>Updated</th><th style="width:60px"></th></tr></thead>
+        <tbody>
+          <tr data-go="detail"><td class="td-code">go.pvm.co.za/4frr2zc5</td><td><div class="semibold" style="font-size:13px">PVM Energy Bar</div><div class="td-dest">pvm.co.za/product/pvm-energy-bar/</div></td><td><span class="badge bg-grey">General</span></td><td><span class="badge bg-amber">Campaign</span></td><td><div class="tags"><span class="tag">packaging</span><span class="tag">social</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">286</td><td><span class="badge bg-green">Active</span></td><td class="muted sm">2026/05/13</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+          <tr><td class="td-code">go.pvm.co.za/oct-22</td><td><div class="semibold" style="font-size:13px">Octane Pre-workout</div><div class="td-dest">pvm.co.za/product/octane/</div></td><td><span class="badge bg-grey">Products</span></td><td><span class="badge bg-blue">Print / QR</span></td><td><div class="tags"><span class="tag">packaging</span><span class="tag">print-run-q1</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">214</td><td><span class="badge bg-green">Active</span></td><td class="muted sm">2026/05/12</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+          <tr><td class="td-code">go.pvm.co.za/xtr-cmb</td><td><div class="semibold" style="font-size:13px">Protein XTR — Combo</div><div class="td-dest">pvm.co.za/product/protein-xtr/</div></td><td><span class="badge bg-grey">Products</span></td><td><span class="badge bg-green">Referral</span></td><td><div class="tags"><span class="tag">influencer</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">198</td><td><span class="badge bg-green">Active</span></td><td class="muted sm">2026/05/10</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+          <tr><td class="td-code">go.pvm.co.za/ptn-1</td><td><div class="semibold" style="font-size:13px">Fusion Meal Replacement</div><div class="td-dest">pvm.co.za/product/fusion-meal-replacement/</div></td><td><span class="badge bg-grey">General</span></td><td><span class="badge bg-blue">Print / QR</span></td><td><div class="tags"><span class="tag">packaging</span><span class="tag">product-page</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">147</td><td><span class="badge bg-green">Active</span></td><td class="muted sm">2026/05/13</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+          <tr><td class="td-code">go.pvm.co.za/smr-25</td><td><div class="semibold" style="font-size:13px">Summer Promo 2025</div><div class="td-dest">pvm.co.za/summer/</div></td><td><span class="badge bg-grey">Campaigns</span></td><td><span class="badge bg-amber">Campaign</span></td><td><div class="tags"><span class="tag">social</span><span class="tag">instagram</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">89</td><td><span class="badge bg-red">Expired</span></td><td class="muted sm">2026/04/30</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+          <tr><td class="td-code">go.pvm.co.za/tri-ref</td><td><div class="semibold" style="font-size:13px">Triathlon Ref — @runwithme</div><div class="td-dest">pvm.co.za/tri/</div></td><td><span class="badge bg-grey">Partners</span></td><td><span class="badge bg-green">Referral</span></td><td><div class="tags"><span class="tag">influencer</span><span class="tag">race-2025</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">44</td><td><span class="badge bg-grey">Paused</span></td><td class="muted sm">2026/05/01</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+          <tr><td class="td-code">go.pvm.co.za/bm-q1</td><td><div class="semibold" style="font-size:13px">Bulk Muscle Q1 Tub</div><div class="td-dest">pvm.co.za/product/bulk-muscle/</div></td><td><span class="badge bg-grey">Products</span></td><td><span class="badge bg-blue">Print / QR</span></td><td><div class="tags"><span class="tag">packaging</span></div></td><td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">12</td><td><span class="badge bg-green">Active</span></td><td class="muted sm">2026/05/05</td><td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="padding:11px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div class="sm muted">Showing 7 of 42 redirects</div>
+      <div class="flex gap-6"><button class="btn btn-secondary btn-sm">← Prev</button><button class="btn btn-primary btn-sm">1</button><button class="btn btn-secondary btn-sm">2</button><button class="btn btn-secondary btn-sm">3</button><button class="btn btn-secondary btn-sm">Next →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- CREATE -->
+<section class="view" id="view-create">
+  <div class="back-link" data-go="redirects"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>Back to redirects</div>
+  <div class="pg-header" style="margin-bottom:18px"><div><div class="pg-eyebrow">Redirects</div><h1 class="pg-title">New redirect</h1><p class="pg-desc">Create a stable short URL. The code is permanent — the destination can always be updated.</p></div><div class="flex gap-8"><button class="btn btn-secondary" data-go="redirects">Cancel</button><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8l4 4 8-8"/></svg>Save redirect</button></div></div>
+  <div style="display:grid;grid-template-columns:1fr 310px;gap:18px;align-items:start">
+    <div class="flex" style="flex-direction:column;gap:16px">
+      <div class="card"><div class="card-hd"><div class="card-title">Basic information</div></div><div class="card-bd"><div class="form-g"><label>Short code <span class="lbl-hint">— permanent once created</span></label><div class="input-pfx-wrap"><div class="input-pfx">go.pvm.co.za/</div><input type="text" class="mono" id="code-input" placeholder="e.g. oct-22, fusion-v2"></div></div><div class="form-g"><label>Title</label><input type="text" placeholder="e.g. Fusion Meal Replacement — Packaging Q1 2025"></div><div class="form-g"><label>Destination URL</label><div class="flex gap-8"><input type="url" placeholder="https://pvm.co.za/product/…" style="flex:1"><button class="btn btn-secondary btn-sm">Test</button></div></div></div></div>
+      <div class="card"><div class="card-hd"><div><div class="card-title">Classification</div></div></div><div class="card-bd"><div class="grid-2f"><div class="form-g"><label>Category</label><select><option value="">Select…</option><option>General</option><option>Products</option><option>Campaigns</option><option>Events</option><option>Partners</option></select></div><div class="form-g"><label>Purpose</label><select><option value="">Select…</option><option>Print / QR</option><option>Campaign</option><option>Referral</option><option>Event</option><option>General</option></select></div></div><div class="form-g"><label>Tags</label><div class="tag-ms"><span class="tag-opt sel" onclick="this.classList.toggle('sel')">packaging</span><span class="tag-opt" onclick="this.classList.toggle('sel')">product-page</span><span class="tag-opt" onclick="this.classList.toggle('sel')">social</span><span class="tag-opt" onclick="this.classList.toggle('sel')">influencer</span><span class="tag-opt" onclick="this.classList.toggle('sel')">race-2025</span><span class="tag-opt" onclick="this.classList.toggle('sel')">print-run-q1</span><span class="tag-opt" onclick="this.classList.toggle('sel')">email</span></div></div></div></div>
+    </div>
+    <div class="flex" style="flex-direction:column;gap:14px">
+      <div class="card"><div class="card-hd"><div class="card-title">Status</div></div><div class="card-bd"><div class="tgl-wrap"><label class="tgl"><input type="checkbox" checked><div class="tgl-track"></div><div class="tgl-thumb"></div></label><div><div style="font-size:13px;font-weight:500">Active</div><div class="xs muted">Redirect is live and resolving</div></div></div></div></div>
+      <div class="card"><div class="card-hd"><div class="card-title">Short URL preview</div></div><div class="card-bd"><div class="url-box" style="display:flex"><span class="muted">go.pvm.co.za/</span><span id="code-preview" style="color:var(--muted);font-weight:600">—</span><span class="copy-btn" style="margin-left:auto">Copy</span></div></div></div>
+      <div class="card"><div class="card-hd"><div class="card-title">QR Code</div><span class="badge bg-grey" style="font-size:10px">Coming soon</span></div><div class="card-bd" style="display:flex;flex-direction:column;align-items:center;gap:11px"><div class="qr-stub"><svg width="34" height="34" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"><rect x="1" y="1" width="5" height="5" rx="0.5"/><rect x="10" y="1" width="5" height="5" rx="0.5"/><rect x="1" y="10" width="5" height="5" rx="0.5"/><rect x="2.5" y="2.5" width="2" height="2"/><rect x="11.5" y="2.5" width="2" height="2"/><rect x="2.5" y="11.5" width="2" height="2"/></svg><span>Generated after saving</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DETAIL -->
+<section class="view" id="view-detail">
+  <div class="back-link" data-go="redirects"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>Back to redirects</div>
+  <div style="margin-bottom:20px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+      <div><div class="flex gap-6 items-center" style="margin-bottom:5px"><span class="badge bg-amber">Campaign</span><span class="badge bg-green">Active</span></div><h1 class="pg-title">PVM Energy Bar</h1><div style="margin-top:8px;display:flex;align-items:center;gap:9px"><div class="url-box">go.pvm.co.za/4frr2zc5<span class="copy-btn">Copy</span></div></div><div class="sm muted mt-8">→ <span class="mono" style="color:var(--teal)">https://pvm.co.za/product/pvm-energy-bar/</span></div></div>
+      <button class="btn btn-secondary" data-go="create" style="flex-shrink:0">Edit redirect</button>
+    </div>
+    <div class="tags mt-8"><span class="tag">packaging</span><span class="tag">social</span><span class="tag">instagram</span></div>
+  </div>
+  <div class="kpi-grid" style="margin-bottom:18px">
+    <div class="kpi"><div class="kpi-lbl">Total Clicks</div><div class="kpi-val">286</div><div class="kpi-delta up">+23 this week</div></div>
+    <div class="kpi"><div class="kpi-lbl">Last Click</div><div class="kpi-val" style="font-size:16px">Today<br><span style="font-size:12px;font-weight:400;color:var(--muted)">10:32 AM</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Created</div><div class="kpi-val" style="font-size:16px">2026/05/13</div><div class="kpi-delta">By Marius</div></div>
+    <div class="kpi"><div class="kpi-lbl">Code</div><div style="margin-top:6px;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--teal)">4frr2zc5</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Click activity</div><div class="card-sub">Last 14 days · 286 total</div></div></div>
+      <div style="padding:18px">
+        <svg width="100%" height="130" viewBox="0 0 440 130" preserveAspectRatio="none"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0D1F35" stop-opacity=".1"/><stop offset="100%" stop-color="#0D1F35" stop-opacity="0"/></linearGradient></defs><line x1="0" y1="65" x2="440" y2="65" stroke="#E5E7EB" stroke-width=".5"/><line x1="0" y1="130" x2="440" y2="130" stroke="#E5E7EB" stroke-width=".5"/><path d="M0 118 L63 95 L125 85 L188 78 L251 62 L313 30 L376 8 L440 5 L440 130 L0 130 Z" fill="url(#cg)"/><path d="M0 118 L63 95 L125 85 L188 78 L251 62 L313 30 L376 8 L440 5" fill="none" stroke="#0D1F35" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="440" cy="5" r="3.5" fill="#F5C400" stroke="#0D1F35" stroke-width="1.5"/></svg>
+        <div style="display:flex;justify-content:space-between;margin-top:5px"><span class="xs muted">Apr 29</span><span class="xs muted">May 6</span><span class="xs muted">May 13</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Top referrers</div></div>
+      <div class="card-bd">
+        <div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:500">Direct / No referrer</span><span class="sm muted">120 · 42%</span></div><div class="prog"><div class="prog-fill" style="width:42%"></div></div></div>
+        <div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:500">instagram.com</span><span class="sm muted">80 · 28%</span></div><div class="prog"><div class="prog-fill" style="width:28%"></div></div></div>
+        <div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:500">google.com</span><span class="sm muted">40 · 14%</span></div><div class="prog"><div class="prog-fill" style="width:14%"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:500">facebook.com</span><span class="sm muted">26 · 9%</span></div><div class="prog"><div class="prog-fill" style="width:9%"></div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-20">
+    <div class="card-hd"><div class="card-title">Recent clicks</div></div>
+    <div class="click-hd"><span>Referrer</span><span>Device / Browser</span><span>Result</span><span>Timestamp</span></div>
+    <div class="click-row"><span class="mono xs muted">No referrer</span><span class="sm muted">Chrome · Win 10</span><span><span class="badge bg-green">Matched</span></span><span class="mono xs muted">2026/05/13 10:32:19</span></div>
+    <div class="click-row"><span class="mono xs muted">instagram.com</span><span class="sm muted">Safari · iOS 18</span><span><span class="badge bg-green">Matched</span></span><span class="mono xs muted">2026/05/13 09:14:07</span></div>
+    <div class="click-row"><span class="mono xs muted">google.com</span><span class="sm muted">Chrome · Android</span><span><span class="badge bg-green">Matched</span></span><span class="mono xs muted">2026/05/12 16:43:52</span></div>
+  </div>
+</section>
+
+<!-- TAGS -->
+<section class="view" id="view-tags">
+  <div class="pg-header"><div><div class="pg-eyebrow">Organisation</div><h1 class="pg-title">Tags &amp; Categories</h1></div></div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div><div class="card-title">Categories</div><div class="card-sub">5 total</div></div></div><div style="padding:12px 16px;border-bottom:1px solid var(--border)"><div class="flex gap-8"><input type="text" placeholder="New category name…" style="flex:1"><button class="btn btn-primary btn-sm">Add</button></div></div><div><div class="mg-item"><div><div class="mg-name">General</div><div class="mg-meta">12 redirects</div></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Edit</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div><div class="mg-name">Products</div><div class="mg-meta">18 redirects</div></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Edit</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div><div class="mg-name">Campaigns</div><div class="mg-meta">6 redirects</div></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Edit</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div><div class="mg-name">Events</div><div class="mg-meta">4 redirects</div></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Edit</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div><div class="mg-name">Partners</div><div class="mg-meta">2 redirects</div></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Edit</button><button class="btn btn-danger btn-xs">Delete</button></div></div></div></div>
+    <div class="card"><div class="card-hd"><div><div class="card-title">Tags</div><div class="card-sub">8 total</div></div></div><div style="padding:12px 16px;border-bottom:1px solid var(--border)"><div class="flex gap-8"><input type="text" placeholder="New tag…" style="flex:1"><button class="btn btn-primary btn-sm">Add</button></div></div><div><div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">packaging</span><span class="xs muted">14 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">social</span><span class="xs muted">7 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">influencer</span><span class="xs muted">5 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">race-2025</span><span class="xs muted">4 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">email</span><span class="xs muted">3 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div><div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">print-run-q1</span><span class="xs muted">6 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div></div></div>
+  </div>
+</section>
+
+<!-- ACCESS MANAGEMENT -->
+<section class="view" id="view-access">
+  <div class="pg-header">
+    <div><div class="pg-eyebrow">System</div><h1 class="pg-title">Access Management</h1><p class="pg-desc">Control who can access PVM URL Admin and what they can do.</p></div>
+    <button class="btn btn-primary" onclick="openInvite()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>Invite user</button>
+  </div>
+
+  <div class="alert alert-info" id="single-admin-alert" style="display:none">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;margin-top:1px"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5v.5"/></svg>
+    <span>You are the only Administrator. Promote another user to Administrator before you can remove your own access.</span>
+  </div>
+
+  <div class="card" id="invite-panel" style="display:none;margin-bottom:16px">
+    <div class="card-hd">
+      <div><div class="card-title">Invite a new user</div><div class="card-sub">An email invitation will be sent — expires in 7 days</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="closeInvite()" style="padding:4px 8px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <div class="card-bd">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-g" style="flex:1;min-width:200px;margin:0"><label>Email address</label><input type="email" id="invite-email" placeholder="name@domain.com"></div>
+        <div class="form-g" style="width:170px;margin:0"><label>Role</label><select id="invite-role"><option value="viewer">Viewer</option><option value="editor" selected>Editor</option><option value="admin">Administrator</option></select></div>
+        <button class="btn btn-primary" onclick="sendInvite()">Send invite</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd">
+      <div><div class="card-title">Active users</div><div class="card-sub" id="user-count">3 users</div></div>
+    </div>
+    <div id="users-list"></div>
+  </div>
+
+  <div class="card" id="pending-card" style="margin-bottom:16px;display:none">
+    <div class="card-hd"><div><div class="card-title">Pending invites</div><div class="card-sub" id="pending-count">—</div></div></div>
+    <div id="pending-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><div class="card-title">Role capabilities</div><div class="card-sub">What each access level can do</div></div>
+    <div class="card-bd g3">
+      <div><div style="margin-bottom:12px"><span class="badge bg-navy" style="font-size:11.5px;padding:3px 10px">Administrator</span></div><ul class="cap-list"><li><span class="cap-dot yes"></span>Create, edit, and delete redirects</li><li><span class="cap-dot yes"></span>Manage tags and categories</li><li><span class="cap-dot yes"></span>Change system settings</li><li><span class="cap-dot yes"></span>Invite and manage users</li><li><span class="cap-dot yes"></span>View all analytics</li></ul></div>
+      <div><div style="margin-bottom:12px"><span class="badge bg-blue" style="font-size:11.5px;padding:3px 10px">Editor</span></div><ul class="cap-list"><li><span class="cap-dot yes"></span>Create and edit redirects</li><li><span class="cap-dot yes"></span>Manage tags and categories</li><li><span class="cap-dot yes"></span>View all analytics</li><li class="no"><span class="cap-dot no"></span>Cannot manage users</li><li class="no"><span class="cap-dot no"></span>Cannot change system settings</li></ul></div>
+      <div><div style="margin-bottom:12px"><span class="badge bg-grey" style="font-size:11.5px;padding:3px 10px">Viewer</span></div><ul class="cap-list"><li><span class="cap-dot yes"></span>View all redirects</li><li><span class="cap-dot yes"></span>View all analytics</li><li class="no"><span class="cap-dot no"></span>Cannot create or edit redirects</li><li class="no"><span class="cap-dot no"></span>Cannot manage users</li><li class="no"><span class="cap-dot no"></span>Cannot change settings</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="view" id="view-settings">
+  <div class="pg-header"><div><div class="pg-eyebrow">System</div><h1 class="pg-title">Settings</h1><p class="pg-desc">System-wide configuration for redirect behaviour.</p></div></div>
+  <div class="card" style="max-width:680px">
+    <div class="card-hd"><div class="card-title">Redirect behaviour</div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Fallback URL</div><div class="setting-sub">Where unknown or invalid short codes redirect.</div></div><div class="setting-ctrl" style="width:280px"><input type="url" value="https://www.pvm.co.za/" style="font-family:var(--mono);font-size:12px"></div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Short link domain</div><div class="setting-sub">The base domain for all generated short URLs. Contact support to change.</div></div><div class="setting-ctrl"><div class="url-box" style="font-size:12px">go.pvm.co.za</div></div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Expiry notification</div><div class="setting-sub">Days before a campaign redirect expires — email notification is sent.</div></div><div class="setting-ctrl" style="width:80px"><input type="number" value="7" style="text-align:center"></div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Default redirect type</div><div class="setting-sub">HTTP status code used when resolving redirects.</div></div><div class="setting-ctrl" style="width:180px"><select><option selected>301 Permanent</option><option>302 Temporary</option><option>307 Temporary (strict)</option></select></div></div>
+  </div>
+  <div style="margin-top:14px;max-width:680px;display:flex;justify-content:flex-end"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8l4 4 8-8"/></svg>Save settings</button></div>
+</section>
+
+  </main>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-remove">
+  <div class="modal-box">
+    <div class="modal-hd">Remove access</div>
+    <p class="modal-body">Remove <strong id="modal-user-name"></strong> from PVM URL Admin?</p>
+    <p class="modal-body sub" id="modal-user-email" style="font-family:var(--mono);font-size:12px"></p>
+    <p class="modal-body sub" style="margin-top:8px">Their <strong id="modal-user-role"></strong> access will be revoked immediately. They will need to be re-invited to regain access.</p>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="confirmRemove()" style="font-size:13px;padding:7px 14px">Remove access</button></div>
+  </div>
+</div>
+
+<script>
+const viewMeta = {
+  dashboard: { bc: ['PVM URL Admin', 'Dashboard'],        nav: 0 },
+  redirects: { bc: ['Redirects', 'All Redirects'],        nav: 1 },
+  create:    { bc: ['Redirects', 'New Redirect'],         nav: 2 },
+  detail:    { bc: ['Redirects', 'PVM Energy Bar'],       nav: 1 },
+  tags:      { bc: ['Organisation', 'Tags & Categories'], nav: 3 },
+  access:    { bc: ['System', 'Access Management'],       nav: 4 },
+  settings:  { bc: ['System', 'Settings'],                nav: 5 },
+};
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + id);
+  if (el) el.classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item[data-view]');
+  navItems.forEach(n => n.classList.remove('active'));
+  const meta = viewMeta[id];
+  if (meta && navItems[meta.nav]) navItems[meta.nav].classList.add('active');
+  if (meta) {
+    const [s, p] = meta.bc;
+    document.getElementById('bc').innerHTML = `<span>${s}</span><span class="sep">›</span><span class="active">${p}</span>`;
+  }
+  window.scrollTo(0, 0);
+  sessionStorage.setItem('pvm-view', id);
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-go]');
+  if (btn) { e.stopPropagation(); showView(btn.dataset.go); return; }
+  const row = e.target.closest('tr[data-go]');
+  if (row && !e.target.closest('button')) showView(row.dataset.go);
+});
+document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+  item.addEventListener('click', () => showView(item.dataset.view));
+});
+
+const codeInput = document.getElementById('code-input');
+const codePreview = document.getElementById('code-preview');
+if (codeInput && codePreview) {
+  codeInput.addEventListener('input', () => {
+    const v = codeInput.value.trim();
+    codePreview.textContent = v || '—';
+    codePreview.style.color = v ? 'var(--fg)' : 'var(--muted)';
+  });
+}
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!'; btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1200);
+  });
+});
+
+/* ── Access Management state ── */
+let accessUsers = [
+  { id: 1, name: 'Marius van der Merwe', email: 'developer@pvm.co.za', role: 'admin',  isYou: true,  changedBy: 'System',  changedDate: '13 May 2026' },
+  { id: 2, name: 'Sarah Naidoo',         email: 'sarah@pvm.co.za',     role: 'editor', isYou: false, changedBy: 'Marius',  changedDate: '12 May 2026' },
+  { id: 3, name: 'Lebo Dlamini',         email: 'lebo@pvm.co.za',      role: 'viewer', isYou: false, changedBy: 'Marius',  changedDate: '10 May 2026' },
+];
+let pendingInvites = [
+  { id: 1, email: 'info@agencypartner.co.za', role: 'editor', invitedBy: 'Marius', daysAgo: 2, expiresIn: 5 },
+];
+let removeTargetId = null;
+const avColors = ['#1a3a5c', '#0f5132', '#4C1D95', '#7C2D12', '#065F46'];
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initials(n) { return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function roleLabel(r) { return {admin:'Administrator', editor:'Editor', viewer:'Viewer'}[r] || r; }
+function roleCls(r)   { return {admin:'bg-navy', editor:'bg-blue', viewer:'bg-grey'}[r] || 'bg-grey'; }
+function adminCount() { return accessUsers.filter(u => u.role === 'admin').length; }
+
+function renderAccessView() {
+  const lastAdmin = adminCount() === 1;
+  const alertEl = document.getElementById('single-admin-alert');
+  if (alertEl) alertEl.style.display = lastAdmin ? 'flex' : 'none';
+  const countEl = document.getElementById('user-count');
+  if (countEl) countEl.textContent = `${accessUsers.length} ${accessUsers.length === 1 ? 'user' : 'users'}`;
+  const list = document.getElementById('users-list');
+  if (!list) return;
+
+  list.innerHTML = accessUsers.map((u, i) => {
+    const locked = u.role === 'admin' && lastAdmin;
+    const color = avColors[i % avColors.length];
+    const roleCtrl = locked
+      ? `<span class="badge bg-navy role-locked-badge" title="Last Administrator — promote another user first"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="3" y="7" width="10" height="8" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>Administrator</span>`
+      : `<select class="role-select" onchange="changeRole(${u.id}, this.value)"><option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option><option value="editor"${u.role==='editor'?' selected':''}>Editor</option><option value="admin"${u.role==='admin'?' selected':''}>Administrator</option></select>`;
+    const removeDisabled = u.isYou || locked;
+    const removeTitle = u.isYou ? 'You cannot remove your own access' : locked ? 'Cannot remove the last Administrator' : '';
+    const removeBtn = removeDisabled
+      ? `<button class="btn btn-ghost btn-xs" disabled title="${removeTitle}" style="opacity:.3;cursor:not-allowed;min-width:58px">Remove</button>`
+      : `<button class="btn btn-danger btn-xs" onclick="showRemoveModal(${u.id})" style="min-width:58px">Remove</button>`;
+    return `<div class="access-user-row" id="user-row-${u.id}">
+      <div class="access-av" style="background:${color}">${esc(initials(u.name))}</div>
+      <div class="access-info">
+        <div class="access-name">${esc(u.name)}${u.isYou ? '<span class="you-badge">You</span>' : ''}</div>
+        <div class="access-email">${esc(u.email)}</div>
+        <div class="access-audit">Last changed by ${esc(u.changedBy)} · ${esc(u.changedDate)}</div>
+      </div>
+      <div class="access-controls" id="ctrl-${u.id}">${roleCtrl}${removeBtn}</div>
+    </div>`;
+  }).join('');
+  renderPending();
+}
+
+function renderPending() {
+  const card = document.getElementById('pending-card');
+  const list = document.getElementById('pending-list');
+  const count = document.getElementById('pending-count');
+  if (!card || !list) return;
+  card.style.display = pendingInvites.length ? 'block' : 'none';
+  if (count) count.textContent = `${pendingInvites.length} pending`;
+  list.innerHTML = pendingInvites.map(inv => {
+    const dt = inv.daysAgo === 0 ? 'Just now' : `${inv.daysAgo} day${inv.daysAgo !== 1 ? 's' : ''} ago`;
+    return `<div class="pending-row">
+      <div class="pending-av"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#9CA3AF" stroke-width="1.5"><path d="M2 13c0-2.76 2.24-5 5-5h2c2.76 0 5 2.24 5 5"/><circle cx="8" cy="5" r="2.5"/></svg></div>
+      <div class="access-info">
+        <div class="access-name mono" style="font-weight:500;font-size:12.5px">${esc(inv.email)}</div>
+        <div class="access-audit">Invited as ${roleLabel(inv.role)} · by ${esc(inv.invitedBy)} · ${dt} · Expires in ${inv.expiresIn} days</div>
+      </div>
+      <div class="access-controls">
+        <span class="badge ${roleCls(inv.role)}">${roleLabel(inv.role)}</span>
+        <button class="btn btn-ghost btn-xs">Resend</button>
+        <button class="btn btn-danger btn-xs" onclick="cancelInvite(${inv.id})">Cancel</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function changeRole(userId, newRole) {
+  const u = accessUsers.find(u => u.id === userId);
+  if (!u) return;
+  u.role = newRole; u.changedBy = 'Marius'; u.changedDate = 'Just now';
+  const ctrl = document.getElementById(`ctrl-${userId}`);
+  if (ctrl) {
+    const f = document.createElement('span');
+    f.className = 'saved-flash';
+    f.innerHTML = `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 8l4 4 8-8"/></svg> Saved`;
+    ctrl.appendChild(f);
+    setTimeout(() => f.remove(), 1700);
+  }
+  if (newRole === 'admin' || adminCount() <= 1) renderAccessView();
+  else {
+    const a = document.querySelector(`#user-row-${userId} .access-audit`);
+    if (a) a.textContent = 'Last changed by Marius · Just now';
+  }
+}
+
+function showRemoveModal(userId) {
+  const u = accessUsers.find(u => u.id === userId);
+  if (!u) return;
+  removeTargetId = userId;
+  document.getElementById('modal-user-name').textContent = u.name;
+  document.getElementById('modal-user-email').textContent = u.email;
+  document.getElementById('modal-user-role').textContent = roleLabel(u.role);
+  document.getElementById('modal-remove').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-remove').classList.remove('open'); removeTargetId = null; }
+function confirmRemove() { if (!removeTargetId) return; accessUsers = accessUsers.filter(u => u.id !== removeTargetId); closeModal(); renderAccessView(); }
+function cancelInvite(id) { pendingInvites = pendingInvites.filter(i => i.id !== id); renderPending(); }
+function openInvite() { const p = document.getElementById('invite-panel'); if (p) { p.style.display = 'block'; document.getElementById('invite-email').focus(); } }
+function closeInvite() { const p = document.getElementById('invite-panel'); if (p) p.style.display = 'none'; document.getElementById('invite-email').value = ''; }
+function sendInvite() {
+  const el = document.getElementById('invite-email');
+  const email = el.value.trim();
+  const role = document.getElementById('invite-role').value;
+  if (!email || !email.includes('@')) { el.style.borderColor = 'var(--red)'; el.focus(); setTimeout(() => el.style.borderColor = '', 1400); return; }
+  pendingInvites.push({ id: Date.now(), email, role, invitedBy: 'Marius', daysAgo: 0, expiresIn: 7 });
+  closeInvite();
+  renderPending();
+}
+document.getElementById('modal-remove').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+/* Always populate the access view on load so users are never empty */
+renderAccessView();
+
+const saved = sessionStorage.getItem('pvm-view');
+showView(saved && document.getElementById('view-' + saved) ? saved : 'dashboard');
+</script>
+</body>
+</html>
