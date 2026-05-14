@@ -4,13 +4,14 @@ import {
 import { TaxonomyEditableRow } from "@/components/admin/TaxonomyEditableRow";
 import {
   AdminCard,
+  Badge,
+  type BadgeTone,
   CardHeader,
   PageHeader,
   TagChip,
 } from "@/components/admin/ui";
 import { requireAdminRole } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { REDIRECT_PURPOSES } from "@/lib/redirect-metadata";
 import {
   buildTaxonomySummary,
   canDeleteTaxonomyItem,
@@ -32,25 +33,29 @@ export const dynamic = "force-dynamic";
 const purposeReferences = [
   {
     title: "Print / QR",
+    tone: "blue",
     description:
-      "For packaging, printed materials, and QR codes. The short code is locked once created.",
+      "For packaging, printed materials, and QR codes. The short code is locked once created - the destination can always be updated.",
   },
   {
     title: "Campaign",
+    tone: "amber",
     description:
-      "Short-lived URLs for promotions, product launches, or marketing campaigns.",
+      "Short-lived URLs for promotions, product launches, or marketing campaigns. Can be paused or expired once the campaign ends.",
   },
   {
     title: "Referrals",
+    tone: "green",
     description:
-      "Tracks traffic from a specific source - influencer, partner, or affiliate.",
+      "Tracks traffic from a specific source - influencer, partner, or affiliate. Each link is unique to one source for attribution.",
   },
   {
     title: "Event",
+    tone: "purple",
     description:
-      "Race expos, trade shows, demo days. Scoped to a single event.",
+      "Race expos, trade shows, demo days. Scoped to a single event. Typically expires automatically after the event date.",
   },
-];
+] satisfies { title: string; tone: BadgeTone; description: string }[];
 
 const categoryDescriptions = new Map([
   ["General", "Uncategorised or miscellaneous"],
@@ -266,19 +271,18 @@ export default async function AdminTagsPage({
 
       <AdminCard>
         <CardHeader
-          subtitle={`Existing redirect purposes include ${REDIRECT_PURPOSES.length} configured values.`}
+          actions={
+            <span className="text-xs text-[var(--pvm-muted)]">
+              System-defined - not editable
+            </span>
+          }
           title="Purpose types"
         />
-        <div className="grid gap-3 px-5 py-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
           {purposeReferences.map((purpose) => (
-            <div
-              className="rounded-md border border-[var(--pvm-border)] bg-[var(--pvm-bg)] p-4"
-              key={purpose.title}
-            >
-              <h3 className="text-sm font-semibold text-[var(--pvm-fg)]">
-                {purpose.title}
-              </h3>
-              <p className="mt-2 text-xs leading-5 text-[var(--pvm-muted)]">
+            <div key={purpose.title}>
+              <Badge tone={purpose.tone}>{purpose.title}</Badge>
+              <p className="mt-2 max-w-[46ch] text-xs leading-5 text-[var(--pvm-muted)]">
                 {purpose.description}
               </p>
             </div>

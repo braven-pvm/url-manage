@@ -46,6 +46,11 @@ describe("AdminTagsPage", () => {
       screen.getByRole("heading", { name: "Tags & Categories" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Purpose types")).toBeInTheDocument();
+    expect(screen.getByText("System-defined - not editable")).toBeInTheDocument();
+    expect(screen.getByText("Print / QR")).toBeInTheDocument();
+    expect(screen.getByText("Campaign")).toBeInTheDocument();
+    expect(screen.getByText("Referrals")).toBeInTheDocument();
+    expect(screen.getByText("Event")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add category" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add tag" })).toBeInTheDocument();
     expect(screen.getByText("Fixed")).toBeInTheDocument();

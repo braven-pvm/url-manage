@@ -6,10 +6,8 @@ import {
   type BadgeTone,
   CardHeader,
   PageHeader,
-  PrimaryLink,
 } from "@/components/admin/ui";
 import { requireAdminRole } from "@/lib/admin-auth";
-import { hasAdminRole } from "@/lib/admin-roles";
 import {
   formatClickLocation,
   formatClickTimezone,
@@ -71,8 +69,7 @@ function purposeLabel(purpose: string) {
 }
 
 export default async function AdminDashboardPage() {
-  const actor = await requireAdminRole("VIEWER");
-  const canEdit = hasAdminRole(actor.role, "EDITOR");
+  await requireAdminRole("VIEWER");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -148,11 +145,6 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        actions={
-          canEdit ? (
-            <PrimaryLink href="/redirects/new">+ New redirect</PrimaryLink>
-          ) : null
-        }
         description="Overview of redirects and recent activity."
         eyebrow="Admin Console"
         title="Dashboard"
