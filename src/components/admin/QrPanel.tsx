@@ -83,6 +83,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
                 {([500, 1000, 2000] as QrSize[]).map((s) => (
                   <label className="flex cursor-pointer items-center gap-1.5 text-sm" key={s}>
                     <input
+                      aria-label={`${s}px`}
                       checked={size === s}
                       name="qr-size"
                       onChange={() => setSize(s)}
