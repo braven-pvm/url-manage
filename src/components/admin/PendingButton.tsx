@@ -29,25 +29,28 @@ export function PendingButton({
     <button
       className={className}
       aria-label={ariaLabel}
-      disabled={(!isSubmit && clicked) || disabled}
+      disabled={clicked || disabled}
       form={form}
       onClick={(event) => {
-        if (!isSubmit) {
-          setClicked(true);
-          return;
-        }
-
         const formElement = form
           ? document.getElementById(form)
           : event.currentTarget.form;
 
-        if (formElement instanceof HTMLFormElement && !formElement.reportValidity()) {
+        if (
+          isSubmit &&
+          formElement instanceof HTMLFormElement &&
+          !formElement.reportValidity()
+        ) {
           return;
         }
+
+        window.setTimeout(() => {
+          setClicked(true);
+        }, 0);
       }}
       type={type}
     >
-      {!isSubmit && clicked ? pendingText : children}
+      {clicked ? pendingText : children}
     </button>
   );
 }

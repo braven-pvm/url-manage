@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { FormEvent } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { PendingButton } from "./PendingButton";
 
 describe("PendingButton", () => {
-  it("leaves external form submission to the browser without disabling the submitter", async () => {
+  it("leaves external form submission to the browser before locking the submitter", async () => {
     const user = userEvent.setup();
     const submitHandler = vi.fn((event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -34,6 +34,8 @@ describe("PendingButton", () => {
 
     expect(requestSubmit).not.toHaveBeenCalled();
     expect(submitHandler).toHaveBeenCalledOnce();
-    expect(screen.getByRole("button", { name: "Save redirect" })).toBeEnabled();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Saving..." })).toBeDisabled();
+    });
   });
 });
