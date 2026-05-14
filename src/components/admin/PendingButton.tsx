@@ -43,11 +43,6 @@ export function PendingButton({
           return;
         }
 
-        if (formElement instanceof HTMLFormElement && form) {
-          event.preventDefault();
-          formElement.requestSubmit();
-        }
-
         setClicked(true);
       }}
       type={type}

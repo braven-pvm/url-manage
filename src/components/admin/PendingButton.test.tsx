@@ -1,16 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { FormEvent } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { PendingButton } from "./PendingButton";
 
 describe("PendingButton", () => {
-  it("submits an external form explicitly before entering the pending state", async () => {
+  it("leaves external form submission to the browser before entering pending state", async () => {
     const user = userEvent.setup();
-    const requestSubmit = vi.fn();
+    const submitHandler = vi.fn((event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
 
     render(
       <>
-        <form id="redirect-form">
+        <form id="redirect-form" onSubmit={submitHandler}>
           <input name="title" required defaultValue="Octane" />
         </form>
         <PendingButton
@@ -25,13 +28,12 @@ describe("PendingButton", () => {
 
     const form = document.getElementById("redirect-form");
     expect(form).toBeInstanceOf(HTMLFormElement);
-    vi.spyOn(form as HTMLFormElement, "requestSubmit").mockImplementation(
-      requestSubmit,
-    );
+    const requestSubmit = vi.spyOn(form as HTMLFormElement, "requestSubmit");
 
     await user.click(screen.getByRole("button", { name: "Save redirect" }));
 
-    expect(requestSubmit).toHaveBeenCalledOnce();
+    expect(requestSubmit).not.toHaveBeenCalled();
+    expect(submitHandler).toHaveBeenCalledOnce();
     expect(screen.getByRole("button", { name: "Saving..." })).toBeDisabled();
   });
 });

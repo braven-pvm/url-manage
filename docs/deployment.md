@@ -15,7 +15,7 @@ Configure these domains on the same Vercel project:
 
 The same deployment serves both domains. Admin pages live under `/admin`; public redirect URLs use `https://go.pvm.co.za/<code>`.
 
-Vercel domain assignment and DNS control which hostnames expose the deployment today. `PUBLIC_REDIRECT_HOST` and `ADMIN_HOST` are parsed application metadata values, not host-enforcement controls. The app protects admin access by path: `/admin` routes require Clerk authentication and the admin email allowlist.
+Vercel domain assignment and DNS control which hostnames expose the deployment today. `PUBLIC_REDIRECT_HOST` and `ADMIN_HOST` are parsed application metadata values, not host-enforcement controls. The app protects admin access by path: admin routes require Clerk authentication and an active access record.
 
 ## Environment Variables
 
@@ -26,7 +26,6 @@ Set these in Vercel:
 - `CLERK_SECRET_KEY`
 - `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in`
 - `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`
-- `ADMIN_EMAILS`
 - `DEFAULT_FALLBACK_URL`
 - `PUBLIC_REDIRECT_HOST=go.pvm.co.za`
 - `ADMIN_HOST=admin.pvm.co.za`
@@ -56,9 +55,9 @@ This runs `prisma migrate deploy`, which applies committed migration files from 
 
 ## Clerk
 
-Create a Clerk application for the admin console. Enable email/password login. Add SSO providers only when PVM has the identity provider details ready.
+Create a Clerk application for the admin console. Enable email sign-up/sign-in so invited users can accept access emails. Add SSO providers only when PVM has the identity provider details ready.
 
-Put internal administrator email addresses in `ADMIN_EMAILS` as a comma-separated allowlist. Admin routes require Clerk authentication and then check the signed-in email against that allowlist.
+Admin access is managed inside the application at `/access`. Users must have an active local access record after authenticating with Clerk.
 
 ## Manual Verification
 
@@ -67,7 +66,7 @@ Put internal administrator email addresses in `ADMIN_EMAILS` as a comma-separate
 3. Confirm a real Postgres `DATABASE_URL` is provisioned.
 4. If this is the first database setup, run `npm run prisma:migrate -- --name init` locally or in an approved migration environment and commit the generated `prisma/migrations/...`.
 5. Run `npm run prisma:deploy` against the managed Postgres database after migrations are committed.
-6. Sign in to `https://admin.pvm.co.za/admin` with an email listed in `ADMIN_EMAILS`.
+6. Sign in to `https://admin.pvm.co.za` with an email that has an active access record.
 7. Create a redirect with code `care-test`.
 8. Open `https://go.pvm.co.za/care-test` and confirm it redirects to the configured destination.
 9. Open `https://go.pvm.co.za/unknown-test-code` and confirm it redirects to the global fallback URL.

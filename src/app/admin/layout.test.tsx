@@ -24,7 +24,7 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 describe("AdminLayout", () => {
-  it("renders the protected admin shell after requiring an allowlisted admin", async () => {
+  it("renders the protected admin shell after requiring an active admin", async () => {
     render(await AdminLayout({ children: <p>Protected admin content</p> }));
 
     expect(requireAdminRole).toHaveBeenCalledWith("VIEWER");
