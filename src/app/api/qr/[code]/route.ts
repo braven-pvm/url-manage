@@ -4,9 +4,10 @@ import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { generateQrPng, generateQrSvg, type QrDots, type QrScheme } from "@/lib/qr-generator";
 
+const CACHE_CONTROL = "public, max-age=3600";
 const VALID_SCHEMES = new Set<QrScheme>(["brand", "light", "dark"]);
 const VALID_DOTS = new Set<QrDots>(["square", "rounded", "circle"]);
-const VALID_SIZES = new Set([500, 1000, 2000]);
+const VALID_SIZES = new Set<number>([500, 1000, 2000]);
 
 function parseScheme(value: string | null): QrScheme {
   return VALID_SCHEMES.has(value as QrScheme) ? (value as QrScheme) : "brand";
@@ -50,7 +51,7 @@ export async function GET(
     const buffer = await generateQrPng(options);
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": CACHE_CONTROL,
         "Content-Disposition": `inline; filename="qr-${code}.png"`,
         "Content-Type": "image/png",
       },
@@ -60,7 +61,7 @@ export async function GET(
   const svg = generateQrSvg(options);
   return new NextResponse(svg, {
     headers: {
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": CACHE_CONTROL,
       "Content-Disposition": `inline; filename="qr-${code}.svg"`,
       "Content-Type": "image/svg+xml",
     },
