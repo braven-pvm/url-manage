@@ -23,21 +23,55 @@ describe("RedirectTable", () => {
       />,
     );
 
+    expect(
+      screen.getByRole("columnheader", { name: "SHORT URL" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "TITLE / DESTINATION" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "CATEGORY" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "PURPOSE" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "TAGS" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "CLICKS" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "STATUS" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "UPDATED" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Actions" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Product")).toBeInTheDocument();
-    expect(screen.getByText("Product packaging")).toBeInTheDocument();
+    expect(screen.getByText("Print / QR")).toBeInTheDocument();
     expect(screen.getByText("energy-bar")).toBeInTheDocument();
     expect(screen.getByText("qr")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "https://go.pvm.co.za/care" }),
+      screen.getByRole("link", { name: "go.pvm.co.za/care" }),
     ).toHaveAttribute("href", "https://go.pvm.co.za/care");
+    expect(
+      screen.getByRole("link", { name: "go.pvm.co.za/care" }),
+    ).toHaveAttribute("target", "_blank");
     expect(screen.getByRole("link", { name: "Edit" })).toHaveAttribute(
       "href",
-      "/admin/redirects/r1",
+      "/redirects/r1",
     );
-    expect(screen.getByText("Care")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Care" })).toHaveAttribute(
+      "href",
+      "/redirects/r1",
+    );
     expect(
-      screen.getByRole("link", { name: "https://shop.pvm.co.za/care" }),
+      screen.getByRole("link", { name: "shop.pvm.co.za/care" }),
     ).toHaveAttribute("href", "https://shop.pvm.co.za/care");
     expect(screen.getByText("7")).toBeInTheDocument();
+    expect(screen.getByText("Active")).toBeInTheDocument();
   });
 });

@@ -69,6 +69,7 @@ describe("public redirect route", () => {
     expect(logClickBestEffortMock).toHaveBeenCalledWith(prisma, {
       redirectId: "redirect-1",
       requestedCode: "care",
+      redirectUrl: "https://go.pvm.co.za/care",
       outcome: "matched",
       referrer: "https://referrer.example/path",
       referrerHost: "referrer.example",
@@ -113,6 +114,7 @@ describe("public redirect route", () => {
     expect(logClickBestEffortMock).toHaveBeenCalledWith(prisma, {
       redirectId: null,
       requestedCode: "../admin",
+      redirectUrl: "https://go.pvm.co.za/..%2Fadmin",
       outcome: "fallback",
       referrer: null,
       referrerHost: null,
@@ -132,6 +134,27 @@ describe("public redirect route", () => {
       utmContent: null,
       utmTerm: null,
     });
+  });
+
+  it("does not log asset-like fallback requests as redirect clicks", async () => {
+    getRedirectDestinationMock.mockResolvedValue({
+      found: false,
+      code: "favicon.png",
+    });
+
+    const response = await GET(
+      new NextRequest("https://go.pvm.co.za/favicon.png", {
+        headers: {
+          "user-agent": "Vitest Browser",
+        },
+      }),
+      { params: Promise.resolve({ code: "favicon.png" }) },
+    );
+
+    expect(response.status).toBe(404);
+    expect(getRedirectDestination).toHaveBeenCalledWith(prisma, "favicon.png");
+    expect(getGlobalFallbackUrl).not.toHaveBeenCalled();
+    expect(logClickBestEffortMock).not.toHaveBeenCalled();
   });
 });
 

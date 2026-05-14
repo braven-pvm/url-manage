@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminCard, Badge, TagChip, type BadgeTone } from "./ui";
 
 type RedirectTableRow = {
   id: string;
@@ -13,98 +14,164 @@ type RedirectTableRow = {
 };
 
 type RedirectTableProps = {
+  footer?: string;
   rows: RedirectTableRow[];
+  showEditAction?: boolean;
   shortUrlBase: string;
 };
 
-export function RedirectTable({ rows, shortUrlBase }: RedirectTableProps) {
+function badgeTone(value: string): BadgeTone {
+  const normalized = value.toLowerCase();
+
+  if (
+    normalized === "fixed" ||
+    normalized === "print" ||
+    normalized === "print / qr" ||
+    normalized === "product packaging"
+  ) {
+    return "blue";
+  }
+
+  if (
+    normalized === "temporary" ||
+    normalized === "promotion" ||
+    normalized === "campaign"
+  ) {
+    return "amber";
+  }
+
+  if (normalized === "referral" || normalized === "referrals") {
+    return "green";
+  }
+
+  if (normalized === "event") {
+    return "purple";
+  }
+
+  return "grey";
+}
+
+function displayUrl(href: string) {
+  return href.replace(/^https?:\/\//, "");
+}
+
+function displayPurpose(purpose: string) {
+  if (purpose.toLowerCase() === "product packaging") {
+    return "Print / QR";
+  }
+
+  return purpose;
+}
+
+export function RedirectTable({
+  footer,
+  rows,
+  showEditAction = true,
+  shortUrlBase,
+}: RedirectTableProps) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-8 text-sm text-slate-600 shadow-sm">
-        <p className="font-medium text-slate-950">No redirects found.</p>
-        <p className="mt-1">Create a redirect or adjust your filters.</p>
-      </div>
+      <AdminCard className="p-8 text-sm text-[var(--pvm-muted)]">
+        <p className="font-semibold text-[var(--pvm-fg)]">No redirects found.</p>
+        <p className="mt-1">
+          Create a redirect, broaden your search, or reset the current filters.
+        </p>
+      </AdminCard>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-      <table className="w-full min-w-[1180px] text-left text-sm">
-        <thead className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-          <tr>
-            <th className="w-44 px-4 py-3">Category</th>
-            <th className="w-72 px-4 py-3">Short URL</th>
-            <th className="px-4 py-3">Title</th>
-            <th className="px-4 py-3">Destination</th>
-            <th className="w-20 px-4 py-3">Clicks</th>
-            <th className="w-32 px-4 py-3">Updated</th>
-            <th className="w-20 px-4 py-3"></th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
+    <AdminCard>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[1160px] text-left text-sm">
+          <thead className="border-b border-[var(--pvm-border)] bg-[var(--pvm-surface-2)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--pvm-muted)]">
+            <tr>
+              <th className="w-52 px-4 py-3">SHORT URL</th>
+              <th className="min-w-72 px-4 py-3">TITLE / DESTINATION</th>
+              <th className="w-32 px-4 py-3">CATEGORY</th>
+              <th className="w-44 px-4 py-3">PURPOSE</th>
+              <th className="w-48 px-4 py-3">TAGS</th>
+              <th className="w-20 px-4 py-3">CLICKS</th>
+              <th className="w-24 px-4 py-3">STATUS</th>
+              <th className="w-28 px-4 py-3">UPDATED</th>
+              <th className="w-24 px-6 py-3 pr-8">
+                <span className="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+        <tbody className="divide-y divide-[var(--pvm-border)]">
           {rows.map((row) => (
-            <tr className="align-top hover:bg-slate-50" key={row.id}>
+            <tr className="align-top transition hover:bg-[var(--pvm-surface-2)]" key={row.id}>
               <td className="px-4 py-4">
-                <span className="inline-flex max-w-32 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                  <span className="truncate">{row.category}</span>
-                </span>
-                <span className="mt-2 block text-xs font-medium text-slate-500">
-                  {row.purpose}
-                </span>
-              </td>
-              <td className="px-4 py-4 font-mono text-xs">
                 <a
-                  className="break-all text-slate-950 underline-offset-2 hover:underline"
+                  className="whitespace-nowrap font-mono text-[12px] font-semibold leading-5 text-[var(--pvm-teal)] hover:underline"
                   href={`${shortUrlBase}/${row.code}`}
                   rel="noreferrer"
                   target="_blank"
                 >
-                  {shortUrlBase}/{row.code}
+                  {displayUrl(`${shortUrlBase}/${row.code}`)}
                 </a>
               </td>
-              <td className="px-4 py-4 font-medium text-slate-950">
-                <span className="block">{row.title}</span>
-                {row.tags.length > 0 ? (
-                  <span className="mt-2 flex flex-wrap gap-1.5">
-                    {row.tags.slice(0, 4).map((tag) => (
-                      <span
-                        className="rounded-full bg-[#00539b]/10 px-2 py-0.5 text-xs font-medium text-[#00539b]"
-                        key={tag}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </span>
-                ) : null}
-              </td>
-              <td className="px-4 py-4 font-mono text-xs">
+              <td className="px-4 py-4">
+                <Link
+                  className="block font-semibold text-[var(--pvm-fg)] underline-offset-2 hover:text-[var(--pvm-teal)] hover:underline"
+                  href={`/redirects/${row.id}`}
+                >
+                  {row.title}
+                </Link>
                 <a
-                  className="break-all text-slate-700 underline-offset-2 hover:text-slate-950 hover:underline"
+                  className="mt-1 block break-all font-mono text-[12px] leading-5 text-[var(--pvm-muted)] hover:text-[var(--pvm-teal)] hover:underline"
                   href={row.destinationUrl}
                   rel="noreferrer"
                   target="_blank"
                 >
-                  {row.destinationUrl}
+                  {displayUrl(row.destinationUrl)}
                 </a>
               </td>
-              <td className="px-4 py-4 tabular-nums">
+              <td className="px-4 py-4">
+                <Badge tone={badgeTone(row.category)}>{row.category}</Badge>
+              </td>
+              <td className="px-4 py-4">
+                <Badge tone={badgeTone(row.purpose)}>{displayPurpose(row.purpose)}</Badge>
+              </td>
+              <td className="px-4 py-4">
+                {row.tags.length > 0 ? (
+                  <div className="flex max-w-48 flex-wrap gap-1.5">
+                    {row.tags.map((tag) => (
+                      <TagChip key={tag}>{tag}</TagChip>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[12px] text-[var(--pvm-muted)]">None</span>
+                )}
+              </td>
+              <td className="px-4 py-4 tabular-nums text-[var(--pvm-fg)]">
                 {row._count.clickEvents}
               </td>
-              <td className="px-4 py-4 text-slate-600">
+              <td className="px-4 py-4">
+                <Badge tone="green">Active</Badge>
+              </td>
+              <td className="px-4 py-4 text-[var(--pvm-muted)]">
                 {row.updatedAt.toLocaleDateString("en-ZA")}
               </td>
-              <td className="px-4 py-4 text-right">
+              <td className="px-6 py-4 pr-8 text-right">
                 <Link
-                  className="font-medium text-slate-950 underline-offset-2 hover:underline"
-                  href={`/admin/redirects/${row.id}`}
+                  className="text-sm font-semibold text-[var(--pvm-teal)] underline-offset-2 hover:underline"
+                  href={`/redirects/${row.id}`}
                 >
-                  Edit
+                  {showEditAction ? "Edit" : "View"}
                 </Link>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+      {footer ? (
+        <div className="border-t border-[var(--pvm-border)] px-4 py-3 text-sm text-[var(--pvm-muted)]">
+          {footer}
+        </div>
+      ) : null}
+    </AdminCard>
   );
 }

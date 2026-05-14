@@ -14,22 +14,46 @@ type FakeDb = RedirectDb & {
     create: ReturnType<typeof vi.fn<RedirectDb["redirect"]["create"]>>;
     update: ReturnType<typeof vi.fn<RedirectDb["redirect"]["update"]>>;
   };
+  redirectCategory: {
+    upsert: ReturnType<
+      typeof vi.fn<NonNullable<RedirectDb["redirectCategory"]>["upsert"]>
+    >;
+  };
+  redirectTag: {
+    upsert: ReturnType<
+      typeof vi.fn<NonNullable<RedirectDb["redirectTag"]>["upsert"]>
+    >;
+  };
   clickEvent: {
     create: ReturnType<typeof vi.fn<RedirectDb["clickEvent"]["create"]>>;
   };
 };
 
-function fakeDb(): FakeDb {
-  return {
+function fakeDb(options: { catalog?: boolean } = {}): FakeDb {
+  const db: FakeDb = {
     redirect: {
       findUnique: vi.fn<RedirectDb["redirect"]["findUnique"]>(),
       create: vi.fn<RedirectDb["redirect"]["create"]>(),
       update: vi.fn<RedirectDb["redirect"]["update"]>(),
     },
+    redirectCategory: undefined as unknown as FakeDb["redirectCategory"],
+    redirectTag: undefined as unknown as FakeDb["redirectTag"],
     clickEvent: {
       create: vi.fn<RedirectDb["clickEvent"]["create"]>(),
     },
   };
+
+  if (options.catalog) {
+    db.redirectCategory = {
+      upsert:
+        vi.fn<NonNullable<RedirectDb["redirectCategory"]>["upsert"]>(),
+    };
+    db.redirectTag = {
+      upsert: vi.fn<NonNullable<RedirectDb["redirectTag"]>["upsert"]>(),
+    };
+  }
+
+  return db;
 }
 
 describe("redirect-service", () => {
@@ -111,6 +135,88 @@ describe("redirect-service", () => {
         updatedBy: "admin@pvm.co.za",
       },
     });
+  });
+
+  it("upserts category and tags after creating a redirect", async () => {
+    const db = fakeDb({ catalog: true });
+    db.redirect.create.mockResolvedValue({ id: "r1" });
+    db.redirectCategory.upsert.mockResolvedValue({});
+    db.redirectTag.upsert.mockResolvedValue({});
+
+    await expect(
+      createRedirect(db, {
+        code: "care",
+        category: " referalls ",
+        tags: " Energy Bar, QR, energy bar ",
+        destinationUrl: "https://shop.pvm.co.za/care",
+        title: "Care",
+        actorEmail: "admin@pvm.co.za",
+      }),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(db.redirect.create.mock.calls[0]?.[0].data.category).toBe(
+      "Referrals",
+    );
+    expect(db.redirect.create.mock.calls[0]?.[0].data.tags).toEqual([
+      "energy-bar",
+      "qr",
+    ]);
+    expect(db.redirectCategory.upsert).toHaveBeenCalledWith({
+      where: { name: "Referrals" },
+      create: {
+        name: "Referrals",
+        createdBy: "admin@pvm.co.za",
+        updatedBy: "admin@pvm.co.za",
+      },
+      update: { updatedBy: "admin@pvm.co.za" },
+    });
+    expect(db.redirectTag.upsert).toHaveBeenCalledTimes(2);
+    expect(db.redirectTag.upsert).toHaveBeenNthCalledWith(1, {
+      where: { slug: "energy-bar" },
+      create: {
+        slug: "energy-bar",
+        label: "Energy Bar",
+        createdBy: "admin@pvm.co.za",
+        updatedBy: "admin@pvm.co.za",
+      },
+      update: {
+        label: "Energy Bar",
+        updatedBy: "admin@pvm.co.za",
+      },
+    });
+    expect(db.redirectTag.upsert).toHaveBeenNthCalledWith(2, {
+      where: { slug: "qr" },
+      create: {
+        slug: "qr",
+        label: "Qr",
+        createdBy: "admin@pvm.co.za",
+        updatedBy: "admin@pvm.co.za",
+      },
+      update: {
+        label: "Qr",
+        updatedBy: "admin@pvm.co.za",
+      },
+    });
+  });
+
+  it("still creates a redirect when taxonomy sync fails", async () => {
+    const db = fakeDb({ catalog: true });
+    db.redirect.create.mockResolvedValue({ id: "r1" });
+    db.redirectCategory.upsert.mockRejectedValue(new Error("catalog down"));
+
+    await expect(
+      createRedirect(db, {
+        code: "care",
+        category: "Promotion",
+        tags: "QR",
+        destinationUrl: "https://shop.pvm.co.za/care",
+        title: "Care",
+        actorEmail: "admin@pvm.co.za",
+      }),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(db.redirect.create).toHaveBeenCalledTimes(1);
+    expect(db.redirectCategory.upsert).toHaveBeenCalledTimes(1);
   });
 
   it("generates a valid code when create code is blank", async () => {
@@ -272,6 +378,87 @@ describe("redirect-service", () => {
     });
   });
 
+  it("upserts category and tags after updating a redirect", async () => {
+    const db = fakeDb({ catalog: true });
+    db.redirect.update.mockResolvedValue({ id: "r1" });
+    db.redirectCategory.upsert.mockResolvedValue({});
+    db.redirectTag.upsert.mockResolvedValue({});
+
+    await expect(
+      updateRedirect(db, "r1", {
+        destinationUrl: "https://shop.pvm.co.za/new",
+        category: "promotions",
+        tags: ["In Store Demo", "QR"],
+        title: "New",
+        actorEmail: "editor@pvm.co.za",
+      }),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(db.redirect.update.mock.calls[0]?.[0].data.category).toBe(
+      "Promotion",
+    );
+    expect(db.redirect.update.mock.calls[0]?.[0].data.tags).toEqual([
+      "in-store-demo",
+      "qr",
+    ]);
+    expect(db.redirectCategory.upsert).toHaveBeenCalledWith({
+      where: { name: "Promotion" },
+      create: {
+        name: "Promotion",
+        createdBy: "editor@pvm.co.za",
+        updatedBy: "editor@pvm.co.za",
+      },
+      update: { updatedBy: "editor@pvm.co.za" },
+    });
+    expect(db.redirectTag.upsert).toHaveBeenCalledTimes(2);
+    expect(db.redirectTag.upsert).toHaveBeenNthCalledWith(1, {
+      where: { slug: "in-store-demo" },
+      create: {
+        slug: "in-store-demo",
+        label: "In Store Demo",
+        createdBy: "editor@pvm.co.za",
+        updatedBy: "editor@pvm.co.za",
+      },
+      update: {
+        label: "In Store Demo",
+        updatedBy: "editor@pvm.co.za",
+      },
+    });
+    expect(db.redirectTag.upsert).toHaveBeenNthCalledWith(2, {
+      where: { slug: "qr" },
+      create: {
+        slug: "qr",
+        label: "Qr",
+        createdBy: "editor@pvm.co.za",
+        updatedBy: "editor@pvm.co.za",
+      },
+      update: {
+        label: "Qr",
+        updatedBy: "editor@pvm.co.za",
+      },
+    });
+  });
+
+  it("still updates a redirect when taxonomy sync fails", async () => {
+    const db = fakeDb({ catalog: true });
+    db.redirect.update.mockResolvedValue({ id: "r1" });
+    db.redirectCategory.upsert.mockResolvedValue({});
+    db.redirectTag.upsert.mockRejectedValue(new Error("catalog down"));
+
+    await expect(
+      updateRedirect(db, "r1", {
+        destinationUrl: "https://shop.pvm.co.za/new",
+        category: "Promotion",
+        tags: "QR",
+        title: "New",
+        actorEmail: "editor@pvm.co.za",
+      }),
+    ).resolves.toEqual({ ok: true, id: "r1" });
+
+    expect(db.redirect.update).toHaveBeenCalledTimes(1);
+    expect(db.redirectTag.upsert).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects invalid update destinations without updating", async () => {
     const db = fakeDb();
 
@@ -293,6 +480,7 @@ describe("redirect-service", () => {
       logClickBestEffort(db, {
         redirectId: "r1",
         requestedCode: "care",
+        redirectUrl: "https://go.pvm.co.za/care",
         outcome: "matched",
         referrer: null,
         referrerHost: null,
@@ -320,6 +508,7 @@ describe("redirect-service", () => {
     await logClickBestEffort(db, {
       redirectId: "r1",
       requestedCode: "Care",
+      redirectUrl: "https://go.pvm.co.za/Care",
       outcome: "matched",
       referrer: "https://referrer.example/",
       referrerHost: "referrer.example",
@@ -342,6 +531,7 @@ describe("redirect-service", () => {
       data: {
         redirectId: "r1",
         requestedCode: "Care",
+        redirectUrl: "https://go.pvm.co.za/Care",
         outcome: "matched",
         referrer: "https://referrer.example/",
         referrerHost: "referrer.example",
@@ -369,6 +559,7 @@ describe("redirect-service", () => {
     await logClickBestEffort(db, {
       redirectId: null,
       requestedCode: "../admin",
+      redirectUrl: "https://go.pvm.co.za/..%2Fadmin",
       outcome: "fallback",
       referrer: null,
       referrerHost: null,
@@ -391,6 +582,7 @@ describe("redirect-service", () => {
       data: {
         redirectId: null,
         requestedCode: "../admin",
+        redirectUrl: "https://go.pvm.co.za/..%2Fadmin",
         outcome: "fallback",
         referrer: null,
         referrerHost: null,

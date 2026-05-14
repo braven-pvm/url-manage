@@ -9,6 +9,7 @@ describe("SettingsForm", () => {
         action={vi.fn()}
         error="Enter a valid URL"
         fallbackUrl="https://pvm.co.za"
+        shortLinkHost="go.pvm.co.za"
       />,
     );
 
@@ -20,10 +21,12 @@ describe("SettingsForm", () => {
     expect(fallbackUrl).toHaveAttribute("name", "fallbackUrl");
     expect(fallbackUrl).toHaveValue("https://pvm.co.za");
     expect(
-      screen.getByText("Unknown or invalid short URLs redirect here."),
+      screen.getByText("Where unknown or invalid short codes redirect."),
     ).toBeInTheDocument();
+    expect(screen.getByText("go.pvm.co.za")).toBeInTheDocument();
+    expect(screen.getByText("302 Temporary")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Save fallback" }),
+      screen.getByRole("button", { name: "Save settings" }),
     ).toBeInTheDocument();
   });
 });
