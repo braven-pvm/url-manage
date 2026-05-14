@@ -14,9 +14,9 @@ describe("generateQrSvg", () => {
     expect(svg).toContain("#1a2b4a");
   });
 
-  it("uses dark scheme colors when specified", () => {
+  it("uses dark scheme foreground color", () => {
     const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", scheme: "dark" });
-    expect(svg).toContain("#1a2b4a");
+    expect(svg).toContain('fill="#ffffff"'); // modules are white in dark scheme
   });
 
   it("uses circle elements for circle dot style", () => {

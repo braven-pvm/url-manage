@@ -26,7 +26,7 @@ export function generateQrSvg(options: QrOptions): string {
 
   const qr = QRCode.create(url, { errorCorrectionLevel: "H" });
   const n = qr.modules.size;
-  const data = qr.modules.data as unknown as number[];
+  const data = qr.modules.data;
   const total = n + QUIET * 2;
 
   const cells: string[] = [];
@@ -50,16 +50,23 @@ export function generateQrSvg(options: QrOptions): string {
     }
   }
 
+  const LOGO_SIZE_RATIO = 0.22;
+  const LOGO_CORNER_RATIO = 0.12;
+  const LOGO_FONT_RATIO = 0.38;
+  const LOGO_TEXT_Y_RATIO = 0.63;
+
   let logoOverlay = "";
   if (logo) {
     const center = total / 2;
-    const logoSize = total * 0.22;
+    const logoSize = total * LOGO_SIZE_RATIO;
     const lx = center - logoSize / 2;
     const ly = center - logoSize / 2;
-    const rx = logoSize * 0.12;
-    const fontSize = logoSize * 0.38;
-    const textY = ly + logoSize * 0.63;
-    logoOverlay = `<rect x="${lx}" y="${ly}" width="${logoSize}" height="${logoSize}" rx="${rx}" fill="${bg}"/><text x="${center}" y="${textY}" text-anchor="middle" font-size="${fontSize}" font-weight="bold" font-family="system-ui,sans-serif" fill="${fg}">PVM</text>`;
+    const rx = logoSize * LOGO_CORNER_RATIO;
+    const fontSize = logoSize * LOGO_FONT_RATIO;
+    const textY = ly + logoSize * LOGO_TEXT_Y_RATIO;
+    const logoRect = `<rect x="${lx}" y="${ly}" width="${logoSize}" height="${logoSize}" rx="${rx}" fill="${bg}"/>`;
+    const logoText = `<text x="${center}" y="${textY}" text-anchor="middle" font-size="${fontSize}" font-weight="bold" font-family="system-ui,sans-serif" fill="${fg}">PVM</text>`;
+    logoOverlay = `${logoRect}${logoText}`;
   }
 
   return [
