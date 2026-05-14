@@ -2,7 +2,6 @@ import { z } from "zod";
 import { parseDestinationUrl } from "./url-validation";
 
 const envSchema = z.object({
-  ADMIN_EMAILS: z.string().default(""),
   DEFAULT_FALLBACK_URL: z
     .string()
     .refine((value) => parseDestinationUrl(value).ok, {
@@ -31,7 +30,6 @@ export function parseEnv(
 
 export function getEnv(): AppEnv {
   return parseEnv({
-    ADMIN_EMAILS: process.env.ADMIN_EMAILS,
     DEFAULT_FALLBACK_URL: process.env.DEFAULT_FALLBACK_URL,
     PUBLIC_REDIRECT_HOST: process.env.PUBLIC_REDIRECT_HOST,
     ADMIN_HOST: process.env.ADMIN_HOST,
@@ -43,11 +41,3 @@ export const env = new Proxy({} as AppEnv, {
     return getEnv()[property];
   },
 });
-
-export function adminEmailSet(source: AppEnv = getEnv()): Set<string> {
-  return new Set(
-    source.ADMIN_EMAILS.split(",")
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean),
-  );
-}
