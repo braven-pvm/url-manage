@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AdminCard, CardHeader } from "@/components/admin/ui";
 
@@ -61,6 +61,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const latestBlobUrl = useRef<string | null>(null);
 
   // POST mode: refetch blob whenever upload-related state changes
   useEffect(() => {
@@ -92,6 +93,19 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
       cancelled = true;
     };
   }, [logoMode, logoFile, format, size, fg, bg, dots, code]);
+
+  // Keep ref in sync so the unmount cleanup always has the latest value
+  useEffect(() => {
+    latestBlobUrl.current = blobUrl;
+  }, [blobUrl]);
+
+  // Revoke any remaining blob URL when the component unmounts
+  useEffect(
+    () => () => {
+      if (latestBlobUrl.current) URL.revokeObjectURL(latestBlobUrl.current);
+    },
+    [],
+  );
 
   function applyPreset(preset: (typeof PRESETS)[number]) {
     setFg(preset.fg);

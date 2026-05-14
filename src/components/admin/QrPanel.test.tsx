@@ -65,4 +65,10 @@ describe("QrPanel", () => {
     expect(screen.queryByRole("img", { name: "QR code preview" })).not.toBeInTheDocument();
     expect(screen.getByText("Select a file to preview")).toBeInTheDocument();
   });
+
+  it("download button is disabled in upload mode before a file is selected", async () => {
+    render(<QrPanel code="test" />);
+    await userEvent.click(screen.getByLabelText("Upload logo"));
+    expect(screen.getByRole("button", { name: /download svg/i })).toBeDisabled();
+  });
 });
