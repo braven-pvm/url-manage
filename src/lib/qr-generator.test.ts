@@ -9,14 +9,19 @@ describe("generateQrSvg", () => {
     expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
   });
 
-  it("uses brand scheme fg color by default", () => {
+  it("uses default fg color (#1a2b4a) when none specified", () => {
     const svg = generateQrSvg({ url: "https://go.pvm.co.za/test" });
     expect(svg).toContain("#1a2b4a");
   });
 
-  it("uses dark scheme foreground color", () => {
-    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", scheme: "dark" });
-    expect(svg).toContain('fill="#ffffff"'); // modules are white in dark scheme
+  it("applies custom fg color to modules", () => {
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", fg: "#ff0000" });
+    expect(svg).toContain('fill="#ff0000"');
+  });
+
+  it("applies custom bg color to background rect", () => {
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", bg: "#cccccc" });
+    expect(svg).toContain('fill="#cccccc"');
   });
 
   it("uses circle elements for circle dot style", () => {
@@ -29,17 +34,20 @@ describe("generateQrSvg", () => {
     expect(svg).toContain("<rect");
   });
 
-  it("includes PVM text when logo is true", () => {
-    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logo: true });
-    expect(svg).toContain("PVM");
+  it("embeds logoData as image element with preserveAspectRatio", () => {
+    const logoData = "data:image/png;base64,abc123";
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoData });
+    expect(svg).toContain("<image");
+    expect(svg).toContain(logoData);
+    expect(svg).toContain('preserveAspectRatio="xMidYMid meet"');
   });
 
-  it("excludes PVM text when logo is false", () => {
-    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logo: false });
-    expect(svg).not.toContain("PVM");
+  it("renders no image element when logoData is not provided", () => {
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test" });
+    expect(svg).not.toContain("<image");
   });
 
-  it("encodes the full URL into the QR data", () => {
+  it("encodes different URLs into different QR data", () => {
     const svg1 = generateQrSvg({ url: "https://go.pvm.co.za/abc" });
     const svg2 = generateQrSvg({ url: "https://go.pvm.co.za/xyz" });
     expect(svg1).not.toBe(svg2);

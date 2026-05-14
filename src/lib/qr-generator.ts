@@ -1,28 +1,26 @@
 import QRCode from "qrcode";
 import sharp from "sharp";
 
-export type QrScheme = "brand" | "light" | "dark";
 export type QrDots = "square" | "rounded" | "circle";
 
 export interface QrOptions {
   url: string;
-  scheme?: QrScheme;
+  fg?: string;
+  bg?: string;
   dots?: QrDots;
-  logo?: boolean;
+  logoData?: string;
   size?: number;
 }
 
-const SCHEMES: Record<QrScheme, { fg: string; bg: string }> = {
-  brand: { fg: "#1a2b4a", bg: "#ffffff" },
-  light: { fg: "#000000", bg: "#ffffff" },
-  dark: { fg: "#ffffff", bg: "#1a2b4a" },
-};
-
+const DEFAULT_FG = "#1a2b4a";
+const DEFAULT_BG = "#ffffff";
 const QUIET = 4;
+const LOGO_SIZE_RATIO = 0.22;
+const LOGO_CORNER_RATIO = 0.12;
+const LOGO_PADDING_RATIO = 0.15;
 
 export function generateQrSvg(options: QrOptions): string {
-  const { url, scheme = "brand", dots = "square", logo = false } = options;
-  const { fg, bg } = SCHEMES[scheme];
+  const { url, fg = DEFAULT_FG, bg = DEFAULT_BG, dots = "square", logoData } = options;
 
   const qr = QRCode.create(url, { errorCorrectionLevel: "H" });
   const n = qr.modules.size;
@@ -50,23 +48,20 @@ export function generateQrSvg(options: QrOptions): string {
     }
   }
 
-  const LOGO_SIZE_RATIO = 0.22;
-  const LOGO_CORNER_RATIO = 0.12;
-  const LOGO_FONT_RATIO = 0.38;
-  const LOGO_TEXT_Y_RATIO = 0.63;
-
   let logoOverlay = "";
-  if (logo) {
+  if (logoData) {
     const center = total / 2;
     const logoSize = total * LOGO_SIZE_RATIO;
     const lx = center - logoSize / 2;
     const ly = center - logoSize / 2;
     const rx = logoSize * LOGO_CORNER_RATIO;
-    const fontSize = logoSize * LOGO_FONT_RATIO;
-    const textY = ly + logoSize * LOGO_TEXT_Y_RATIO;
+    const padding = logoSize * LOGO_PADDING_RATIO;
+    const innerX = lx + padding;
+    const innerY = ly + padding;
+    const innerSize = logoSize - padding * 2;
     const logoRect = `<rect x="${lx}" y="${ly}" width="${logoSize}" height="${logoSize}" rx="${rx}" fill="${bg}"/>`;
-    const logoText = `<text x="${center}" y="${textY}" text-anchor="middle" font-size="${fontSize}" font-weight="bold" font-family="system-ui,sans-serif" fill="${fg}">PVM</text>`;
-    logoOverlay = `${logoRect}${logoText}`;
+    const logoImage = `<image href="${logoData}" x="${innerX}" y="${innerY}" width="${innerSize}" height="${innerSize}" preserveAspectRatio="xMidYMid meet"/>`;
+    logoOverlay = `${logoRect}${logoImage}`;
   }
 
   return [
