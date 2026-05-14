@@ -32,6 +32,7 @@ describe("generateQrSvg", () => {
   it("uses rect elements for square dot style", () => {
     const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", dots: "square" });
     expect(svg).toContain("<rect");
+    expect(svg).not.toContain("<circle");
   });
 
   it("embeds logoData as image element with preserveAspectRatio", () => {
