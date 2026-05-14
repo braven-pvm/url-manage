@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import AdminTagsPage from "./page";
 import { prisma } from "@/lib/prisma";
@@ -50,11 +51,17 @@ describe("AdminTagsPage", () => {
     expect(screen.getByText("Fixed")).toBeInTheDocument();
     expect(screen.getByText("packaging")).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Rename category Fixed"),
-    ).toHaveValue("Fixed");
-    expect(screen.getByLabelText("Rename tag packaging")).toHaveValue(
-      "packaging",
-    );
+      screen.queryByRole("textbox", { name: "Rename category Fixed" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("textbox", { name: "Rename tag packaging" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Rename category Fixed" }),
+    ).toHaveTextContent("Edit");
+    expect(
+      screen.getByRole("button", { name: "Rename tag packaging" }),
+    ).toHaveTextContent("Edit");
     expect(
       screen.getByRole("button", { name: "Delete tag packaging" }),
     ).toBeDisabled();
@@ -62,5 +69,16 @@ describe("AdminTagsPage", () => {
       screen.getByRole("button", { name: "Delete category Fixed" }),
     ).toBeDisabled();
     expect(prisma.redirect.findMany).toHaveBeenCalled();
+  });
+
+  it("opens a rename field only after clicking Edit", async () => {
+    const user = userEvent.setup();
+    render(await AdminTagsPage());
+
+    await user.click(screen.getByRole("button", { name: "Rename category Fixed" }));
+
+    expect(screen.getByLabelText("Rename category Fixed")).toHaveValue("Fixed");
+    expect(screen.getByRole("button", { name: "Rename" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 });

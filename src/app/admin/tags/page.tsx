@@ -1,6 +1,7 @@
 import {
   FormPendingButton,
 } from "@/components/admin/PendingButton";
+import { TaxonomyEditableRow } from "@/components/admin/TaxonomyEditableRow";
 import {
   AdminCard,
   CardHeader,
@@ -113,59 +114,23 @@ function TaxonomyRows({
         const deleteLabel = `Delete ${noun} ${item.name}`;
 
         return (
-          <div
-            className="grid gap-3 px-5 py-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start"
+          <TaxonomyEditableRow
+            deleteAction={deleteAction}
+            deleteDisabled={!deleteCheck.ok}
+            deleteLabel={deleteLabel}
+            deleteMessage={deleteCheck.ok ? undefined : deleteCheck.message}
+            detail={`${formatNumber(item.count)} redirects${
+              type === "category"
+                ? ` - ${categoryDescriptions.get(item.name) ?? "Admin grouping"}`
+                : ""
+            }`}
+            inputLabel={renameLabel}
             key={item.name}
+            name={item.name}
+            renameAction={renameAction}
           >
-            <div className="min-w-0">
-              <div className="text-sm font-semibold text-[var(--pvm-fg)]">
-                {renderName(item.name)}
-              </div>
-              <p className="mt-1 text-xs text-[var(--pvm-muted)]">
-                {formatNumber(item.count)} redirects
-                {type === "category"
-                  ? ` - ${categoryDescriptions.get(item.name) ?? "Admin grouping"}`
-                  : ""}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <form action={renameAction} className="flex min-w-0 flex-1 items-center gap-2">
-                  <label className="sr-only" htmlFor={`rename-${type}-${item.name}`}>
-                    {renameLabel}
-                  </label>
-                  <input
-                    className="min-w-0 flex-1 rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2 text-sm text-[var(--pvm-fg)] outline-none transition focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100"
-                    defaultValue={item.name}
-                    id={`rename-${type}-${item.name}`}
-                    name="name"
-                    type="text"
-                  />
-                  <FormPendingButton
-                    className="shrink-0 rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--pvm-fg)] shadow-sm transition hover:border-[var(--pvm-fg)] disabled:opacity-70"
-                    pendingText="Saving..."
-                  >
-                    Rename
-                  </FormPendingButton>
-                </form>
-                <form action={deleteAction} className="shrink-0">
-                  <FormPendingButton
-                    ariaLabel={deleteLabel}
-                    className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={!deleteCheck.ok}
-                    pendingText="Deleting..."
-                  >
-                    Delete
-                  </FormPendingButton>
-                </form>
-              </div>
-              {!deleteCheck.ok ? (
-                <p className="text-right text-[11px] text-[var(--pvm-muted)]">
-                  {deleteCheck.message}
-                </p>
-              ) : null}
-            </div>
-          </div>
+            {renderName(item.name)}
+          </TaxonomyEditableRow>
         );
       })}
     </div>
@@ -195,12 +160,12 @@ function AddTaxonomyForm({
         placeholder={placeholder}
         type="text"
       />
-      <button
-        className="rounded-md bg-[var(--pvm-fg)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1a3a5c]"
-        type="submit"
+      <FormPendingButton
+        className="rounded-md bg-[var(--pvm-fg)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1a3a5c] disabled:opacity-70"
+        pendingText="Adding..."
       >
         {buttonLabel}
-      </button>
+      </FormPendingButton>
     </form>
   );
 }
