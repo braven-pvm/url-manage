@@ -3,7 +3,14 @@ import type { ReactNode } from "react";
 
 import { CopyButton } from "./CopyButton";
 
-export type BadgeTone = "grey" | "green" | "amber" | "blue" | "purple" | "red";
+export type BadgeTone =
+  | "grey"
+  | "green"
+  | "amber"
+  | "blue"
+  | "purple"
+  | "red"
+  | "navy";
 
 const badgeClasses: Record<BadgeTone, string> = {
   grey: "border border-slate-200 bg-slate-100 text-slate-700",
@@ -12,6 +19,7 @@ const badgeClasses: Record<BadgeTone, string> = {
   blue: "border border-blue-200 bg-blue-50 text-blue-700",
   purple: "border border-violet-200 bg-violet-50 text-violet-700",
   red: "border border-red-200 bg-red-50 text-red-700",
+  navy: "border border-slate-300 bg-slate-100 text-[var(--pvm-fg)]",
 };
 
 type WithChildren = Readonly<{
@@ -22,7 +30,7 @@ type WithChildren = Readonly<{
 export function AdminCard({ children, className = "" }: WithChildren) {
   return (
     <section
-      className={`overflow-hidden rounded-[10px] border border-[var(--pvm-border)] bg-[var(--pvm-surface)] shadow-sm ${className}`}
+      className={`overflow-hidden rounded-lg border border-[var(--pvm-border)] bg-[var(--pvm-surface)] shadow-sm ${className}`}
     >
       {children}
     </section>
@@ -93,7 +101,7 @@ export function PrimaryLink({
 }: Readonly<{ children: ReactNode; href: string }>) {
   return (
     <Link
-      className="inline-flex items-center rounded-md bg-[var(--pvm-fg)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1a3a5c]"
+      className="inline-flex items-center rounded-md bg-[var(--pvm-fg)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1a3a5c]"
       href={href}
     >
       {children}
@@ -107,7 +115,7 @@ export function SecondaryAnchor({
 }: Readonly<{ children: ReactNode; href: string }>) {
   return (
     <a
-      className="inline-flex items-center rounded-md border border-[var(--pvm-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--pvm-fg)] transition hover:border-[var(--pvm-fg)]"
+      className="inline-flex items-center rounded-md border border-[var(--pvm-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--pvm-fg)] shadow-sm transition hover:border-[var(--pvm-fg)]"
       href={href}
       rel="noreferrer"
       target="_blank"
@@ -123,7 +131,7 @@ export function Badge({
 }: Readonly<{ children: ReactNode; tone?: BadgeTone }>) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium leading-5 ${badgeClasses[tone]}`}
+      className={`inline-flex max-w-full items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium leading-5 ${badgeClasses[tone]}`}
     >
       {children}
     </span>
@@ -132,7 +140,7 @@ export function Badge({
 
 export function TagChip({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <span className="inline-flex items-center rounded border border-[var(--pvm-border)] bg-[var(--pvm-bg)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--pvm-muted)]">
+    <span className="inline-flex max-w-full items-center truncate rounded border border-[var(--pvm-border)] bg-[var(--pvm-bg)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--pvm-muted)]">
       {children}
     </span>
   );
@@ -145,13 +153,19 @@ export function MetricCard({
 }: Readonly<{ detail?: string; label: string; value: string }>) {
   return (
     <AdminCard className="p-5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
-        {label}
-      </p>
-      <p className="mt-2 text-[26px] font-bold leading-none text-[var(--pvm-fg)] tabular-nums">
-        {value}
-      </p>
-      {detail ? <p className="mt-2 text-[11.5px] text-[var(--pvm-muted)]">{detail}</p> : null}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
+            {label}
+          </p>
+          <p className="mt-3 text-[26px] font-bold leading-none text-[var(--pvm-fg)] tabular-nums">
+            {value}
+          </p>
+          {detail ? (
+            <p className="mt-3 text-[11.5px] text-[var(--pvm-muted)]">{detail}</p>
+          ) : null}
+        </div>
+      </div>
     </AdminCard>
   );
 }

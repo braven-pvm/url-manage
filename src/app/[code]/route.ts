@@ -22,6 +22,7 @@ export async function GET(
   await logClickBestEffort(prisma, {
     redirectId: result.found ? result.redirectId : null,
     requestedCode: result.code,
+    redirectUrl: buildRedirectUrl(request, result.code),
     outcome: result.found ? "matched" : "fallback",
     referrer: request.headers.get("referer"),
     referrerHost: getReferrerHost(request.headers.get("referer")),
@@ -79,6 +80,10 @@ function headerValue(request: NextRequest, name: string): string | null {
 
 function searchValue(request: NextRequest, name: string): string | null {
   return emptyToNull(request.nextUrl.searchParams.get(name));
+}
+
+function buildRedirectUrl(request: NextRequest, code: string): string {
+  return new URL(`/${encodeURIComponent(code)}`, request.nextUrl.origin).toString();
 }
 
 function emptyToNull(value: string | null): string | null {

@@ -1,9 +1,13 @@
 import {
+  FormPendingButton,
+} from "@/components/admin/PendingButton";
+import {
   AdminCard,
   CardHeader,
   PageHeader,
   TagChip,
 } from "@/components/admin/ui";
+import { requireAdminRole } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { REDIRECT_PURPOSES } from "@/lib/redirect-metadata";
 import {
@@ -13,28 +17,51 @@ import {
   normalizeTag,
   type TaxonomyCount,
 } from "@/lib/redirect-taxonomy";
-import { createCategoryAction, createTagAction } from "../actions";
+import {
+  createCategoryAction,
+  createTagAction,
+  deleteCategoryAction,
+  deleteTagAction,
+  renameCategoryAction,
+  renameTagAction,
+} from "../actions";
 
 export const dynamic = "force-dynamic";
 
 const purposeReferences = [
   {
     title: "Print / QR",
-    description: "Permanent packaging, printed collateral, and QR placements.",
+    description:
+      "For packaging, printed materials, and QR codes. The short code is locked once created.",
   },
   {
     title: "Campaign",
-    description: "Time-bound promotions, offers, and campaign landing routes.",
+    description:
+      "Short-lived URLs for promotions, product launches, or marketing campaigns.",
   },
   {
     title: "Referrals",
-    description: "Partner, influencer, affiliate, or referral source tracking.",
+    description:
+      "Tracks traffic from a specific source - influencer, partner, or affiliate.",
   },
   {
     title: "Event",
-    description: "Event signage, tasting stands, activations, and show material.",
+    description:
+      "Race expos, trade shows, demo days. Scoped to a single event.",
   },
 ];
+
+const categoryDescriptions = new Map([
+  ["General", "Uncategorised or miscellaneous"],
+  ["Products", "Product pages and PDPs"],
+  ["Fixed", "Printed packaging and permanent QR"],
+  ["Temporary", "Short-term events and promotions"],
+  ["Campaigns", "Promo and marketing campaigns"],
+  ["Promotion", "Promo and marketing campaigns"],
+  ["Events", "Race expos and trade shows"],
+  ["Referrals", "Partner and affiliate links"],
+  ["Partners", "Partner and affiliate links"],
+]);
 
 function formatNumber(value: number) {
   return value.toLocaleString("en-ZA");
@@ -63,29 +90,81 @@ function mergeCounts(
 function TaxonomyRows({
   items,
   renderName,
+  type,
 }: Readonly<{
   items: TaxonomyCount[];
   renderName: (name: string) => React.ReactNode;
+  type: "category" | "tag";
 }>) {
   return (
     <div className="divide-y divide-[var(--pvm-border)]">
       {items.map((item) => {
-        const deleteStatus = canDeleteTaxonomyItem(item.count);
+        const deleteCheck = canDeleteTaxonomyItem(item.count);
+        const noun = type === "category" ? "category" : "tag";
+        const renameAction =
+          type === "category"
+            ? renameCategoryAction.bind(null, item.name)
+            : renameTagAction.bind(null, item.name);
+        const deleteAction =
+          type === "category"
+            ? deleteCategoryAction.bind(null, item.name)
+            : deleteTagAction.bind(null, item.name);
+        const renameLabel = `Rename ${noun} ${item.name}`;
+        const deleteLabel = `Delete ${noun} ${item.name}`;
 
         return (
           <div
-            className="grid gap-3 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_90px_minmax(180px,auto)] sm:items-center"
+            className="grid gap-3 px-5 py-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start"
             key={item.name}
           >
-            <div className="min-w-0 text-sm font-medium text-[var(--pvm-fg)]">
-              {renderName(item.name)}
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-[var(--pvm-fg)]">
+                {renderName(item.name)}
+              </div>
+              <p className="mt-1 text-xs text-[var(--pvm-muted)]">
+                {formatNumber(item.count)} redirects
+                {type === "category"
+                  ? ` - ${categoryDescriptions.get(item.name) ?? "Admin grouping"}`
+                  : ""}
+              </p>
             </div>
-            <p className="text-xs tabular-nums text-[var(--pvm-muted)]">
-              {formatNumber(item.count)} redirects
-            </p>
-            <p className="text-xs text-[var(--pvm-muted)]">
-              {deleteStatus.ok ? "Unused. Delete controls are not enabled yet." : deleteStatus.message}
-            </p>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <form action={renameAction} className="flex min-w-0 flex-1 items-center gap-2">
+                  <label className="sr-only" htmlFor={`rename-${type}-${item.name}`}>
+                    {renameLabel}
+                  </label>
+                  <input
+                    className="min-w-0 flex-1 rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2 text-sm text-[var(--pvm-fg)] outline-none transition focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100"
+                    defaultValue={item.name}
+                    id={`rename-${type}-${item.name}`}
+                    name="name"
+                    type="text"
+                  />
+                  <FormPendingButton
+                    className="shrink-0 rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--pvm-fg)] shadow-sm transition hover:border-[var(--pvm-fg)] disabled:opacity-70"
+                    pendingText="Saving..."
+                  >
+                    Rename
+                  </FormPendingButton>
+                </form>
+                <form action={deleteAction} className="shrink-0">
+                  <FormPendingButton
+                    ariaLabel={deleteLabel}
+                    className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={!deleteCheck.ok}
+                    pendingText="Deleting..."
+                  >
+                    Delete
+                  </FormPendingButton>
+                </form>
+              </div>
+              {!deleteCheck.ok ? (
+                <p className="text-right text-[11px] text-[var(--pvm-muted)]">
+                  {deleteCheck.message}
+                </p>
+              ) : null}
+            </div>
           </div>
         );
       })}
@@ -133,6 +212,7 @@ export default async function AdminTagsPage({
 } = {}) {
   const resolvedSearchParams: Promise<{ error?: string }> =
     searchParams ?? Promise.resolve({});
+  await requireAdminRole("EDITOR");
   const [params, redirectRows, catalogCategories, catalogTags] = await Promise.all([
     resolvedSearchParams,
     prisma.redirect.findMany({
@@ -180,7 +260,7 @@ export default async function AdminTagsPage({
       <div className="grid gap-6 xl:grid-cols-2">
         <AdminCard>
           <CardHeader
-            subtitle="Catalog category names while redirects remain the source of truth."
+            subtitle={`${formatNumber(categories.length)} total`}
             title="Categories"
           />
           <div className="border-b border-[var(--pvm-border)] px-5 py-4">
@@ -194,12 +274,13 @@ export default async function AdminTagsPage({
           <TaxonomyRows
             items={categories}
             renderName={(name) => <span>{name}</span>}
+            type="category"
           />
         </AdminCard>
 
         <AdminCard>
           <CardHeader
-            subtitle="Catalog reusable tag slugs while redirect tags remain canonical."
+            subtitle={`${formatNumber(tags.length)} total`}
             title="Tags"
           />
           <div className="border-b border-[var(--pvm-border)] px-5 py-4">
@@ -213,6 +294,7 @@ export default async function AdminTagsPage({
           <TaxonomyRows
             items={tags}
             renderName={(name) => <TagChip>{name}</TagChip>}
+            type="tag"
           />
         </AdminCard>
       </div>

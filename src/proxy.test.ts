@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { config, isAdminRoute } from "./proxy";
+import { config, isLegacyAdminRoute } from "./proxy";
 
-function requestFor(pathname: string) {
-  return { nextUrl: { pathname } } as Parameters<typeof isAdminRoute>[0];
+function requestFor(pathname: string): Parameters<typeof isLegacyAdminRoute>[0] {
+  return { nextUrl: { pathname } } as Parameters<typeof isLegacyAdminRoute>[0];
 }
 
 describe("proxy config", () => {
@@ -11,16 +11,16 @@ describe("proxy config", () => {
   });
 
   it.each(["/admin", "/admin/settings"])(
-    "protects exact admin route %s",
+    "matches legacy admin route %s",
     (pathname) => {
-      expect(isAdminRoute(requestFor(pathname))).toBe(true);
+      expect(isLegacyAdminRoute(requestFor(pathname))).toBe(true);
     },
   );
 
   it.each(["/admin-sale", "/admin_2026", "/admin1", "/administrator"])(
     "does not protect public redirect code %s",
     (pathname) => {
-      expect(isAdminRoute(requestFor(pathname))).toBe(false);
+      expect(isLegacyAdminRoute(requestFor(pathname))).toBe(false);
     },
   );
 });

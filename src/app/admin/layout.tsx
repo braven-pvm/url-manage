@@ -1,12 +1,24 @@
 import { AdminShell } from "@/components/admin/AdminShell";
-import { requireAdminEmail } from "@/lib/admin-auth";
+import { requireAdminRole } from "@/lib/admin-auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireAdminEmail();
+  const [actor, redirectCount] = await Promise.all([
+    requireAdminRole("VIEWER"),
+    prisma.redirect.count(),
+  ]);
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <AdminShell
+      adminEmail={actor.email}
+      adminRole={actor.role}
+      redirectCount={redirectCount}
+    >
+      {children}
+    </AdminShell>
+  );
 }

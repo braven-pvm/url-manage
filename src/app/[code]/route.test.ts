@@ -69,6 +69,7 @@ describe("public redirect route", () => {
     expect(logClickBestEffortMock).toHaveBeenCalledWith(prisma, {
       redirectId: "redirect-1",
       requestedCode: "care",
+      redirectUrl: "https://go.pvm.co.za/care",
       outcome: "matched",
       referrer: "https://referrer.example/path",
       referrerHost: "referrer.example",
@@ -113,6 +114,7 @@ describe("public redirect route", () => {
     expect(logClickBestEffortMock).toHaveBeenCalledWith(prisma, {
       redirectId: null,
       requestedCode: "../admin",
+      redirectUrl: "https://go.pvm.co.za/..%2Fadmin",
       outcome: "fallback",
       referrer: null,
       referrerHost: null,

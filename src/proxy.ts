@@ -1,10 +1,56 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import {
+  ADMIN_DASHBOARD_PATH,
+  cleanAdminPath,
+  internalAdminPath,
+  isCleanAdminPath,
+} from "@/lib/admin-routes";
 
-export const isAdminRoute = createRouteMatcher(["/admin", "/admin/(.*)"]);
+export const isLegacyAdminRoute = createRouteMatcher(["/admin", "/admin/(.*)"]);
+
+function isAdminHost(req: Request) {
+  const host = req.headers.get("host")?.split(":")[0]?.toLowerCase();
+  const configuredHost = process.env.ADMIN_HOST?.toLowerCase();
+
+  return (
+    !host ||
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === configuredHost
+  );
+}
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isAdminRoute(req)) {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    req.nextUrl.pathname.startsWith("/visual-qa/")
+  ) {
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-pvm-visual-qa", "1");
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
+
+  const adminHost = isAdminHost(req);
+
+  if (adminHost && req.nextUrl.pathname === "/") {
+    const dashboardUrl = req.nextUrl.clone();
+    dashboardUrl.pathname = ADMIN_DASHBOARD_PATH;
+    return NextResponse.redirect(dashboardUrl);
+  }
+
+  if (adminHost && isLegacyAdminRoute(req)) {
+    const cleanUrl = req.nextUrl.clone();
+    cleanUrl.pathname = cleanAdminPath(req.nextUrl.pathname);
+    return NextResponse.redirect(cleanUrl);
+  }
+
+  if (isLegacyAdminRoute(req) || (adminHost && isCleanAdminPath(req.nextUrl.pathname))) {
     const { isAuthenticated } = await auth();
 
     if (!isAuthenticated) {
@@ -14,6 +60,12 @@ export default clerkMiddleware(async (auth, req) => {
 
       return NextResponse.redirect(signInUrl);
     }
+  }
+
+  if (adminHost && isCleanAdminPath(req.nextUrl.pathname)) {
+    const internalUrl = req.nextUrl.clone();
+    internalUrl.pathname = internalAdminPath(req.nextUrl.pathname);
+    return NextResponse.rewrite(internalUrl);
   }
 });
 

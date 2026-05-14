@@ -6,6 +6,17 @@ import { prisma } from "@/lib/prisma";
 vi.mock("../actions", () => ({
   createCategoryAction: vi.fn(),
   createTagAction: vi.fn(),
+  deleteCategoryAction: vi.fn(),
+  deleteTagAction: vi.fn(),
+  renameCategoryAction: vi.fn(),
+  renameTagAction: vi.fn(),
+}));
+
+vi.mock("@/lib/admin-auth", () => ({
+  requireAdminRole: vi.fn().mockResolvedValue({
+    email: "editor@pvm.co.za",
+    role: "EDITOR",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -38,6 +49,18 @@ describe("AdminTagsPage", () => {
     expect(screen.getByRole("button", { name: "Add tag" })).toBeInTheDocument();
     expect(screen.getByText("Fixed")).toBeInTheDocument();
     expect(screen.getByText("packaging")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Rename category Fixed"),
+    ).toHaveValue("Fixed");
+    expect(screen.getByLabelText("Rename tag packaging")).toHaveValue(
+      "packaging",
+    );
+    expect(
+      screen.getByRole("button", { name: "Delete tag packaging" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Delete category Fixed" }),
+    ).toBeDisabled();
     expect(prisma.redirect.findMany).toHaveBeenCalled();
   });
 });

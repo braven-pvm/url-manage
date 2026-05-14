@@ -1,277 +1,380 @@
+import Link from "next/link";
+
 import {
   AdminCard,
   Badge,
+  type BadgeTone,
   CardHeader,
-  MetricCard,
   PageHeader,
   PrimaryLink,
-  TagChip,
 } from "@/components/admin/ui";
+import { requireAdminRole } from "@/lib/admin-auth";
+import { hasAdminRole } from "@/lib/admin-roles";
 import {
-  buildClickSeries,
-  buildTopReferrers,
-  type TopReferrer,
-} from "@/lib/admin-dashboard";
+  formatClickLocation,
+  formatClickTimezone,
+  formatClickUtm,
+} from "@/lib/click-display";
+import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
-
-const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("en-ZA", {
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  month: "short",
-});
 
 function formatNumber(value: number) {
   return value.toLocaleString("en-ZA");
 }
 
-function categoryTone(category: string) {
-  if (category === "Fixed") {
+function purposeTone(purpose: string) {
+  const normalized = purpose.toLowerCase();
+
+  if (normalized.includes("campaign")) {
+    return "amber" as const;
+  }
+
+  if (normalized.includes("referral")) {
     return "green" as const;
   }
 
-  if (category === "Temporary") {
-    return "amber" as const;
+  if (normalized.includes("event")) {
+    return "purple" as const;
   }
 
   return "blue" as const;
 }
 
-function clickOutcomeTone(outcome: string) {
-  if (outcome === "matched") {
-    return "green" as const;
-  }
+const toneFillClass: Record<BadgeTone, string> = {
+  amber: "bg-amber-500",
+  blue: "bg-blue-500",
+  green: "bg-emerald-500",
+  grey: "bg-slate-400",
+  navy: "bg-slate-700",
+  purple: "bg-violet-500",
+  red: "bg-red-500",
+};
 
-  if (outcome === "fallback") {
-    return "amber" as const;
-  }
+const toneSoftClass: Record<BadgeTone, string> = {
+  amber: "bg-amber-50 text-amber-700",
+  blue: "bg-blue-50 text-blue-700",
+  green: "bg-emerald-50 text-emerald-700",
+  grey: "bg-slate-100 text-slate-600",
+  navy: "bg-slate-100 text-[var(--pvm-fg)]",
+  purple: "bg-violet-50 text-violet-700",
+  red: "bg-red-50 text-red-700",
+};
 
-  return "red" as const;
+function outcomeTone(outcome: string): BadgeTone {
+  return outcome === "matched" ? "green" : "amber";
 }
 
-function ReferrerRows({ referrers }: Readonly<{ referrers: TopReferrer[] }>) {
-  if (referrers.length === 0) {
-    return (
-      <p className="px-5 py-6 text-sm text-[var(--pvm-muted)]">
-        No click referrers recorded yet.
-      </p>
-    );
-  }
-
-  return (
-    <div className="space-y-4 px-5 py-4">
-      {referrers.map((referrer) => (
-        <div key={referrer.label}>
-          <div className="mb-1 flex items-center justify-between gap-3 text-sm">
-            <span className="truncate font-medium text-[var(--pvm-fg)]">
-              {referrer.label}
-            </span>
-            <span className="shrink-0 text-xs tabular-nums text-[var(--pvm-muted)]">
-              {formatNumber(referrer.count)} clicks · {referrer.percentage}%
-            </span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-[var(--pvm-bg)]">
-            <div
-              className="h-full rounded-full bg-[var(--pvm-teal)]"
-              style={{ width: `${referrer.percentage}%` }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+function purposeLabel(purpose: string) {
+  return purpose.toLowerCase() === "product packaging" ? "Print / QR" : purpose;
 }
 
 export default async function AdminDashboardPage() {
+  const actor = await requireAdminRole("VIEWER");
+  const canEdit = hasAdminRole(actor.role, "EDITOR");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const [
     redirectCount,
     clickCount,
-    fixedCount,
-    temporaryCount,
-    recentRedirects,
+    todayClickCount,
+    fallbackClickCount,
+    redirectRows,
     recentClicks,
   ] = await Promise.all([
     prisma.redirect.count(),
     prisma.clickEvent.count(),
-    prisma.redirect.count({ where: { category: "Fixed" } }),
-    prisma.redirect.count({ where: { category: "Temporary" } }),
+    prisma.clickEvent.count({ where: { createdAt: { gte: today } } }),
+    prisma.clickEvent.count({ where: { outcome: "fallback" } }),
     prisma.redirect.findMany({
       orderBy: { updatedAt: "desc" },
       select: {
         _count: { select: { clickEvents: true } },
-        category: true,
         code: true,
         id: true,
         purpose: true,
-        tags: true,
         title: true,
-        updatedAt: true,
       },
-      take: 5,
+      take: 100,
     }),
     prisma.clickEvent.findMany({
       orderBy: { createdAt: "desc" },
       select: {
         createdAt: true,
+        city: true,
+        country: true,
+        latitude: true,
+        longitude: true,
         outcome: true,
         redirect: { select: { code: true, title: true } },
+        redirectUrl: true,
         referrerHost: true,
+        region: true,
         requestedCode: true,
+        timezone: true,
+        utmCampaign: true,
+        utmMedium: true,
+        utmSource: true,
       },
       take: 100,
     }),
   ]);
 
-  const topReferrers = buildTopReferrers(recentClicks);
-  const clickSeries = buildClickSeries(recentClicks, new Date(), 7);
-  const maxDailyClicks = Math.max(...clickSeries.map((day) => day.count), 1);
+  const shortUrlBase = env.PUBLIC_REDIRECT_HOST;
+  const clickCountsByCode = await getClickCountsByCode(
+    redirectRows.map((redirect) => redirect.code),
+  );
+  const redirectsWithHistoricalCounts = redirectRows.map((redirect) => ({
+    ...redirect,
+    _count: {
+      ...redirect._count,
+      clickEvents:
+        clickCountsByCode.get(redirect.code) ?? redirect._count.clickEvents,
+    },
+  }));
+  const topRedirects = [...redirectsWithHistoricalCounts]
+    .sort((left, right) => right._count.clickEvents - left._count.clickEvents)
+    .slice(0, 5);
+  const recentActivity = recentClicks.slice(0, 6);
+  const purposeCounts = [...redirectsWithHistoricalCounts.reduce((counts, redirect) => {
+    counts.set(redirect.purpose, (counts.get(redirect.purpose) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>()).entries()]
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        actions={<PrimaryLink href="/admin/redirects/new">New redirect</PrimaryLink>}
+        actions={
+          canEdit ? (
+            <PrimaryLink href="/redirects/new">+ New redirect</PrimaryLink>
+          ) : null
+        }
         description="Overview of redirects and recent activity."
         eyebrow="Admin Console"
         title="Dashboard"
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Total Redirects" value={formatNumber(redirectCount)} />
-        <MetricCard label="Total Clicks" value={formatNumber(clickCount)} />
-        <MetricCard label="Fixed URLs" value={formatNumber(fixedCount)} />
-        <MetricCard label="Temporary URLs" value={formatNumber(temporaryCount)} />
+        <AccentMetricCard
+          detail="Live redirect records"
+          icon="R"
+          label="Total Redirects"
+          tone="blue"
+          value={formatNumber(redirectCount)}
+        />
+        <AccentMetricCard
+          detail="All recorded click events"
+          icon="C"
+          label="Total Clicks"
+          tone="green"
+          value={formatNumber(clickCount)}
+        />
+        <AccentMetricCard
+          detail="Since local midnight"
+          icon="T"
+          label="Clicks Today"
+          tone="amber"
+          value={formatNumber(todayClickCount)}
+        />
+        <AccentMetricCard
+          detail="Unknown short URL requests"
+          icon="F"
+          label="Fallback Clicks"
+          tone="purple"
+          value={formatNumber(fallbackClickCount)}
+        />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,1fr)]">
         <AdminCard>
           <CardHeader
-            subtitle="Recent click events by UTC calendar day."
-            title="Click activity"
+            actions={
+              <Link className="text-sm font-medium text-[var(--pvm-muted)] hover:text-[var(--pvm-fg)]" href="/redirects">
+                View all
+              </Link>
+            }
+            subtitle="By total clicks, all time"
+            title="Top Redirects"
           />
-          <div className="grid gap-3 px-5 py-4 sm:grid-cols-7">
-            {clickSeries.map((day) => (
-              <div
-                className="flex min-h-32 flex-col justify-end rounded-md border border-[var(--pvm-border)] bg-[var(--pvm-bg)] p-3"
-                key={day.label}
-              >
-                <div className="mb-3 flex flex-1 items-end">
-                  <div
-                    className="w-full rounded-t bg-[var(--pvm-teal)]"
-                    style={{
-                      height: `${Math.max(8, (day.count / maxDailyClicks) * 100)}%`,
-                    }}
-                  />
-                </div>
-                <p className="text-[11px] font-semibold tabular-nums text-[var(--pvm-fg)]">
-                  {formatNumber(day.count)}
-                </p>
-                <p className="mt-1 text-[10.5px] tabular-nums text-[var(--pvm-muted)]">
-                  {day.label}
-                </p>
-              </div>
-            ))}
-          </div>
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-[var(--pvm-border)] text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
+              <tr>
+                <th className="px-4 py-3">Redirect</th>
+                <th className="px-4 py-3">Purpose</th>
+                <th className="px-4 py-3 text-right">Clicks</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--pvm-border)]">
+              {topRedirects.map((redirect) => (
+                <tr key={redirect.id}>
+                  <td className="px-4 py-4">
+                    <Link className="font-semibold text-[var(--pvm-fg)] hover:underline" href={`/redirects/${redirect.id}`}>
+                      {redirect.title}
+                    </Link>
+                    <p className="mt-1 font-mono text-xs text-[var(--pvm-muted)]">
+                      {shortUrlBase}/{redirect.code}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <Badge tone={purposeTone(redirect.purpose)}>
+                      {purposeLabel(redirect.purpose)}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <span className="font-semibold tabular-nums">
+                      {formatNumber(redirect._count.clickEvents)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </AdminCard>
 
         <AdminCard>
-          <CardHeader
-            subtitle="Top sources from the latest 100 click events."
-            title="Top referrers"
-          />
-          <ReferrerRows referrers={topReferrers} />
-        </AdminCard>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <AdminCard>
-          <CardHeader
-            subtitle="The latest redirects changed in the admin console."
-            title="Recent redirect updates"
-          />
+          <CardHeader subtitle="Latest clicks and changes" title="Recent Activity" />
           <div className="divide-y divide-[var(--pvm-border)]">
-            {recentRedirects.length === 0 ? (
+            {recentActivity.length === 0 ? (
               <p className="px-5 py-6 text-sm text-[var(--pvm-muted)]">
-                No redirects have been created yet.
+                No recent activity yet.
               </p>
             ) : (
-              recentRedirects.map((redirect) => (
-                <div className="px-5 py-4" key={redirect.id}>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="font-mono text-sm font-semibold text-[var(--pvm-teal)]">
-                        /{redirect.code}
+              recentActivity.map((click) => (
+                <div className="flex items-start justify-between gap-4 px-5 py-4" key={`${click.createdAt.toISOString()}-${click.requestedCode}`}>
+                  <div className="flex min-w-0 gap-3">
+                    <span
+                      aria-hidden="true"
+                      className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${toneFillClass[outcomeTone(click.outcome)]}`}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[var(--pvm-fg)]">
+                        {click.redirect?.title ?? "Unknown redirect"} -{" "}
+                        {click.outcome} click
                       </p>
-                      <p className="mt-1 text-sm font-medium text-[var(--pvm-fg)]">
-                        {redirect.title}
+                      <p className="mt-1 font-mono text-xs text-[var(--pvm-muted)]">
+                        {click.redirectUrl
+                          ? displayUrl(click.redirectUrl)
+                          : `${shortUrlBase}/${click.redirect?.code ?? click.requestedCode}`}{" "}
+                        - {click.referrerHost?.trim() || "No referrer"}
                       </p>
+                      <p className="mt-1 text-xs text-[var(--pvm-muted)]">
+                        {formatClickLocation(click)}
+                        {formatClickTimezone(click)
+                          ? ` - ${formatClickTimezone(click)}`
+                          : ""}
+                      </p>
+                      {formatClickUtm(click) ? (
+                        <p className="mt-1 font-mono text-[11px] text-[var(--pvm-muted)]">
+                          {formatClickUtm(click)}
+                        </p>
+                      ) : null}
                     </div>
-                    <Badge tone={categoryTone(redirect.category)}>
-                      {redirect.category}
-                    </Badge>
                   </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Badge>{redirect.purpose}</Badge>
-                    {redirect.tags.slice(0, 4).map((tag) => (
-                      <TagChip key={tag}>{tag}</TagChip>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs text-[var(--pvm-muted)]">
-                    {formatNumber(redirect._count.clickEvents)} clicks · Updated{" "}
-                    {dateFormatter.format(redirect.updatedAt)}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </AdminCard>
-
-        <AdminCard>
-          <CardHeader
-            subtitle="Most recent click events captured by the redirect route."
-            title="Recent clicks"
-          />
-          <div className="divide-y divide-[var(--pvm-border)]">
-            {recentClicks.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-[var(--pvm-muted)]">
-                No click events have been recorded yet.
-              </p>
-            ) : (
-              recentClicks.slice(0, 8).map((click) => (
-                <div
-                  className="flex items-start justify-between gap-4 px-5 py-4"
-                  key={`${click.createdAt.toISOString()}-${click.requestedCode}`}
-                >
-                  <div>
-                    <p className="font-mono text-sm font-semibold text-[var(--pvm-fg)]">
-                      /{click.redirect?.code ?? click.requestedCode}
-                    </p>
-                    <p className="mt-1 text-xs text-[var(--pvm-muted)]">
-                      {click.redirect?.title ?? "Unmatched redirect"} ·{" "}
-                      {click.referrerHost?.trim() || "Direct / No referrer"}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <Badge tone={clickOutcomeTone(click.outcome)}>
-                      {click.outcome}
-                    </Badge>
-                    <p className="mt-2 text-[11px] tabular-nums text-[var(--pvm-muted)]">
-                      {timeFormatter.format(click.createdAt)}
-                    </p>
-                  </div>
+                  <time className="shrink-0 text-xs tabular-nums text-[var(--pvm-muted)]">
+                    {click.createdAt.toLocaleTimeString("en-ZA", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </time>
                 </div>
               ))
             )}
           </div>
         </AdminCard>
       </div>
+
+      <AdminCard>
+        <CardHeader
+          actions={
+            <span className="text-xs text-[var(--pvm-muted)]">
+              Distribution across {formatNumber(redirectCount)} redirects
+            </span>
+          }
+          title="Purpose breakdown"
+        />
+        <div className="grid gap-5 px-5 py-4 md:grid-cols-2 xl:grid-cols-4">
+          {purposeCounts.map(([purpose, count]) => (
+            <div key={purpose}>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <Badge tone={purposeTone(purpose)}>{purposeLabel(purpose)}</Badge>
+                <span className="text-sm font-semibold tabular-nums">{count}</span>
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className={`h-full rounded-full ${toneFillClass[purposeTone(purpose)]}`}
+                  style={{
+                    width: `${Math.max(6, Math.round((count / Math.max(redirectCount, 1)) * 100))}%`,
+                  }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-[var(--pvm-muted)]">
+                {Math.round((count / Math.max(redirectCount, 1)) * 100)}% -{" "}
+                {formatNumber(count)} redirects
+              </p>
+            </div>
+          ))}
+          {purposeCounts.length === 0 ? (
+            <p className="text-sm text-[var(--pvm-muted)]">No redirect mix yet.</p>
+          ) : null}
+        </div>
+      </AdminCard>
     </div>
   );
+}
+
+function AccentMetricCard({
+  detail,
+  icon,
+  label,
+  tone,
+  value,
+}: Readonly<{
+  detail: string;
+  icon: string;
+  label: string;
+  tone: BadgeTone;
+  value: string;
+}>) {
+  return (
+    <AdminCard className="p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--pvm-muted)]">
+            {label}
+          </p>
+          <p className="mt-3 text-[26px] font-bold leading-none text-[var(--pvm-fg)] tabular-nums">
+            {value}
+          </p>
+          <p className="mt-3 text-[11.5px] text-[var(--pvm-muted)]">{detail}</p>
+        </div>
+        <span
+          className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-bold ${toneSoftClass[tone]}`}
+        >
+          {icon}
+        </span>
+      </div>
+    </AdminCard>
+  );
+}
+
+async function getClickCountsByCode(codes: string[]) {
+  if (codes.length === 0) {
+    return new Map<string, number>();
+  }
+
+  const rows = await prisma.clickEvent.groupBy({
+    by: ["requestedCode"],
+    where: { requestedCode: { in: codes } },
+    _count: { _all: true },
+  });
+
+  return new Map(rows.map((row) => [row.requestedCode, row._count._all]));
+}
+
+function displayUrl(href: string) {
+  return href.replace(/^https?:\/\//, "");
 }

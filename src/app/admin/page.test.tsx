@@ -3,6 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import AdminHomePage from "./page";
 import { prisma } from "@/lib/prisma";
 
+vi.mock("@/lib/admin-auth", () => ({
+  requireAdminRole: vi.fn().mockResolvedValue({
+    email: "editor@pvm.co.za",
+    role: "EDITOR",
+  }),
+}));
+
 vi.mock("@/lib/env", () => ({
   env: {
     PUBLIC_REDIRECT_HOST: "go.pvm.co.za",
@@ -20,6 +27,7 @@ vi.mock("@/lib/prisma", () => ({
     },
     clickEvent: {
       count: vi.fn(),
+      groupBy: vi.fn(),
     },
   },
 }));
@@ -49,6 +57,9 @@ describe("AdminHomePage", () => {
       .mockResolvedValueOnce(237)
       .mockResolvedValueOnce(101);
     vi.mocked(prisma.clickEvent.count).mockResolvedValue(12);
+    vi.mocked(prisma.clickEvent.groupBy).mockResolvedValue([
+      { requestedCode: "care", _count: { _all: 9 } },
+    ] as never);
 
     render(
       await AdminHomePage({
@@ -58,9 +69,7 @@ describe("AdminHomePage", () => {
 
     expect(screen.getByRole("option", { name: "Retail" })).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Showing 100 of 101 matching redirects. Refine search or filters to find older records.",
-      ),
+      screen.getByText("Showing 100 of 101 matching redirects"),
     ).toBeInTheDocument();
     expect(prisma.redirect.count).toHaveBeenNthCalledWith(2, {
       where: { category: "Referrals" },
@@ -71,5 +80,6 @@ describe("AdminHomePage", () => {
         where: { category: "Referrals" },
       }),
     );
+    expect(screen.getByText("9")).toBeInTheDocument();
   });
 });

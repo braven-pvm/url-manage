@@ -43,24 +43,24 @@ describe("Clerk auth pages", () => {
     render(await SignInPage());
 
     expect(screen.getByText("Sign in to manage redirects")).toBeInTheDocument();
-    expect(screen.getByText("Clerk sign-in form: /admin/dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Clerk sign-in form: /dashboard")).toBeInTheDocument();
   });
 
   it("renders the sign-up route page", async () => {
     render(await SignUpPage());
 
     expect(screen.getByText("Create your admin account")).toBeInTheDocument();
-    expect(screen.getByText("Clerk sign-up form: /admin/dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Clerk sign-up form: /dashboard")).toBeInTheDocument();
   });
 
   it("uses the admin redirect_url for the Clerk sign-in fallback", async () => {
     render(
       await SignInPage({
-        searchParams: Promise.resolve({ redirect_url: "/admin/tags" }),
+        searchParams: Promise.resolve({ redirect_url: "/tags" }),
       }),
     );
 
-    expect(screen.getByText("Clerk sign-in form: /admin/tags")).toBeInTheDocument();
+    expect(screen.getByText("Clerk sign-in form: /tags")).toBeInTheDocument();
   });
 
   it("server-redirects already authenticated users to the admin redirect_url", async () => {
@@ -68,9 +68,9 @@ describe("Clerk auth pages", () => {
 
     await expect(
       SignInPage({
-        searchParams: Promise.resolve({ redirect_url: "/admin/access" }),
+        searchParams: Promise.resolve({ redirect_url: "/access" }),
       }),
-    ).rejects.toThrow("NEXT_REDIRECT:/admin/access");
+    ).rejects.toThrow("NEXT_REDIRECT:/access");
   });
 
   it("rejects non-admin redirect_url values", async () => {
@@ -80,6 +80,6 @@ describe("Clerk auth pages", () => {
       }),
     );
 
-    expect(screen.getByText("Clerk sign-in form: /admin/dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Clerk sign-in form: /dashboard")).toBeInTheDocument();
   });
 });

@@ -480,6 +480,7 @@ describe("redirect-service", () => {
       logClickBestEffort(db, {
         redirectId: "r1",
         requestedCode: "care",
+        redirectUrl: "https://go.pvm.co.za/care",
         outcome: "matched",
         referrer: null,
         referrerHost: null,
@@ -507,6 +508,7 @@ describe("redirect-service", () => {
     await logClickBestEffort(db, {
       redirectId: "r1",
       requestedCode: "Care",
+      redirectUrl: "https://go.pvm.co.za/Care",
       outcome: "matched",
       referrer: "https://referrer.example/",
       referrerHost: "referrer.example",
@@ -529,6 +531,7 @@ describe("redirect-service", () => {
       data: {
         redirectId: "r1",
         requestedCode: "Care",
+        redirectUrl: "https://go.pvm.co.za/Care",
         outcome: "matched",
         referrer: "https://referrer.example/",
         referrerHost: "referrer.example",
@@ -556,6 +559,7 @@ describe("redirect-service", () => {
     await logClickBestEffort(db, {
       redirectId: null,
       requestedCode: "../admin",
+      redirectUrl: "https://go.pvm.co.za/..%2Fadmin",
       outcome: "fallback",
       referrer: null,
       referrerHost: null,
@@ -578,6 +582,7 @@ describe("redirect-service", () => {
       data: {
         redirectId: null,
         requestedCode: "../admin",
+        redirectUrl: "https://go.pvm.co.za/..%2Fadmin",
         outcome: "fallback",
         referrer: null,
         referrerHost: null,

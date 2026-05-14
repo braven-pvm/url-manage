@@ -88,6 +88,7 @@ export type RedirectDb = {
       data: {
         redirectId: string | null;
         requestedCode: string;
+        redirectUrl: string | null;
         outcome: "matched" | "fallback";
         referrer: string | null;
         referrerHost: string | null;
@@ -149,6 +150,7 @@ export type RedirectMutationResult =
 export type LogClickInput = {
   redirectId: string | null;
   requestedCode: string;
+  redirectUrl: string | null;
   outcome: "matched" | "fallback";
   referrer: string | null;
   referrerHost: string | null;
@@ -296,6 +298,7 @@ export async function logClickBestEffort(
       data: {
         redirectId: input.redirectId,
         requestedCode: input.requestedCode,
+        redirectUrl: input.redirectUrl,
         outcome: input.outcome,
         referrer: input.referrer,
         referrerHost: input.referrerHost,

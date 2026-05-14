@@ -3,11 +3,11 @@ import {
   normalizeCategory,
   REDIRECT_PURPOSES,
 } from "@/lib/redirect-metadata";
-import { AdminCard, Badge, CardHeader, UrlDisplay } from "./ui";
+import { TagEditor } from "./TagEditor";
+import { AdminCard, CardHeader, UrlDisplay } from "./ui";
 
 type RedirectFormProps = {
   action: (formData: FormData) => void | Promise<void>;
-  cancelHref?: string;
   error?: string;
   redirect?: {
     code: string;
@@ -25,7 +25,6 @@ type RedirectFormProps = {
 
 export function RedirectForm({
   action,
-  cancelHref = "/admin",
   error,
   redirect,
   shortUrlBase = "https://go.pvm.co.za",
@@ -47,6 +46,7 @@ export function RedirectForm({
   return (
     <form
       action={action}
+      id="redirect-form"
       className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
     >
       <div className="space-y-6">
@@ -58,7 +58,7 @@ export function RedirectForm({
         <AdminCard>
           <CardHeader
             subtitle="Keep printed codes stable and point them at the current destination."
-            title="Redirect details"
+            title="Basic information"
           />
           <div className="grid gap-5 p-5">
             <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
@@ -109,26 +109,13 @@ export function RedirectForm({
                 type="url"
               />
             </div>
-            <div>
-              <label className={labelClass} htmlFor="description">
-                Description
-              </label>
-              <textarea
-                className={fieldClass}
-                defaultValue={redirect?.description ?? ""}
-                id="description"
-                name="description"
-                placeholder="What this printed URL is used for"
-                rows={5}
-              />
-            </div>
           </div>
         </AdminCard>
 
         <AdminCard>
           <CardHeader
-            subtitle="Organize redirects for search, reporting, and campaign reviews."
-            title="Admin metadata"
+            subtitle="Category, purpose, and tags"
+            title="Classification"
           />
           <div className="grid gap-5 p-5">
             <div className="grid gap-5 md:grid-cols-2">
@@ -167,20 +154,28 @@ export function RedirectForm({
                 </select>
               </div>
             </div>
+            <TagEditor defaultTags={redirect?.tags} name="tags" />
+          </div>
+        </AdminCard>
+
+        <AdminCard>
+          <CardHeader
+            subtitle="Optional - not shown publicly"
+            title="Notes & metadata"
+          />
+          <div className="grid gap-5 p-5">
             <div>
-              <label className={labelClass} htmlFor="tags">
-                Tags
+              <label className={labelClass} htmlFor="description">
+                Description
               </label>
-              <input
+              <textarea
                 className={fieldClass}
-                defaultValue={redirect?.tags.join(", ") ?? ""}
-                id="tags"
-                name="tags"
-                placeholder="energy-bar, qr, 2026-campaign"
+                defaultValue={redirect?.description ?? ""}
+                id="description"
+                name="description"
+                placeholder="What this printed URL is used for, which product, campaign brief..."
+                rows={4}
               />
-              <p className="mt-1 text-xs text-[var(--pvm-muted)]">
-                Separate tags with commas. They are normalized for search.
-              </p>
             </div>
             <div>
               <label className={labelClass} htmlFor="notes">
@@ -198,33 +193,9 @@ export function RedirectForm({
           </div>
         </AdminCard>
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <a
-            className="text-sm font-semibold text-[var(--pvm-muted)] underline-offset-2 hover:text-[var(--pvm-fg)] hover:underline"
-            href={cancelHref}
-          >
-            Cancel
-          </a>
-          <button
-            className="rounded-md bg-[var(--pvm-fg)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1a3a5c]"
-            type="submit"
-          >
-            {isEdit ? "Save changes" : "Create redirect"}
-          </button>
-        </div>
       </div>
 
       <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-        <AdminCard>
-          <CardHeader title="Status" />
-          <div className="p-5">
-            <Badge tone="green">Active</Badge>
-            <p className="mt-3 text-sm text-[var(--pvm-muted)]">
-              Redirects remain active while their destination URL is valid.
-            </p>
-          </div>
-        </AdminCard>
-
         <AdminCard>
           <CardHeader title="Short URL preview" />
           <div className="p-5">

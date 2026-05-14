@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { RedirectForm } from "./RedirectForm";
 
 describe("RedirectForm", () => {
   it("renders required create fields and an error message", () => {
-    render(
+    const { container } = render(
       <RedirectForm
         action={vi.fn()}
         error="Enter a valid URL"
@@ -12,13 +13,12 @@ describe("RedirectForm", () => {
       />,
     );
 
-    expect(screen.getByText("Redirect details")).toBeInTheDocument();
-    expect(screen.getByText("Admin metadata")).toBeInTheDocument();
-    expect(screen.getByText("Status")).toBeInTheDocument();
+    expect(screen.getByText("Basic information")).toBeInTheDocument();
+    expect(screen.getByText("Classification")).toBeInTheDocument();
     expect(screen.getByText("Short URL preview")).toBeInTheDocument();
     expect(screen.getByText("QR Code")).toBeInTheDocument();
     expect(screen.getByText("Coming soon")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.queryByText("Active")).not.toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("Leave blank to auto-generate"),
     ).toBeInTheDocument();
@@ -31,15 +31,13 @@ describe("RedirectForm", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Referrals" })).toBeInTheDocument();
     expect(screen.getByLabelText("Purpose")).toHaveValue("General");
-    expect(screen.getByLabelText("Tags")).toHaveValue("");
+    expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue("");
     expect(screen.getByLabelText("Destination URL")).toBeRequired();
-    expect(
-      screen.getByRole("button", { name: "Create redirect" }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Create redirect" })).not.toBeInTheDocument();
   });
 
   it("disables code editing for existing redirects", () => {
-    render(
+    const { container } = render(
       <RedirectForm
         action={vi.fn()}
         shortUrlBase="https://go.pvm.co.za"
@@ -62,9 +60,28 @@ describe("RedirectForm", () => {
     expect(screen.getByLabelText("Code")).toBeDisabled();
     expect(screen.getByLabelText("Category")).toHaveValue("Product");
     expect(screen.getByLabelText("Purpose")).toHaveValue("Product packaging");
-    expect(screen.getByLabelText("Tags")).toHaveValue("energy-bar, qr");
-    expect(
-      screen.getByRole("button", { name: "Save changes" }),
-    ).toBeInTheDocument();
+    expect(screen.getByText("energy-bar")).toBeInTheDocument();
+    expect(screen.getByText("qr")).toBeInTheDocument();
+    expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue(
+      "energy-bar, qr",
+    );
+    expect(screen.queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument();
+  });
+
+  it("lets users add and remove tags before submit", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<RedirectForm action={vi.fn()} />);
+
+    await user.type(screen.getByLabelText("Tags"), "Retail activation{enter}");
+
+    expect(screen.getByText("retail-activation")).toBeInTheDocument();
+    expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue(
+      "retail-activation",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Remove retail-activation" }));
+
+    expect(screen.queryByText("retail-activation")).not.toBeInTheDocument();
+    expect(container.querySelector<HTMLInputElement>('input[name="tags"]')).toHaveValue("");
   });
 });

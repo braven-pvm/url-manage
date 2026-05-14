@@ -20,7 +20,7 @@ describe("redirect-taxonomy", () => {
     expect(normalizeTag(" Race 2026 ")).toBe("race-2026");
   });
 
-  it("builds a sorted taxonomy summary with default categories", () => {
+  it("builds a sorted taxonomy summary from categories used by redirects", () => {
     const summary = buildTaxonomySummary([
       { category: " referalls ", tags: ["Energy Bar", "QR"] },
       { category: "referrals", tags: ["energy bar", "Retail"] },
@@ -33,10 +33,6 @@ describe("redirect-taxonomy", () => {
       { name: "Referrals", count: 3 },
       { name: "New Category", count: 1 },
       { name: "Temporary", count: 1 },
-      { name: "Fixed", count: 0 },
-      { name: "General", count: 0 },
-      { name: "Internal", count: 0 },
-      { name: "Promotion", count: 0 },
     ]);
     expect(summary.tags).toEqual([
       { name: "qr", count: 3 },

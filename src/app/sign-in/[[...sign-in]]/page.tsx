@@ -1,6 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { SignInWidget } from "@/components/admin/AuthWidget";
+import {
+  ADMIN_DASHBOARD_PATH,
+  cleanAdminPath,
+  isSafeAdminRedirect,
+} from "@/lib/admin-routes";
 
 type AuthPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -43,13 +48,9 @@ async function getRedirectTarget(
     ? rawRedirectUrl[0]
     : rawRedirectUrl;
 
-  if (
-    redirectUrl &&
-    redirectUrl.startsWith("/admin") &&
-    !redirectUrl.startsWith("//")
-  ) {
-    return redirectUrl;
+  if (isSafeAdminRedirect(redirectUrl, { allowAccess: true })) {
+    return cleanAdminPath(redirectUrl);
   }
 
-  return "/admin/dashboard";
+  return ADMIN_DASHBOARD_PATH;
 }

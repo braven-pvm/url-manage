@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AdminRole {
+  ADMINISTRATOR
+  EDITOR
+  VIEWER
+}
+
+enum AdminInvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
 model Redirect {
   id             String       @id @default(cuid())
   code           String       @unique
@@ -35,6 +48,7 @@ model ClickEvent {
   redirectId    String?   @map("redirect_id")
   redirect      Redirect? @relation(fields: [redirectId], references: [id], onDelete: SetNull)
   requestedCode String    @map("requested_code")
+  redirectUrl   String?   @map("redirect_url")
   outcome       String
   referrer      String?
   referrerHost  String?   @map("referrer_host")
@@ -55,6 +69,7 @@ model ClickEvent {
 
   @@index([redirectId, createdAt])
   @@index([requestedCode, createdAt])
+  @@index([redirectUrl, createdAt])
   @@index([createdAt])
   @@index([country, createdAt])
   @@index([utmCampaign, createdAt])
@@ -92,4 +107,41 @@ model Setting {
   updatedBy String   @map("updated_by")
 
   @@map("settings")
+}
+
+model AdminUser {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  firstName   String?   @map("first_name")
+  lastName    String?   @map("last_name")
+  clerkUserId String?   @unique @map("clerk_user_id")
+  role        AdminRole
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdBy   String    @map("created_by")
+  updatedBy   String    @map("updated_by")
+
+  @@index([role])
+  @@map("admin_users")
+}
+
+model AdminInvitation {
+  id                String                @id @default(cuid())
+  email             String
+  firstName         String                @map("first_name")
+  lastName          String                @map("last_name")
+  role              AdminRole
+  status            AdminInvitationStatus @default(PENDING)
+  clerkInvitationId String                @unique @map("clerk_invitation_id")
+  invitationUrl     String?               @map("invitation_url")
+  expiresAt         DateTime              @map("expires_at")
+  acceptedAt        DateTime?             @map("accepted_at")
+  createdAt         DateTime              @default(now()) @map("created_at")
+  updatedAt         DateTime              @updatedAt @map("updated_at")
+  createdBy         String                @map("created_by")
+  updatedBy         String                @map("updated_by")
+
+  @@index([email, status])
+  @@index([status, expiresAt])
+  @@map("admin_invitations")
 }

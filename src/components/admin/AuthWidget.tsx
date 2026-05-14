@@ -12,6 +12,7 @@ import {
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ADMIN_DASHBOARD_PATH } from "@/lib/admin-routes";
 
 const authAppearance = {
   elements: {
@@ -26,7 +27,7 @@ type AuthWidgetProps = {
 };
 
 export function SignInWidget({
-  fallbackRedirectUrl = "/admin/dashboard",
+  fallbackRedirectUrl = ADMIN_DASHBOARD_PATH,
 }: AuthWidgetProps) {
   return (
     <AuthWidgetFrame fallbackRedirectUrl={fallbackRedirectUrl}>
@@ -44,7 +45,7 @@ export function SignInWidget({
 }
 
 export function SignUpWidget({
-  fallbackRedirectUrl = "/admin/dashboard",
+  fallbackRedirectUrl = ADMIN_DASHBOARD_PATH,
 }: AuthWidgetProps) {
   return (
     <AuthWidgetFrame fallbackRedirectUrl={fallbackRedirectUrl}>
