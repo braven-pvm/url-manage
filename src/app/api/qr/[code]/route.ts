@@ -10,6 +10,7 @@ import { generateQrPng, generateQrSvg, type QrDots } from "@/lib/qr-generator";
 const CACHE_CONTROL = "public, max-age=3600";
 const VALID_DOTS = new Set<QrDots>(["square", "rounded", "circle"]);
 const VALID_SIZES = new Set<number>([500, 1000, 2000]);
+const VALID_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml"]);
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 const DEFAULT_LOGO_PATH = path.join(process.cwd(), "assets", "PVM.png");
 
@@ -79,8 +80,14 @@ export async function GET(
   const bg = parseBg(searchParams.get("bg"));
   const dots = parseDots(searchParams.get("dots"));
   const size = parseSize(searchParams.get("size"));
-  const logoData =
-    searchParams.get("logo") === "default" ? await readDefaultLogoData() : undefined;
+  let logoData: string | undefined;
+  if (searchParams.get("logo") === "default") {
+    try {
+      logoData = await readDefaultLogoData();
+    } catch {
+      // logo file not found — proceed without overlay
+    }
+  }
 
   const url = `https://${env.PUBLIC_REDIRECT_HOST}/${code}`;
   const options = { bg, dots, fg, logoData, size, url };
@@ -109,6 +116,10 @@ export async function POST(
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "logo file is required" }, { status: 400 });
+  }
+
+  if (!VALID_IMAGE_TYPES.has(file.type)) {
+    return NextResponse.json({ error: "unsupported image type" }, { status: 400 });
   }
 
   const arrayBuffer = await file.arrayBuffer();
