@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   config,
-  getPublicAdminHostRedirectUrl,
+  getExternalAdminHostRedirectUrl,
   isLegacyAdminRoute,
 } from "./proxy";
 
@@ -30,9 +30,8 @@ describe("proxy config", () => {
 
   it("redirects clean admin paths away from the public redirect host", () => {
     expect(
-      getPublicAdminHostRedirectUrl(
+      getExternalAdminHostRedirectUrl(
         new URL("https://go.pvm.co.za/dashboard?range=7d"),
-        "go.pvm.co.za",
         "admin.pvm.co.za",
       )?.toString(),
     ).toBe("https://admin.pvm.co.za/dashboard?range=7d");
@@ -40,19 +39,37 @@ describe("proxy config", () => {
 
   it("redirects legacy admin paths on the public redirect host to clean admin URLs", () => {
     expect(
-      getPublicAdminHostRedirectUrl(
+      getExternalAdminHostRedirectUrl(
         new URL("https://go.pvm.co.za/admin/tags"),
-        "go.pvm.co.za",
         "admin.pvm.co.za",
       )?.toString(),
     ).toBe("https://admin.pvm.co.za/tags");
   });
 
+  it("redirects clean admin paths away from Vercel deployment hosts", () => {
+    expect(
+      getExternalAdminHostRedirectUrl(
+        new URL(
+          "https://url-manage-isjicib6m-pvm-developer-s-projects.vercel.app/dashboard",
+        ),
+        "admin.pvm.co.za",
+      )?.toString(),
+    ).toBe("https://admin.pvm.co.za/dashboard");
+  });
+
   it("leaves real public redirect codes on the public redirect host alone", () => {
     expect(
-      getPublicAdminHostRedirectUrl(
+      getExternalAdminHostRedirectUrl(
         new URL("https://go.pvm.co.za/energy-bar"),
-        "go.pvm.co.za",
+        "admin.pvm.co.za",
+      ),
+    ).toBeNull();
+  });
+
+  it("leaves admin paths on localhost alone for development", () => {
+    expect(
+      getExternalAdminHostRedirectUrl(
+        new URL("http://localhost:3001/dashboard"),
         "admin.pvm.co.za",
       ),
     ).toBeNull();

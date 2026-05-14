@@ -21,20 +21,17 @@ function isAdminHost(req: Request) {
   );
 }
 
-function requestHost(req: Request) {
-  return req.headers.get("host")?.split(":")[0]?.toLowerCase() ?? null;
+function isLocalDevelopmentHost(hostname: string) {
+  return hostname === "localhost" || hostname === "127.0.0.1";
 }
 
-export function getPublicAdminHostRedirectUrl(
+export function getExternalAdminHostRedirectUrl(
   nextUrl: URL,
-  publicHost: string | undefined,
   adminHost: string | undefined,
 ): URL | null {
-  if (
-    !publicHost ||
-    !adminHost ||
-    nextUrl.hostname.toLowerCase() !== publicHost
-  ) {
+  const hostname = nextUrl.hostname.toLowerCase();
+
+  if (!adminHost || hostname === adminHost || isLocalDevelopmentHost(hostname)) {
     return null;
   }
 
@@ -70,14 +67,13 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   const adminHost = isAdminHost(req);
-  const publicAdminRedirectUrl = getPublicAdminHostRedirectUrl(
+  const externalAdminRedirectUrl = getExternalAdminHostRedirectUrl(
     req.nextUrl,
-    process.env.PUBLIC_REDIRECT_HOST?.toLowerCase(),
     process.env.ADMIN_HOST?.toLowerCase(),
   );
 
-  if (requestHost(req) && publicAdminRedirectUrl) {
-    return NextResponse.redirect(publicAdminRedirectUrl);
+  if (externalAdminRedirectUrl) {
+    return NextResponse.redirect(externalAdminRedirectUrl);
   }
 
   if (adminHost && req.nextUrl.pathname === "/") {
