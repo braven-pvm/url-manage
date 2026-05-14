@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,15 +7,7 @@
 <title>PVM URL Admin — Managed Redirects</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#EEF1F5;--surface:#FFFFFF;--fg:#0D1F35;--muted:#6B7280;
-  --border:#E5E7EB;--accent:#F5C400;--navy:#0D1F35;--teal:#0284C7;
-  --green:#16A34A;--amber:#D97706;--purple:#7C3AED;--red:#DC2626;
-  --surface2:#F8FAFC;--sw:224px;--th:54px;
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
-  --mono:'JetBrains Mono','Fira Code',ui-monospace,'Cascadia Code',monospace;
-  --sh:0 1px 2px rgba(13,31,53,.05),0 1px 3px rgba(13,31,53,.04)
-}
+:root{--bg:#EEF1F5;--surface:#FFFFFF;--fg:#0D1F35;--muted:#6B7280;--border:#E5E7EB;--accent:#F5C400;--navy:#0D1F35;--teal:#0284C7;--green:#16A34A;--amber:#D97706;--purple:#7C3AED;--red:#DC2626;--surface2:#F8FAFC;--sw:224px;--th:54px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;--mono:'JetBrains Mono','Fira Code',ui-monospace,'Cascadia Code',monospace;--sh:0 1px 2px rgba(13,31,53,.05),0 1px 3px rgba(13,31,53,.04)}
 body{font-family:var(--font);background:var(--bg);color:var(--fg);font-size:14px;line-height:1.5;min-height:100vh}
 .top-stripe{position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);z-index:999}
 .app{display:flex;min-height:100vh;padding-top:3px}
@@ -57,7 +50,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--fg);font-size:14px
 .btn-secondary:hover{background:var(--bg)}
 .btn-ghost{background:transparent;color:var(--muted);border:1px solid transparent}
 .btn-ghost:hover{background:var(--bg);color:var(--fg)}
-.btn-danger{background:#FEF2F2;color:var(--red);border:1px solid #FECACA}
+.btn-danger{background:#FEF2F2;color:var(--red);border:1px solid #FECACA;font-size:12px}
 .btn-danger:hover{background:#FEE2E2}
 .btn-sm{padding:5px 10px;font-size:12px}
 .btn-xs{padding:3px 8px;font-size:11.5px}
@@ -102,7 +95,7 @@ tbody tr:hover td{background:var(--surface2);cursor:pointer}
 .form-g:last-child{margin-bottom:0}
 label{display:block;font-size:12.5px;font-weight:500;color:var(--fg);margin-bottom:4px}
 .lbl-hint{font-weight:400;color:var(--muted);font-size:11.5px}
-input[type=text],input[type=url],input[type=search],input[type=email],input[type=number],select,textarea{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--font);color:var(--fg);background:var(--surface);transition:border-color .12s,box-shadow .12s;outline:none;line-height:1.5}
+input[type=text],input[type=url],input[type=search],input[type=email],select,textarea{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--font);color:var(--fg);background:var(--surface);transition:border-color .12s,box-shadow .12s;outline:none;line-height:1.5}
 input:focus,select:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,31,53,.08)}
 input.mono{font-family:var(--mono);font-size:12.5px}
 .input-pfx-wrap{display:flex;align-items:stretch}
@@ -183,39 +176,37 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* ── Access Management ── */
+/* Access */
 .alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.5;margin-bottom:16px;border:1px solid}
 .alert-info{background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF}
-.alert-warn{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
 .access-user-row{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--bg);transition:background .08s}
 .access-user-row:last-child{border-bottom:none}
 .access-user-row:hover{background:var(--surface2)}
 .pending-row{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--bg);background:#FAFBFC}
 .pending-row:last-child{border-bottom:none}
-.access-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:-.01em}
-.pending-av{width:36px;height:36px;border-radius:50%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.access-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:-.01em}
+.pending-av{width:34px;height:34px;border-radius:50%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .access-info{flex:1;min-width:0}
 .access-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .access-email{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:2px}
 .access-audit{font-size:11px;color:#9CA3AF;margin-top:3px}
 .access-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .you-badge{font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;background:var(--bg);color:var(--muted);border:1px solid var(--border);letter-spacing:.02em}
-.role-select{width:auto !important;min-width:140px;padding:5px 9px !important;font-size:12px !important;border-radius:5px;cursor:pointer}
+.role-select{width:auto !important;min-width:130px;padding:5px 9px !important;font-size:12px !important;border-radius:5px;cursor:pointer}
 .role-locked-badge{cursor:default;display:inline-flex;align-items:center;gap:5px;padding:4px 10px}
 .saved-flash{font-size:11px;font-weight:500;color:var(--green);display:flex;align-items:center;gap:3px;animation:flashFade 1.6s ease-out forwards}
 @keyframes flashFade{0%,60%{opacity:1}100%{opacity:0}}
-.cap-list{list-style:none;display:flex;flex-direction:column;gap:7px}
-.cap-list li{font-size:12.5px;color:var(--fg);display:flex;align-items:center;gap:8px;line-height:1.4}
-.cap-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.cap-dot.yes{background:var(--green)}
-.cap-dot.no{background:var(--border)}
-.cap-list li.no{color:var(--muted)}
+.cap-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.cap-list li{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px;line-height:1.4}
+.cap-list li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0}
+.cap-list li.no{color:#9CA3AF}
+.cap-list li.no::before{background:var(--border)}
 .modal-overlay{position:fixed;inset:0;background:rgba(13,31,53,.4);display:none;align-items:center;justify-content:center;z-index:800}
 .modal-overlay.open{display:flex}
 .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 40px rgba(13,31,53,.15);padding:24px;width:420px;max-width:92vw}
-.modal-hd{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px}
-.modal-body{font-size:13px;color:var(--fg);line-height:1.6}
-.modal-body.sub{color:var(--muted);margin-top:4px}
+.modal-hd{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:12px}
+.modal-body{font-size:13px;color:var(--fg);line-height:1.6;margin-bottom:6px}
+.modal-body.sub{color:var(--muted)}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:22px}
 .setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bg);gap:24px}
 .setting-row:last-child{border-bottom:none}
@@ -227,8 +218,6 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
 <body>
 <div class="top-stripe"></div>
 <div class="app">
-
-<!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
   <div class="sb-brand">
     <div class="sb-logo">P</div>
@@ -272,25 +261,18 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
   </div>
 </aside>
 
-<!-- ══ MAIN ══ -->
 <div class="main">
   <header class="topbar">
     <div class="bc" id="bc"><span>PVM URL Admin</span><span class="sep">›</span><span class="active">Dashboard</span></div>
     <div class="topbar-actions">
-      <button class="btn btn-secondary btn-sm" data-go="settings">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2"/></svg>
-        Settings
-      </button>
-      <button class="btn btn-primary btn-sm" data-go="create">
-        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3v10M3 8h10"/></svg>
-        New redirect
-      </button>
+      <button class="btn btn-secondary btn-sm" data-go="settings"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2"/></svg>Settings</button>
+      <button class="btn btn-primary btn-sm" data-go="create"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3v10M3 8h10"/></svg>New redirect</button>
     </div>
   </header>
 
   <main class="content">
 
-<!-- ══ DASHBOARD ══ -->
+<!-- DASHBOARD -->
 <section class="view active" id="view-dashboard">
   <div class="pg-header">
     <div><div class="pg-eyebrow">Admin Console</div><h1 class="pg-title">Dashboard</h1><p class="pg-desc">Overview of redirects and recent activity.</p></div>
@@ -308,8 +290,8 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
       <table><thead><tr><th>Redirect</th><th>Purpose</th><th style="text-align:right">Clicks</th></tr></thead>
       <tbody>
         <tr data-go="detail"><td><div class="semibold" style="font-size:13px">PVM Energy Bar</div><div class="mono muted xs">go.pvm.co.za/4frr2zc5</div></td><td><span class="badge bg-amber">Campaign</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">286</div><div class="mbars" style="justify-content:flex-end;margin-top:3px"><div class="mbar" style="height:40%"></div><div class="mbar" style="height:60%"></div><div class="mbar hi" style="height:80%"></div><div class="mbar" style="height:70%"></div><div class="mbar hi" style="height:100%"></div><div class="mbar" style="height:65%"></div><div class="mbar" style="height:55%"></div></div></td></tr>
-        <tr><td><div class="semibold" style="font-size:13px">Octane Pre-workout</div><div class="mono muted xs">go.pvm.co.za/oct-22</div></td><td><span class="badge bg-blue">Print / QR</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">214</div></td></tr>
-        <tr><td><div class="semibold" style="font-size:13px">Protein XTR — Combo</div><div class="mono muted xs">go.pvm.co.za/xtr-cmb</div></td><td><span class="badge bg-green">Referral</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">198</div></td></tr>
+        <tr><td><div class="semibold" style="font-size:13px">Octane Pre-workout</div><div class="mono muted xs">go.pvm.co.za/oct-22</div></td><td><span class="badge bg-blue">Print / QR</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">214</div><div class="mbars" style="justify-content:flex-end;margin-top:3px"><div class="mbar" style="height:50%"></div><div class="mbar hi" style="height:75%"></div><div class="mbar" style="height:55%"></div><div class="mbar" style="height:60%"></div><div class="mbar" style="height:40%"></div><div class="mbar" style="height:45%"></div><div class="mbar hi" style="height:70%"></div></div></td></tr>
+        <tr><td><div class="semibold" style="font-size:13px">Protein XTR — Combo</div><div class="mono muted xs">go.pvm.co.za/xtr-cmb</div></td><td><span class="badge bg-green">Referral</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">198</div><div class="mbars" style="justify-content:flex-end;margin-top:3px"><div class="mbar hi" style="height:80%"></div><div class="mbar" style="height:50%"></div><div class="mbar" style="height:40%"></div><div class="mbar" style="height:55%"></div><div class="mbar" style="height:60%"></div><div class="mbar" style="height:45%"></div><div class="mbar" style="height:50%"></div></div></td></tr>
         <tr><td><div class="semibold" style="font-size:13px">Fusion Meal Replacement</div><div class="mono muted xs">go.pvm.co.za/ptn-1</div></td><td><span class="badge bg-blue">Print / QR</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">147</div></td></tr>
         <tr><td><div class="semibold" style="font-size:13px">Reignite — Recovery Stack</div><div class="mono muted xs">go.pvm.co.za/rgn-r</div></td><td><span class="badge bg-purple">Event</span></td><td style="text-align:right"><div class="semibold" style="font-variant-numeric:tabular-nums">112</div></td></tr>
       </tbody></table>
@@ -337,7 +319,7 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
   </div>
 </section>
 
-<!-- ══ ALL REDIRECTS ══ -->
+<!-- REDIRECTS -->
 <section class="view" id="view-redirects">
   <div class="pg-header"><div><div class="pg-eyebrow">Admin Console</div><h1 class="pg-title">Redirects</h1><p class="pg-desc">Manage stable printed, QR, and campaign URLs.</p></div><button class="btn btn-primary" data-go="create"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3v10M3 8h10"/></svg>New redirect</button></div>
   <div class="card">
@@ -375,7 +357,7 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
   </div>
 </section>
 
-<!-- ══ CREATE / EDIT ══ -->
+<!-- CREATE -->
 <section class="view" id="view-create">
   <div class="back-link" data-go="redirects"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>Back to redirects</div>
   <div class="pg-header" style="margin-bottom:18px">
@@ -388,7 +370,7 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
         <div class="card-hd"><div class="card-title">Basic information</div></div>
         <div class="card-bd">
           <div class="form-g"><label>Short code <span class="lbl-hint">— permanent once created</span></label><div class="input-pfx-wrap"><div class="input-pfx">go.pvm.co.za/</div><input type="text" class="mono" id="code-input" placeholder="e.g. oct-22, fusion-v2"></div><p class="form-hint">Lowercase, numbers, hyphens only.</p></div>
-          <div class="form-g"><label>Title</label><input type="text" placeholder="e.g. Fusion Meal Replacement — Packaging Q1 2025"></div>
+          <div class="form-g"><label>Title</label><input type="text" placeholder="e.g. Fusion Meal Replacement — Packaging Q1 2025"><p class="form-hint">Human-readable name shown in the admin.</p></div>
           <div class="form-g"><label>Destination URL</label><div class="flex gap-8"><input type="url" placeholder="https://pvm.co.za/product/…" style="flex:1"><button class="btn btn-secondary btn-sm">Test</button></div><p class="form-hint">The live URL this code redirects to.</p></div>
         </div>
       </div>
@@ -416,7 +398,7 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
         <div class="card-hd"><div><div class="card-title">Notes &amp; metadata</div><div class="card-sub">Optional — not shown publicly</div></div></div>
         <div class="card-bd">
           <div class="form-g"><label>Description</label><textarea placeholder="What this redirect is used for…" style="min-height:64px"></textarea></div>
-          <div class="form-g"><label>Internal notes</label><textarea placeholder="Packaging batch, campaign owner, expiry notes…" style="min-height:56px"></textarea><p class="form-hint">Admin-only.</p></div>
+          <div class="form-g"><label>Internal notes</label><textarea placeholder="Packaging batch, campaign owner, expiry notes…" style="min-height:56px"></textarea><p class="form-hint">Admin-only. Not included in analytics.</p></div>
         </div>
       </div>
     </div>
@@ -428,7 +410,7 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
   </div>
 </section>
 
-<!-- ══ DETAIL / ANALYTICS ══ -->
+<!-- DETAIL -->
 <section class="view" id="view-detail">
   <div class="back-link" data-go="redirects"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>Back to redirects</div>
   <div style="margin-bottom:20px">
@@ -477,12 +459,12 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
   </div>
 </section>
 
-<!-- ══ TAGS & CATEGORIES ══ -->
+<!-- TAGS -->
 <section class="view" id="view-tags">
   <div class="pg-header"><div><div class="pg-eyebrow">Organisation</div><h1 class="pg-title">Tags &amp; Categories</h1><p class="pg-desc">Organise redirects for easier filtering and reporting.</p></div></div>
   <div class="g2">
     <div class="card">
-      <div class="card-hd"><div><div class="card-title">Categories</div><div class="card-sub">5 total</div></div></div>
+      <div class="card-hd"><div><div class="card-title">Categories</div><div class="card-sub">High-level groupings · 5 total</div></div></div>
       <div style="padding:12px 16px;border-bottom:1px solid var(--border)"><div class="flex gap-8"><input type="text" placeholder="New category name…" style="flex:1"><button class="btn btn-primary btn-sm">Add</button></div></div>
       <div>
         <div class="mg-item"><div><div class="mg-name">General</div><div class="mg-meta">12 redirects</div></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Edit</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
@@ -493,7 +475,7 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
       </div>
     </div>
     <div class="card">
-      <div class="card-hd"><div><div class="card-title">Tags</div><div class="card-sub">8 total</div></div></div>
+      <div class="card-hd"><div><div class="card-title">Tags</div><div class="card-sub">Fine-grained labels · 8 total</div></div></div>
       <div style="padding:12px 16px;border-bottom:1px solid var(--border)"><div class="flex gap-8"><input type="text" placeholder="New tag…" style="flex:1"><button class="btn btn-primary btn-sm">Add</button></div></div>
       <div>
         <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">packaging</span><span class="xs muted">14 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
@@ -501,9 +483,6 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
         <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">influencer</span><span class="xs muted">5 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
         <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">race-2025</span><span class="xs muted">4 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
         <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">email</span><span class="xs muted">3 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
-        <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">print-run-q1</span><span class="xs muted">6 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
-        <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">product-page</span><span class="xs muted">8 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
-        <div class="mg-item"><div class="flex gap-8 items-center"><span class="tag">instagram</span><span class="xs muted">5 redirects</span></div><div class="mg-actions"><button class="btn btn-ghost btn-xs">Rename</button><button class="btn btn-danger btn-xs">Delete</button></div></div>
       </div>
     </div>
   </div>
@@ -513,34 +492,27 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
       <div><span class="badge bg-blue" style="margin-bottom:8px;display:inline-flex">Print / QR</span><p class="sm muted" style="line-height:1.5">For packaging and printed materials. The short code is locked once created — destination can always be updated.</p></div>
       <div><span class="badge bg-amber" style="margin-bottom:8px;display:inline-flex">Campaign</span><p class="sm muted" style="line-height:1.5">Short-lived URLs for promotions and launches. Can be paused or expired when the campaign ends.</p></div>
       <div><span class="badge bg-green" style="margin-bottom:8px;display:inline-flex">Referral</span><p class="sm muted" style="line-height:1.5">Tracks traffic from a specific source — influencer, partner, or affiliate.</p></div>
-      <div><span class="badge bg-purple" style="margin-bottom:8px;display:inline-flex">Event</span><p class="sm muted" style="line-height:1.5">Race expos, trade shows, demo days. Typically expires after the event date.</p></div>
+      <div><span class="badge bg-purple" style="margin-bottom:8px;display:inline-flex">Event</span><p class="sm muted" style="line-height:1.5">Race expos, trade shows, demo days. Typically expires automatically after the event date.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ══ ACCESS MANAGEMENT ══ -->
+<!-- ACCESS MANAGEMENT -->
 <section class="view" id="view-access">
   <div class="pg-header">
     <div><div class="pg-eyebrow">System</div><h1 class="pg-title">Access Management</h1><p class="pg-desc">Control who can access PVM URL Admin and what they can do.</p></div>
-    <button class="btn btn-primary" onclick="openInvite()">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
-      Invite user
-    </button>
+    <button class="btn btn-primary" onclick="openInvite()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>Invite user</button>
   </div>
 
-  <!-- Single-admin warning — shown by JS when needed -->
   <div class="alert alert-info" id="single-admin-alert" style="display:none">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;margin-top:1px"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5v.5"/></svg>
-    <span>You are the only Administrator. Promote another user to Administrator before you can remove your own access.</span>
+    <span>You are the only Administrator. Promote another user to Administrator before you can transfer or remove your own access.</span>
   </div>
 
-  <!-- Invite panel — hidden until "Invite user" is clicked -->
   <div class="card" id="invite-panel" style="display:none;margin-bottom:16px">
     <div class="card-hd">
       <div><div class="card-title">Invite a new user</div><div class="card-sub">An email invitation will be sent — expires in 7 days</div></div>
-      <button class="btn btn-ghost btn-sm" onclick="closeInvite()" style="padding:4px 8px">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg>
-      </button>
+      <button class="btn btn-ghost btn-sm" onclick="closeInvite()" style="padding:4px 8px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
     </div>
     <div class="card-bd">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
@@ -551,88 +523,59 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
     </div>
   </div>
 
-  <!-- Active users list — populated by renderAccessView() -->
   <div class="card" style="margin-bottom:16px">
-    <div class="card-hd">
-      <div><div class="card-title">Active users</div><div class="card-sub" id="user-count">3 users</div></div>
-    </div>
-    <div id="users-list">
-      <!-- JS renders rows here -->
-    </div>
+    <div class="card-hd"><div><div class="card-title">Active users</div><div class="card-sub" id="user-count">3 users</div></div></div>
+    <div id="users-list"></div>
   </div>
 
-  <!-- Pending invites — shown when there are pending invites -->
   <div class="card" id="pending-card" style="margin-bottom:16px;display:none">
-    <div class="card-hd">
-      <div><div class="card-title">Pending invites</div><div class="card-sub" id="pending-count">—</div></div>
-    </div>
+    <div class="card-hd"><div><div class="card-title">Pending invites</div><div class="card-sub" id="pending-count">—</div></div></div>
     <div id="pending-list"></div>
   </div>
 
-  <!-- Role capabilities reference -->
   <div class="card">
     <div class="card-hd"><div class="card-title">Role capabilities</div><div class="card-sub">What each access level can do</div></div>
     <div class="card-bd g3">
       <div>
-        <div style="margin-bottom:12px"><span class="badge bg-navy" style="font-size:11.5px;padding:3px 10px">Administrator</span></div>
-        <ul class="cap-list">
-          <li><span class="cap-dot yes"></span>Create, edit, and delete redirects</li>
-          <li><span class="cap-dot yes"></span>Manage tags and categories</li>
-          <li><span class="cap-dot yes"></span>Change system settings</li>
-          <li><span class="cap-dot yes"></span>Invite and manage users</li>
-          <li><span class="cap-dot yes"></span>View all analytics</li>
-        </ul>
+        <div style="margin-bottom:10px"><span class="badge bg-navy" style="font-size:11.5px;padding:3px 10px">Administrator</span></div>
+        <ul class="cap-list"><li>Create, edit, and delete redirects</li><li>Manage tags and categories</li><li>Change system settings</li><li>Invite and manage users</li><li>View all analytics</li></ul>
       </div>
       <div>
-        <div style="margin-bottom:12px"><span class="badge bg-blue" style="font-size:11.5px;padding:3px 10px">Editor</span></div>
-        <ul class="cap-list">
-          <li><span class="cap-dot yes"></span>Create and edit redirects</li>
-          <li><span class="cap-dot yes"></span>Manage tags and categories</li>
-          <li><span class="cap-dot yes"></span>View all analytics</li>
-          <li class="no"><span class="cap-dot no"></span>Cannot manage users</li>
-          <li class="no"><span class="cap-dot no"></span>Cannot change system settings</li>
-        </ul>
+        <div style="margin-bottom:10px"><span class="badge bg-blue" style="font-size:11.5px;padding:3px 10px">Editor</span></div>
+        <ul class="cap-list"><li>Create and edit redirects</li><li>Manage tags and categories</li><li>View all analytics</li><li class="no">Cannot manage users</li><li class="no">Cannot change system settings</li></ul>
       </div>
       <div>
-        <div style="margin-bottom:12px"><span class="badge bg-grey" style="font-size:11.5px;padding:3px 10px">Viewer</span></div>
-        <ul class="cap-list">
-          <li><span class="cap-dot yes"></span>View all redirects</li>
-          <li><span class="cap-dot yes"></span>View all analytics</li>
-          <li class="no"><span class="cap-dot no"></span>Cannot create or edit redirects</li>
-          <li class="no"><span class="cap-dot no"></span>Cannot manage users</li>
-          <li class="no"><span class="cap-dot no"></span>Cannot change settings</li>
-        </ul>
+        <div style="margin-bottom:10px"><span class="badge bg-grey" style="font-size:11.5px;padding:3px 10px">Viewer</span></div>
+        <ul class="cap-list"><li>View all redirects</li><li>View all analytics</li><li class="no">Cannot create or edit redirects</li><li class="no">Cannot manage users</li><li class="no">Cannot change settings</li></ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ SETTINGS ══ -->
+<!-- SETTINGS -->
 <section class="view" id="view-settings">
   <div class="pg-header"><div><div class="pg-eyebrow">System</div><h1 class="pg-title">Settings</h1><p class="pg-desc">System-wide configuration for redirect behaviour.</p></div></div>
   <div class="card" style="max-width:680px">
     <div class="card-hd"><div class="card-title">Redirect behaviour</div></div>
-    <div class="setting-row"><div><div class="setting-lbl">Fallback URL</div><div class="setting-sub">Where unknown or invalid short codes redirect.</div></div><div class="setting-ctrl" style="width:280px"><input type="url" value="https://www.pvm.co.za/" style="font-family:var(--mono);font-size:12px"></div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Fallback URL</div><div class="setting-sub">Where unknown or invalid short codes redirect. Defaults to the main site if left blank.</div></div><div class="setting-ctrl" style="width:280px"><input type="url" value="https://www.pvm.co.za/" style="font-family:var(--mono);font-size:12px"></div></div>
     <div class="setting-row"><div><div class="setting-lbl">Short link domain</div><div class="setting-sub">The base domain for all generated short URLs. Contact support to change.</div></div><div class="setting-ctrl"><div class="url-box" style="font-size:12px">go.pvm.co.za</div></div></div>
-    <div class="setting-row"><div><div class="setting-lbl">Expiry notification</div><div class="setting-sub">Days before a campaign redirect expires — email notification is sent.</div></div><div class="setting-ctrl" style="width:80px"><input type="number" value="7" style="text-align:center"></div></div>
-    <div class="setting-row"><div><div class="setting-lbl">Default redirect type</div><div class="setting-sub">HTTP status code used when resolving redirects.</div></div><div class="setting-ctrl" style="width:180px"><select><option selected>301 Permanent</option><option>302 Temporary</option><option>307 Temporary (strict)</option></select></div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Expiry notification</div><div class="setting-sub">Email notification this many days before a campaign redirect expires.</div></div><div class="setting-ctrl" style="width:100px"><input type="text" value="7" style="text-align:center"></div></div>
+    <div class="setting-row"><div><div class="setting-lbl">Default redirect type</div><div class="setting-sub">HTTP status code used when resolving redirects.</div></div><div class="setting-ctrl" style="width:160px"><select><option selected>301 Permanent</option><option>302 Temporary</option><option>307 Temporary (strict)</option></select></div></div>
   </div>
-  <div style="margin-top:14px;max-width:680px;display:flex;justify-content:flex-end">
-    <button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8l4 4 8-8"/></svg>Save settings</button>
-  </div>
+  <div style="margin-top:14px;max-width:680px;display:flex;justify-content:flex-end"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8l4 4 8-8"/></svg>Save settings</button></div>
 </section>
 
   </main>
 </div>
 </div>
 
-<!-- Remove-user confirmation modal -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-remove">
   <div class="modal-box">
     <div class="modal-hd">Remove access</div>
     <p class="modal-body">Remove <strong id="modal-user-name"></strong> from PVM URL Admin?</p>
-    <p class="modal-body sub" id="modal-user-email" style="font-family:var(--mono);font-size:12px"></p>
-    <p class="modal-body sub" style="margin-top:8px">Their <strong id="modal-user-role"></strong> access will be revoked immediately. They will need to be re-invited to regain access.</p>
+    <p class="modal-body sub" id="modal-user-email" style="font-family:var(--mono);font-size:12px;margin-bottom:10px"></p>
+    <p class="modal-body sub">Their <strong id="modal-user-role"></strong> access will be revoked immediately. They will need to be re-invited to regain access.</p>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-danger" onclick="confirmRemove()" style="font-size:13px;padding:7px 14px">Remove access</button>
@@ -641,7 +584,6 @@ select.flt{width:auto !important;min-width:120px;font-size:12.5px}
 </div>
 
 <script>
-/* ── View routing ── */
 const viewMeta = {
   dashboard: { bc: ['PVM URL Admin', 'Dashboard'],        nav: 0 },
   redirects: { bc: ['Redirects', 'All Redirects'],        nav: 1 },
@@ -656,18 +598,17 @@ function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const el = document.getElementById('view-' + id);
   if (el) el.classList.add('active');
-
   const navItems = document.querySelectorAll('.nav-item[data-view]');
   navItems.forEach(n => n.classList.remove('active'));
   const meta = viewMeta[id];
   if (meta && navItems[meta.nav]) navItems[meta.nav].classList.add('active');
   if (meta) {
     const [s, p] = meta.bc;
-    document.getElementById('bc').innerHTML =
-      `<span>${s}</span><span class="sep">›</span><span class="active">${p}</span>`;
+    document.getElementById('bc').innerHTML = `<span>${s}</span><span class="sep">›</span><span class="active">${p}</span>`;
   }
   window.scrollTo(0, 0);
   sessionStorage.setItem('pvm-view', id);
+  if (id === 'access') renderAccessView();
 }
 
 document.addEventListener('click', e => {
@@ -676,12 +617,10 @@ document.addEventListener('click', e => {
   const row = e.target.closest('tr[data-go]');
   if (row && !e.target.closest('button')) showView(row.dataset.go);
 });
-
 document.querySelectorAll('.nav-item[data-view]').forEach(item => {
   item.addEventListener('click', () => showView(item.dataset.view));
 });
 
-/* ── Code preview ── */
 const codeInput = document.getElementById('code-input');
 const codePreview = document.getElementById('code-preview');
 if (codeInput && codePreview) {
@@ -691,8 +630,6 @@ if (codeInput && codePreview) {
     codePreview.style.color = v ? 'var(--fg)' : 'var(--muted)';
   });
 }
-
-/* ── Copy buttons ── */
 document.querySelectorAll('.copy-btn').forEach(btn => {
   btn.addEventListener('click', e => {
     e.stopPropagation();
@@ -702,108 +639,70 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
   });
 });
 
-/* ── Access Management ── */
+/* Access management */
 let accessUsers = [
-  { id: 1, name: 'Marius van der Merwe', email: 'developer@pvm.co.za', role: 'admin',  isYou: true,  changedBy: 'System',  changedDate: '13 May 2026' },
-  { id: 2, name: 'Sarah Naidoo',         email: 'sarah@pvm.co.za',     role: 'editor', isYou: false, changedBy: 'Marius',  changedDate: '12 May 2026' },
-  { id: 3, name: 'Lebo Dlamini',         email: 'lebo@pvm.co.za',      role: 'viewer', isYou: false, changedBy: 'Marius',  changedDate: '10 May 2026' },
+  { id: 1, name: 'Marius van der Merwe', email: 'developer@pvm.co.za', role: 'admin',  isYou: true,  changedBy: 'System', changedDate: '13 May 2026' },
+  { id: 2, name: 'Sarah Naidoo',         email: 'sarah@pvm.co.za',     role: 'editor', isYou: false, changedBy: 'Marius', changedDate: '12 May 2026' },
+  { id: 3, name: 'Lebo Dlamini',         email: 'lebo@pvm.co.za',      role: 'viewer', isYou: false, changedBy: 'Marius', changedDate: '10 May 2026' },
 ];
-
 let pendingInvites = [
   { id: 1, email: 'info@agencypartner.co.za', role: 'editor', invitedBy: 'Marius', daysAgo: 2, expiresIn: 5 },
 ];
-
 let removeTargetId = null;
-const avColors = ['#1a3a5c', '#0f5132', '#4C1D95', '#7C2D12', '#065F46'];
+const avColors = ['#1a3a5c','#0f5132','#4C1D95','#7C2D12','#065F46'];
 
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function initials(n) { return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
-function roleLabel(r) { return {admin:'Administrator', editor:'Editor', viewer:'Viewer'}[r] || r; }
-function roleCls(r)   { return {admin:'bg-navy', editor:'bg-blue', viewer:'bg-grey'}[r] || 'bg-grey'; }
-function adminCount() { return accessUsers.filter(u => u.role === 'admin').length; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(n){ return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function roleLabel(r){ return {admin:'Administrator',editor:'Editor',viewer:'Viewer'}[r]||r; }
+function roleCls(r){ return {admin:'bg-navy',editor:'bg-blue',viewer:'bg-grey'}[r]||'bg-grey'; }
+function adminCount(){ return accessUsers.filter(u=>u.role==='admin').length; }
 
 function renderAccessView() {
   const lastAdmin = adminCount() === 1;
-
   const alertEl = document.getElementById('single-admin-alert');
   if (alertEl) alertEl.style.display = lastAdmin ? 'flex' : 'none';
-
   const countEl = document.getElementById('user-count');
-  if (countEl) countEl.textContent = `${accessUsers.length} ${accessUsers.length === 1 ? 'user' : 'users'}`;
-
+  if (countEl) countEl.textContent = `${accessUsers.length} ${accessUsers.length===1?'user':'users'}`;
   const list = document.getElementById('users-list');
   if (!list) return;
-
-  list.innerHTML = accessUsers.map((u, i) => {
+  list.innerHTML = accessUsers.map((u,i) => {
     const locked = u.role === 'admin' && lastAdmin;
     const color = avColors[i % avColors.length];
-
     const roleCtrl = locked
-      ? `<span class="badge bg-navy role-locked-badge" title="Last Administrator — promote another user first">
-           <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="3" y="7" width="10" height="8" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-           Administrator
-         </span>`
-      : `<select class="role-select" onchange="changeRole(${u.id}, this.value)">
-           <option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option>
-           <option value="editor"${u.role==='editor'?' selected':''}>Editor</option>
-           <option value="admin"${u.role==='admin'?' selected':''}>Administrator</option>
-         </select>`;
-
-    const removeDisabled = u.isYou || locked;
-    const removeTitle = u.isYou ? 'You cannot remove your own access'
-                      : locked   ? 'Cannot remove the last Administrator' : '';
-    const removeBtn = removeDisabled
-      ? `<button class="btn btn-ghost btn-xs" disabled title="${removeTitle}" style="opacity:.3;cursor:not-allowed;min-width:58px">Remove</button>`
-      : `<button class="btn btn-danger btn-xs" onclick="showRemoveModal(${u.id})" style="min-width:58px">Remove</button>`;
-
+      ? `<span class="badge bg-navy role-locked-badge" title="Last Administrator — promote another user first"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="3" y="7" width="10" height="8" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>Administrator</span>`
+      : `<select class="role-select" onchange="changeRole(${u.id},this.value)"><option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option><option value="editor"${u.role==='editor'?' selected':''}>Editor</option><option value="admin"${u.role==='admin'?' selected':''}>Administrator</option></select>`;
+    const removeBtn = u.isYou
+      ? `<button class="btn btn-ghost btn-xs" disabled title="You cannot remove your own access" style="opacity:.3;cursor:not-allowed;min-width:58px">Remove</button>`
+      : locked
+        ? `<button class="btn btn-ghost btn-xs" disabled title="Cannot remove the last Administrator" style="opacity:.3;cursor:not-allowed;min-width:58px">Remove</button>`
+        : `<button class="btn btn-danger btn-xs" onclick="showRemoveModal(${u.id})" style="min-width:58px">Remove</button>`;
     return `<div class="access-user-row" id="user-row-${u.id}">
       <div class="access-av" style="background:${color}">${esc(initials(u.name))}</div>
       <div class="access-info">
-        <div class="access-name">
-          ${esc(u.name)}
-          ${u.isYou ? '<span class="you-badge">You</span>' : ''}
-        </div>
+        <div class="access-name">${esc(u.name)}${u.isYou?'<span class="you-badge">You</span>':''}</div>
         <div class="access-email">${esc(u.email)}</div>
         <div class="access-audit">Last changed by ${esc(u.changedBy)} · ${esc(u.changedDate)}</div>
       </div>
-      <div class="access-controls" id="ctrl-${u.id}">
-        ${roleCtrl}
-        ${removeBtn}
-      </div>
+      <div class="access-controls" id="ctrl-${u.id}">${roleCtrl}${removeBtn}</div>
     </div>`;
   }).join('');
-
   renderPending();
 }
 
 function renderPending() {
-  const card  = document.getElementById('pending-card');
-  const list  = document.getElementById('pending-list');
+  const card = document.getElementById('pending-card');
+  const list = document.getElementById('pending-list');
   const count = document.getElementById('pending-count');
   if (!card || !list) return;
-
   card.style.display = pendingInvites.length ? 'block' : 'none';
   if (count) count.textContent = `${pendingInvites.length} pending`;
-
   list.innerHTML = pendingInvites.map(inv => {
-    const dt = inv.daysAgo === 0 ? 'Just now'
-             : `${inv.daysAgo} day${inv.daysAgo !== 1 ? 's' : ''} ago`;
+    const dt = inv.daysAgo === 0 ? 'Just now' : `${inv.daysAgo} day${inv.daysAgo!==1?'s':''} ago`;
     return `<div class="pending-row">
-      <div class="pending-av">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#9CA3AF" stroke-width="1.5">
-          <path d="M2 13c0-2.76 2.24-5 5-5h2c2.76 0 5 2.24 5 5"/>
-          <circle cx="8" cy="5" r="2.5"/>
-        </svg>
-      </div>
+      <div class="pending-av"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#9CA3AF" stroke-width="1.5"><path d="M2 13c0-2.76 2.24-5 5-5h2c2.76 0 5 2.24 5 5"/><circle cx="8" cy="5" r="2.5"/></svg></div>
       <div class="access-info">
         <div class="access-name mono" style="font-weight:500;font-size:12.5px">${esc(inv.email)}</div>
-        <div class="access-audit">
-          Invited as ${roleLabel(inv.role)} · by ${esc(inv.invitedBy)} · ${dt} · Expires in ${inv.expiresIn} days
-        </div>
+        <div class="access-audit">Invited as ${roleLabel(inv.role)} · by ${esc(inv.invitedBy)} · ${dt} · Expires in ${inv.expiresIn} days</div>
       </div>
       <div class="access-controls">
         <span class="badge ${roleCls(inv.role)}">${roleLabel(inv.role)}</span>
@@ -815,12 +714,9 @@ function renderPending() {
 }
 
 function changeRole(userId, newRole) {
-  const u = accessUsers.find(u => u.id === userId);
+  const u = accessUsers.find(u=>u.id===userId);
   if (!u) return;
-  u.role = newRole;
-  u.changedBy = 'Marius';
-  u.changedDate = 'Just now';
-
+  u.role = newRole; u.changedBy = 'Marius'; u.changedDate = 'Just now';
   const ctrl = document.getElementById(`ctrl-${userId}`);
   if (ctrl) {
     const f = document.createElement('span');
@@ -829,18 +725,15 @@ function changeRole(userId, newRole) {
     ctrl.appendChild(f);
     setTimeout(() => f.remove(), 1700);
   }
-
-  /* Re-render fully only when admin guard state changes */
-  if (newRole === 'admin' || adminCount() <= 1) {
-    renderAccessView();
-  } else {
-    const auditEl = document.querySelector(`#user-row-${userId} .access-audit`);
-    if (auditEl) auditEl.textContent = 'Last changed by Marius · Just now';
+  if (newRole === 'admin' || adminCount() <= 1) renderAccessView();
+  else {
+    const a = document.querySelector(`#user-row-${userId} .access-audit`);
+    if (a) a.textContent = 'Last changed by Marius · Just now';
   }
 }
 
 function showRemoveModal(userId) {
-  const u = accessUsers.find(u => u.id === userId);
+  const u = accessUsers.find(u=>u.id===userId);
   if (!u) return;
   removeTargetId = userId;
   document.getElementById('modal-user-name').textContent = u.name;
@@ -848,68 +741,23 @@ function showRemoveModal(userId) {
   document.getElementById('modal-user-role').textContent = roleLabel(u.role);
   document.getElementById('modal-remove').classList.add('open');
 }
-
-function closeModal() {
-  document.getElementById('modal-remove').classList.remove('open');
-  removeTargetId = null;
-}
-
-function confirmRemove() {
-  if (!removeTargetId) return;
-  accessUsers = accessUsers.filter(u => u.id !== removeTargetId);
-  closeModal();
-  renderAccessView();
-}
-
-function cancelInvite(id) {
-  pendingInvites = pendingInvites.filter(i => i.id !== id);
-  renderPending();
-}
-
-function openInvite() {
-  const p = document.getElementById('invite-panel');
-  if (p) { p.style.display = 'block'; document.getElementById('invite-email').focus(); }
-}
-
-function closeInvite() {
-  const p = document.getElementById('invite-panel');
-  if (p) p.style.display = 'none';
-  document.getElementById('invite-email').value = '';
-}
-
+function closeModal() { document.getElementById('modal-remove').classList.remove('open'); removeTargetId = null; }
+function confirmRemove() { if (!removeTargetId) return; accessUsers = accessUsers.filter(u=>u.id!==removeTargetId); closeModal(); renderAccessView(); }
+function cancelInvite(id) { pendingInvites = pendingInvites.filter(i=>i.id!==id); renderPending(); }
+function openInvite() { const p = document.getElementById('invite-panel'); if (p) { p.style.display='block'; document.getElementById('invite-email').focus(); } }
+function closeInvite() { const p = document.getElementById('invite-panel'); if (p) p.style.display='none'; document.getElementById('invite-email').value=''; }
 function sendInvite() {
   const el = document.getElementById('invite-email');
   const email = el.value.trim();
-  const role  = document.getElementById('invite-role').value;
-  if (!email || !email.includes('@')) {
-    el.style.borderColor = 'var(--red)';
-    el.focus();
-    setTimeout(() => el.style.borderColor = '', 1400);
-    return;
-  }
+  const role = document.getElementById('invite-role').value;
+  if (!email || !email.includes('@')) { el.style.borderColor='var(--red)'; el.focus(); setTimeout(()=>el.style.borderColor='',1400); return; }
   pendingInvites.push({ id: Date.now(), email, role, invitedBy: 'Marius', daysAgo: 0, expiresIn: 7 });
-  closeInvite();
-  renderPending();
-  if (!document.getElementById('pending-card').style.display || document.getElementById('pending-card').style.display === 'none') {
-    renderPending();
-  }
+  closeInvite(); renderPending();
 }
-
-document.getElementById('modal-remove').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-/* ── Init ── */
-/* Always render access view data so the user list is never empty on load */
-renderAccessView();
+document.getElementById('modal-remove').addEventListener('click', function(e){ if (e.target===this) closeModal(); });
 
 const saved = sessionStorage.getItem('pvm-view');
-if (saved && document.getElementById('view-' + saved)) {
-  showView(saved);
-} else {
-  showView('dashboard');
-}
+if (saved && document.getElementById('view-'+saved)) showView(saved);
 </script>
-
 </body>
 </html>

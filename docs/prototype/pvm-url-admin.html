@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -29,144 +28,48 @@
   --sh: 0 1px 2px rgba(13,31,53,.05),0 1px 3px rgba(13,31,53,.04);
 }
 
-body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--fg);
-  font-size: 14px;
-  line-height: 1.5;
-  min-height: 100vh;
-}
+body { font-family: var(--font); background: var(--bg); color: var(--fg); font-size: 14px; line-height: 1.5; min-height: 100vh; }
 
-.top-stripe {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--accent);
-  z-index: 999;
-}
+.top-stripe { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); z-index: 999; }
 
 .app { display: flex; min-height: 100vh; padding-top: 3px; }
 
-.sidebar {
-  width: var(--sw);
-  background: var(--navy);
-  position: fixed;
-  top: 3px; left: 0; bottom: 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-  overflow-y: auto;
-}
+.sidebar { width: var(--sw); background: var(--navy); position: fixed; top: 3px; left: 0; bottom: 0; display: flex; flex-direction: column; z-index: 100; overflow-y: auto; }
 
-.sb-brand {
-  height: var(--th);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 18px;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  flex-shrink: 0;
-}
+.sb-brand { height: var(--th); display: flex; align-items: center; gap: 10px; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
 
-.sb-logo {
-  width: 30px; height: 30px;
-  border-radius: 7px;
-  background: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 14px;
-  color: var(--navy);
-  flex-shrink: 0;
-  letter-spacing: -0.02em;
-}
+.sb-logo { width: 30px; height: 30px; border-radius: 7px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: var(--navy); flex-shrink: 0; letter-spacing: -0.02em; }
 
 .sb-name { font-size: 12.5px; font-weight: 600; color: #fff; letter-spacing: -0.01em; line-height: 1.1; }
 .sb-sub  { font-size: 9.5px; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
 
 .sb-nav { flex: 1; padding: 10px 10px; display: flex; flex-direction: column; gap: 2px; }
 
-.sb-section {
-  font-size: 9.5px; font-weight: 600;
-  color: rgba(255,255,255,.28);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  padding: 12px 10px 4px;
-}
+.sb-section { font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,.28); text-transform: uppercase; letter-spacing: 0.09em; padding: 12px 10px 4px; }
 
-.nav-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 7px 10px;
-  border-radius: 6px;
-  color: rgba(255,255,255,.55);
-  font-size: 13px; font-weight: 500;
-  cursor: pointer;
-  transition: all .1s;
-  user-select: none;
-}
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 6px; color: rgba(255,255,255,.55); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .1s; user-select: none; }
 .nav-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.85); }
 .nav-item.active { background: rgba(245,196,0,.11); color: var(--accent); }
 
 .nav-icon { width: 15px; height: 15px; flex-shrink: 0; }
 
-.nav-badge {
-  margin-left: auto;
-  font-size: 10px; font-weight: 600;
-  padding: 1px 5px;
-  border-radius: 8px;
-  background: rgba(255,255,255,.09);
-  color: rgba(255,255,255,.45);
-  font-variant-numeric: tabular-nums;
-}
+.nav-badge { margin-left: auto; font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 8px; background: rgba(255,255,255,.09); color: rgba(255,255,255,.45); font-variant-numeric: tabular-nums; }
 .nav-item.active .nav-badge { background: rgba(245,196,0,.18); color: var(--accent); }
 
-.sb-footer {
-  padding: 10px;
-  border-top: 1px solid rgba(255,255,255,.07);
-  flex-shrink: 0;
-}
+.sb-footer { padding: 10px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
 
-.user-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-}
+.user-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
 .user-row:hover { background: rgba(255,255,255,.06); }
 
-.user-av {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: #374151;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10.5px; font-weight: 700; color: #fff;
-  flex-shrink: 0;
-}
+.user-av { width: 26px; height: 26px; border-radius: 50%; background: #374151; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: #fff; flex-shrink: 0; }
 .user-nm { font-size: 12px; font-weight: 500; color: rgba(255,255,255,.7); }
 .user-rl { font-size: 9.5px; color: rgba(255,255,255,.32); margin-top: 1px; }
 
-.main {
-  margin-left: var(--sw);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+.main { margin-left: var(--sw); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-.topbar {
-  height: var(--th);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 24px;
-  position: sticky; top: 3px;
-  z-index: 50;
-  gap: 10px;
-}
+.topbar { height: var(--th); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; position: sticky; top: 3px; z-index: 50; gap: 10px; }
 
-.bc {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 12.5px; color: var(--muted);
-}
+.bc { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--muted); }
 .bc .active { color: var(--fg); font-weight: 500; }
 .bc .sep { color: var(--border); }
 
@@ -177,40 +80,15 @@ body {
 .view { display: none; }
 .view.active { display: block; }
 
-.pg-header {
-  display: flex; align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 22px;
-  gap: 16px;
-}
+.pg-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; gap: 16px; }
 
-.pg-eyebrow {
-  font-size: 10.5px; font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  margin-bottom: 3px;
-}
+.pg-eyebrow { font-size: 10.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
 
-.pg-title {
-  font-size: 22px; font-weight: 700;
-  color: var(--fg);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
+.pg-title { font-size: 22px; font-weight: 700; color: var(--fg); letter-spacing: -0.02em; line-height: 1.2; }
 
 .pg-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
-.btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 13px;
-  border-radius: 6px;
-  font-size: 13px; font-weight: 500;
-  cursor: pointer; border: none;
-  font-family: var(--font);
-  transition: all .1s;
-  line-height: 1;
-  white-space: nowrap;
-}
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; font-family: var(--font); transition: all .1s; line-height: 1; white-space: nowrap; }
 .btn-primary { background: var(--navy); color: #fff; }
 .btn-primary:hover { background: #1a3a5c; }
 .btn-secondary { background: var(--surface); color: var(--fg); border: 1px solid var(--border); box-shadow: var(--sh); }
@@ -222,19 +100,9 @@ body {
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 .btn-xs { padding: 3px 8px; font-size: 11.5px; }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--sh);
-  overflow: hidden;
-}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--sh); overflow: hidden; }
 
-.card-hd {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
+.card-hd { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 
 .card-title { font-size: 13px; font-weight: 600; color: var(--fg); letter-spacing: -0.01em; }
 .card-sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
@@ -243,21 +111,9 @@ body {
 
 .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
 
-.kpi {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px;
-  box-shadow: var(--sh);
-}
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: var(--sh); }
 
-.kpi-lbl {
-  font-size: 11px; font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  margin-bottom: 6px;
-  display: flex; align-items: center; justify-content: space-between;
-}
+.kpi-lbl { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
 
 .kpi-icon { border-radius: 7px; padding: 5px; display: flex; }
 .kpi-icon.blue  { background: #EFF6FF; color: #2563EB; }
@@ -265,114 +121,55 @@ body {
 .kpi-icon.amber { background: #FFFBEB; color: var(--amber); }
 .kpi-icon.purple{ background: #F5F3FF; color: var(--purple); }
 
-.kpi-val {
-  font-size: 26px; font-weight: 700;
-  color: var(--fg);
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  margin-bottom: 5px;
-}
+.kpi-val { font-size: 26px; font-weight: 700; color: var(--fg); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: 5px; }
 
 .kpi-delta { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 3px; }
-.kpi-delta.up   { color: var(--green); }
+.kpi-delta.up { color: var(--green); }
 
 .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
 .g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
 
 .t-wrap { overflow-x: auto; }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
-th {
-  text-align: left;
-  font-size: 10.5px; font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 9px 16px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
+th { text-align: left; font-size: 10.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; padding: 9px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 
-td {
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--bg);
-  vertical-align: middle;
-}
+td { padding: 11px 16px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: var(--surface2); cursor: pointer; }
 
 .td-code { font-family: var(--mono); font-size: 12px; color: var(--teal); }
 .td-dest { font-family: var(--mono); font-size: 11.5px; color: var(--muted); max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 2px 7px;
-  border-radius: 100px;
-  font-size: 11px; font-weight: 500;
-  white-space: nowrap; line-height: 1.4;
-}
+.badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 100px; font-size: 11px; font-weight: 500; white-space: nowrap; line-height: 1.4; }
 .bg-grey   { background: #F3F4F6; color: #4B5563; }
 .bg-green  { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
 .bg-amber  { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
 .bg-blue   { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
 .bg-purple { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
 .bg-red    { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+.bg-navy   { background: rgba(13,31,53,.07); color: #0D1F35; border: 1px solid rgba(13,31,53,.18); }
 
 .tags { display: flex; flex-wrap: wrap; gap: 4px; }
 
-.tag {
-  display: inline-flex; align-items: center; gap: 2px;
-  padding: 2px 6px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 11px; color: var(--muted); font-weight: 500;
-}
+.tag { display: inline-flex; align-items: center; gap: 2px; padding: 2px 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; color: var(--muted); font-weight: 500; }
 
 .form-g { margin-bottom: 16px; }
 .form-g:last-child { margin-bottom: 0; }
 
-label {
-  display: block;
-  font-size: 12.5px; font-weight: 500;
-  color: var(--fg);
-  margin-bottom: 4px;
-}
+label { display: block; font-size: 12.5px; font-weight: 500; color: var(--fg); margin-bottom: 4px; }
 .lbl-hint { font-weight: 400; color: var(--muted); font-size: 11.5px; }
 
-input[type=text],input[type=url],input[type=search],select,textarea {
-  width: 100%;
-  padding: 7px 11px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: var(--font);
-  color: var(--fg);
-  background: var(--surface);
-  transition: border-color .12s, box-shadow .12s;
-  outline: none;
-  line-height: 1.5;
+input[type=text],input[type=url],input[type=search],input[type=email],select,textarea {
+  width: 100%; padding: 7px 11px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: var(--font); color: var(--fg); background: var(--surface); transition: border-color .12s, box-shadow .12s; outline: none; line-height: 1.5;
 }
-input:focus,select:focus,textarea:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(13,31,53,.08);
-}
+input:focus,select:focus,textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(13,31,53,.08); }
 input.mono { font-family: var(--mono); font-size: 12.5px; }
 
 .input-pfx-wrap { display: flex; align-items: stretch; }
-.input-pfx {
-  display: flex; align-items: center;
-  padding: 7px 11px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-  font-size: 12px; color: var(--muted);
-  font-family: var(--mono);
-  white-space: nowrap;
-}
+.input-pfx { display: flex; align-items: center; padding: 7px 11px; background: var(--bg); border: 1px solid var(--border); border-right: none; border-radius: 6px 0 0 6px; font-size: 12px; color: var(--muted); font-family: var(--mono); white-space: nowrap; }
 .input-pfx-wrap input { border-radius: 0 6px 6px 0; }
 
 textarea { resize: vertical; min-height: 72px; }
@@ -381,52 +178,23 @@ textarea { resize: vertical; min-height: 72px; }
 
 .grid-2f { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-.tag-ms {
-  display: flex; flex-wrap: wrap; gap: 5px;
-  padding: 7px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  min-height: 40px;
-  cursor: text;
-  transition: border-color .12s;
-}
+.tag-ms { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px; border: 1px solid var(--border); border-radius: 6px; min-height: 40px; cursor: text; transition: border-color .12s; }
 .tag-ms:focus-within { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(13,31,53,.08); }
 
-.tag-opt {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 11.5px; font-weight: 500;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--bg); color: var(--muted);
-  transition: all .1s;
-}
+.tag-opt { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--muted); transition: all .1s; }
 .tag-opt:hover { border-color: var(--navy); color: var(--fg); }
 .tag-opt.sel   { background: var(--navy); color: #fff; border-color: var(--navy); }
 
-.filter-bar {
-  display: flex; align-items: center; gap: 7px;
-  padding: 12px 18px;
-  border-bottom: 1px solid var(--border);
-}
+.filter-bar { display: flex; align-items: center; gap: 7px; padding: 12px 18px; border-bottom: 1px solid var(--border); }
 
 .search-w { position: relative; flex: 1; max-width: 380px; }
-.s-icon {
-  position: absolute; left: 9px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted); pointer-events: none;
-}
+.s-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 .s-input { padding-left: 32px !important; }
 
 select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
 
 .act-list { list-style: none; }
-.act-item {
-  display: flex; align-items: flex-start; gap: 11px;
-  padding: 11px 18px;
-  border-bottom: 1px solid var(--bg);
-}
+.act-item { display: flex; align-items: flex-start; gap: 11px; padding: 11px 18px; border-bottom: 1px solid var(--bg); }
 .act-item:last-child { border-bottom: none; }
 
 .dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
@@ -452,57 +220,15 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
 .mbar  { width: 4px; border-radius: 1px; background: var(--border); }
 .mbar.hi { background: var(--navy); }
 
-.url-box {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 11px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-family: var(--mono); font-size: 12.5px;
-  color: var(--teal);
-  white-space: nowrap;
-}
-.copy-btn {
-  margin-left: 4px;
-  font-family: var(--font);
-  font-size: 11px; font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  transition: all .1s;
-}
+.url-box { display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 12.5px; color: var(--teal); white-space: nowrap; }
+.copy-btn { margin-left: 4px; font-family: var(--font); font-size: 11px; font-weight: 500; color: var(--muted); cursor: pointer; padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); background: var(--surface); transition: all .1s; }
 .copy-btn:hover { color: var(--fg); }
 
-.click-hd, .click-row {
-  display: grid;
-  grid-template-columns: 1fr 150px 90px 130px;
-  gap: 12px;
-  padding: 9px 18px;
-  align-items: center;
-  border-bottom: 1px solid var(--bg);
-  font-size: 12.5px;
-}
+.click-hd, .click-row { display: grid; grid-template-columns: 1fr 150px 90px 130px; gap: 12px; padding: 9px 18px; align-items: center; border-bottom: 1px solid var(--bg); font-size: 12.5px; }
 .click-row:last-child { border-bottom: none; }
-.click-hd {
-  font-size: 10px; font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.07em;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 7px;
-}
+.click-hd { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); padding-bottom: 7px; }
 
-.qr-stub {
-  width: 108px; height: 108px;
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 5px;
-  color: var(--muted); font-size: 10.5px;
-  text-align: center; line-height: 1.3;
-}
+.qr-stub { width: 108px; height: 108px; border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; color: var(--muted); font-size: 10.5px; text-align: center; line-height: 1.3; }
 
 .tgl-wrap { display: flex; align-items: center; gap: 10px; }
 .tgl { position: relative; width: 34px; height: 18px; cursor: pointer; flex-shrink: 0; }
@@ -512,21 +238,13 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
 .tgl-thumb { position: absolute; width: 12px; height: 12px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
 .tgl input:checked ~ .tgl-thumb { transform: translateX(16px); }
 
-.mg-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 9px 16px;
-  border-bottom: 1px solid var(--bg);
-}
+.mg-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 1px solid var(--bg); }
 .mg-item:last-child { border-bottom: none; }
 .mg-name { font-size: 13px; font-weight: 500; }
 .mg-meta { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
 .mg-actions { display: flex; gap: 4px; }
 
-.back-link {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 12.5px; color: var(--muted);
-  cursor: pointer; margin-bottom: 14px;
-}
+.back-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--muted); cursor: pointer; margin-bottom: 14px; }
 .back-link:hover { color: var(--fg); }
 
 .flex   { display: flex; }
@@ -548,6 +266,110 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Access management ── */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 16px; border-radius: 8px;
+  font-size: 13px; line-height: 1.5;
+  margin-bottom: 16px; border: 1px solid;
+}
+.alert-info  { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
+.alert-warn  { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
+
+.access-user-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--bg);
+  transition: background .08s;
+}
+.access-user-row:last-child { border-bottom: none; }
+.access-user-row:hover { background: var(--surface2); }
+
+.pending-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--bg);
+  background: #FAFBFC;
+}
+.pending-row:last-child { border-bottom: none; }
+
+.access-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0; letter-spacing: -0.01em;
+}
+.pending-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #E5E7EB;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.access-info { flex: 1; min-width: 0; }
+.access-name { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.access-email { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.access-audit { font-size: 11px; color: #9CA3AF; margin-top: 3px; }
+
+.access-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.you-badge {
+  font-size: 10px; font-weight: 600; padding: 1px 5px;
+  border-radius: 3px; background: var(--bg);
+  color: var(--muted); border: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+
+.role-select {
+  width: auto !important; min-width: 130px;
+  padding: 5px 9px !important; font-size: 12px !important;
+  border-radius: 5px; cursor: pointer;
+}
+
+.role-locked-badge { cursor: default; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; }
+
+.saved-flash {
+  font-size: 11px; font-weight: 500; color: var(--green);
+  display: flex; align-items: center; gap: 3px;
+  animation: flashFade 1.6s ease-out forwards;
+}
+@keyframes flashFade { 0%,60%{ opacity:1; } 100%{ opacity:0; } }
+
+.cap-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.cap-list li { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 7px; line-height: 1.4; }
+.cap-list li::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.cap-list li.no { color: #9CA3AF; }
+.cap-list li.no::before { background: var(--border); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,31,53,.4);
+  display: none; align-items: center; justify-content: center;
+  z-index: 800;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(13,31,53,.15);
+  padding: 24px;
+  width: 420px; max-width: 92vw;
+}
+.modal-hd { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
+.modal-body { font-size: 13px; color: var(--fg); line-height: 1.6; margin-bottom: 6px; }
+.modal-body.sub { color: var(--muted); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 22px; }
+
+/* ── Settings view ── */
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--bg); gap: 24px; }
+.setting-row:last-child { border-bottom: none; }
+.setting-lbl { font-size: 13px; font-weight: 500; }
+.setting-sub { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.setting-ctrl { flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -600,7 +422,16 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
     </div>
 
     <div class="sb-section">System</div>
-    <div class="nav-item">
+    <div class="nav-item" data-view="access">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="6" cy="5" r="2.5"/>
+        <path d="M1 13c0-2.76 2.24-5 5-5h.5"/>
+        <rect x="9" y="9" width="6" height="5" rx="1"/>
+        <path d="M11 9V7.5a1 1 0 0 1 2 0V9"/>
+      </svg>
+      Access
+    </div>
+    <div class="nav-item" data-view="settings">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="8" cy="8" r="2.5"/>
         <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/>
@@ -627,7 +458,7 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
       <span>PVM URL Admin</span><span class="sep">›</span><span class="active">Dashboard</span>
     </div>
     <div class="topbar-actions">
-      <button class="btn btn-secondary btn-sm">
+      <button class="btn btn-secondary btn-sm" data-go="settings">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2"/>
         </svg>
@@ -827,7 +658,7 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
             <td><span class="badge bg-green">Active</span></td><td class="muted sm">2026/05/10</td>
             <td><button class="btn btn-ghost btn-xs" data-go="create">Edit</button></td>
           </tr>
-          <tr data-go="create">
+          <tr>
             <td class="td-code">go.pvm.co.za/ptn-1</td>
             <td><div class="semibold" style="font-size:13px">Fusion Meal Replacement</div><div class="td-dest">pvm.co.za/product/fusion-meal-replacement/</div></td>
             <td><span class="badge bg-grey">General</span></td><td><span class="badge bg-blue">Print / QR</span></td>
@@ -1174,17 +1005,204 @@ select.flt { width: auto !important; min-width: 120px; font-size: 12.5px; }
   </div>
 </section>
 
+
+<!-- ══ ACCESS MANAGEMENT ══ -->
+<section class="view" id="view-access">
+  <div class="pg-header">
+    <div>
+      <div class="pg-eyebrow">System</div>
+      <h1 class="pg-title">Access Management</h1>
+      <p class="pg-desc">Control who can access PVM URL Admin and what they can do.</p>
+    </div>
+    <button class="btn btn-primary" onclick="openInvite()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+      Invite user
+    </button>
+  </div>
+
+  <!-- Single-admin guard banner -->
+  <div class="alert alert-info" id="single-admin-alert" style="display:none">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;margin-top:1px"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5v.5"/></svg>
+    <span>You are the only Administrator. Promote another user to Administrator before you can transfer or remove your own access.</span>
+  </div>
+
+  <!-- Invite panel -->
+  <div class="card" id="invite-panel" style="display:none;margin-bottom:16px">
+    <div class="card-hd">
+      <div><div class="card-title">Invite a new user</div><div class="card-sub">An email invitation will be sent — expires in 7 days</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="closeInvite()" style="padding:4px 8px">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="card-bd">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-g" style="flex:1;min-width:200px;margin:0">
+          <label>Email address</label>
+          <input type="email" id="invite-email" placeholder="name@domain.com">
+        </div>
+        <div class="form-g" style="width:170px;margin:0">
+          <label>Role</label>
+          <select id="invite-role">
+            <option value="viewer">Viewer</option>
+            <option value="editor" selected>Editor</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="sendInvite()" style="margin-bottom:0">Send invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active users card -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd">
+      <div><div class="card-title">Active users</div><div class="card-sub" id="user-count">3 users</div></div>
+    </div>
+    <div id="users-list"></div>
+  </div>
+
+  <!-- Pending invites card (hidden when empty) -->
+  <div class="card" id="pending-card" style="margin-bottom:16px;display:none">
+    <div class="card-hd">
+      <div><div class="card-title">Pending invites</div><div class="card-sub" id="pending-count">—</div></div>
+    </div>
+    <div id="pending-list"></div>
+  </div>
+
+  <!-- Role reference -->
+  <div class="card">
+    <div class="card-hd"><div class="card-title">Role capabilities</div><div class="card-sub">What each access level can do</div></div>
+    <div class="card-bd g3">
+      <div>
+        <div style="margin-bottom:10px"><span class="badge bg-navy" style="font-size:11.5px;padding:3px 10px">Administrator</span></div>
+        <ul class="cap-list">
+          <li>Create, edit, and delete redirects</li>
+          <li>Manage tags and categories</li>
+          <li>Change system settings</li>
+          <li>Invite and manage users</li>
+          <li>View all analytics</li>
+        </ul>
+      </div>
+      <div>
+        <div style="margin-bottom:10px"><span class="badge bg-blue" style="font-size:11.5px;padding:3px 10px">Editor</span></div>
+        <ul class="cap-list">
+          <li>Create and edit redirects</li>
+          <li>Manage tags and categories</li>
+          <li>View all analytics</li>
+          <li class="no">Cannot manage users</li>
+          <li class="no">Cannot change system settings</li>
+        </ul>
+      </div>
+      <div>
+        <div style="margin-bottom:10px"><span class="badge bg-grey" style="font-size:11.5px;padding:3px 10px">Viewer</span></div>
+        <ul class="cap-list">
+          <li>View all redirects</li>
+          <li>View all analytics</li>
+          <li class="no">Cannot create or edit redirects</li>
+          <li class="no">Cannot manage users</li>
+          <li class="no">Cannot change settings</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ SETTINGS ══ -->
+<section class="view" id="view-settings">
+  <div class="pg-header">
+    <div>
+      <div class="pg-eyebrow">System</div>
+      <h1 class="pg-title">Settings</h1>
+      <p class="pg-desc">System-wide configuration for redirect behaviour.</p>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:680px">
+    <div class="card-hd"><div class="card-title">Redirect behaviour</div></div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-lbl">Fallback URL</div>
+        <div class="setting-sub">Where unknown or invalid short codes redirect. Defaults to the main site if left blank.</div>
+      </div>
+      <div class="setting-ctrl" style="width:280px">
+        <input type="url" value="https://www.pvm.co.za/" style="font-family:var(--mono);font-size:12px">
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-lbl">Short link domain</div>
+        <div class="setting-sub">The base domain for all generated short URLs. Contact support to change.</div>
+      </div>
+      <div class="setting-ctrl">
+        <div class="url-box" style="font-size:12px">go.pvm.co.za</div>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-lbl">Expiry notification</div>
+        <div class="setting-sub">Send an email notification this many days before a campaign redirect expires.</div>
+      </div>
+      <div class="setting-ctrl" style="width:100px">
+        <input type="text" value="7" style="text-align:center">
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-lbl">Default redirect type</div>
+        <div class="setting-sub">HTTP status code used when resolving redirects.</div>
+      </div>
+      <div class="setting-ctrl" style="width:160px">
+        <select>
+          <option selected>301 Permanent</option>
+          <option>302 Temporary</option>
+          <option>307 Temporary (strict)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;max-width:680px;display:flex;justify-content:flex-end">
+    <button class="btn btn-primary">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8l4 4 8-8"/></svg>
+      Save settings
+    </button>
+  </div>
+</section>
+
+
   </main>
 </div>
 </div>
 
+<!-- ══ REMOVE CONFIRMATION MODAL ══ -->
+<div class="modal-overlay" id="modal-remove">
+  <div class="modal-box">
+    <div class="modal-hd">Remove access</div>
+    <p class="modal-body">Remove <strong id="modal-user-name"></strong> from PVM URL Admin?</p>
+    <p class="modal-body sub" id="modal-user-email" style="font-family:var(--mono);font-size:12px;margin-bottom:10px"></p>
+    <p class="modal-body sub">Their <strong id="modal-user-role"></strong> access will be revoked immediately. They will need to be re-invited to regain access.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmRemove()" style="font-size:13px;padding:7px 14px">Remove access</button>
+    </div>
+  </div>
+</div>
+
 <script>
+/* ── Navigation ── */
 const viewMeta = {
-  dashboard: { bc: ['PVM URL Admin', 'Dashboard'],         nav: 0 },
-  redirects: { bc: ['Redirects', 'All Redirects'],         nav: 1 },
-  create:    { bc: ['Redirects', 'New Redirect'],          nav: 2 },
-  detail:    { bc: ['Redirects', 'PVM Energy Bar'],        nav: 1 },
-  tags:      { bc: ['Organisation', 'Tags & Categories'],  nav: 3 },
+  dashboard: { bc: ['PVM URL Admin', 'Dashboard'],           nav: 0 },
+  redirects: { bc: ['Redirects', 'All Redirects'],           nav: 1 },
+  create:    { bc: ['Redirects', 'New Redirect'],            nav: 2 },
+  detail:    { bc: ['Redirects', 'PVM Energy Bar'],          nav: 1 },
+  tags:      { bc: ['Organisation', 'Tags & Categories'],    nav: 3 },
+  access:    { bc: ['System', 'Access Management'],          nav: 4 },
+  settings:  { bc: ['System', 'Settings'],                   nav: 5 },
 };
 
 function showView(id) {
@@ -1204,6 +1222,7 @@ function showView(id) {
   }
   window.scrollTo(0, 0);
   sessionStorage.setItem('pvm-view', id);
+  if (id === 'access') renderAccessView();
 }
 
 document.addEventListener('click', e => {
@@ -1217,6 +1236,7 @@ document.querySelectorAll('.nav-item[data-view]').forEach(item => {
   item.addEventListener('click', () => showView(item.dataset.view));
 });
 
+/* ── Create form: code preview ── */
 const codeInput = document.getElementById('code-input');
 const codePreview = document.getElementById('code-preview');
 if (codeInput && codePreview) {
@@ -1237,6 +1257,216 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
   });
 });
 
+/* ── Access management state ── */
+let accessUsers = [
+  { id: 1, name: 'Marius van der Merwe', email: 'developer@pvm.co.za', role: 'admin', isYou: true,  changedBy: 'System',  changedDate: '13 May 2026' },
+  { id: 2, name: 'Sarah Naidoo',         email: 'sarah@pvm.co.za',     role: 'editor', isYou: false, changedBy: 'Marius', changedDate: '12 May 2026' },
+  { id: 3, name: 'Lebo Dlamini',         email: 'lebo@pvm.co.za',      role: 'viewer', isYou: false, changedBy: 'Marius', changedDate: '10 May 2026' },
+];
+
+let pendingInvites = [
+  { id: 1, email: 'info@agencypartner.co.za', role: 'editor', invitedBy: 'Marius', daysAgo: 2, expiresIn: 5 },
+];
+
+let removeTargetId = null;
+
+const avatarColors = ['#1a3a5c', '#0f5132', '#4C1D95', '#7C2D12', '#065F46', '#1E3A5F'];
+
+function getInitials(name) {
+  return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function getRoleLabel(role) {
+  return { admin: 'Administrator', editor: 'Editor', viewer: 'Viewer' }[role] || role;
+}
+
+function getRoleBadgeClass(role) {
+  return { admin: 'bg-navy', editor: 'bg-blue', viewer: 'bg-grey' }[role] || 'bg-grey';
+}
+
+function adminCount() {
+  return accessUsers.filter(u => u.role === 'admin').length;
+}
+
+function renderAccessView() {
+  const isLastAdmin = adminCount() === 1;
+
+  const alertEl = document.getElementById('single-admin-alert');
+  if (alertEl) alertEl.style.display = isLastAdmin ? 'flex' : 'none';
+
+  const countEl = document.getElementById('user-count');
+  if (countEl) countEl.textContent = `${accessUsers.length} ${accessUsers.length === 1 ? 'user' : 'users'}`;
+
+  const list = document.getElementById('users-list');
+  if (!list) return;
+
+  list.innerHTML = accessUsers.map((user, i) => {
+    const locked = user.role === 'admin' && isLastAdmin;
+    const canRemove = !user.isYou && !locked;
+    const color = avatarColors[i % avatarColors.length];
+
+    const roleCtrl = locked
+      ? `<span class="badge bg-navy role-locked-badge" title="Last Administrator — promote another user first">
+           <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="3" y="7" width="10" height="8" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+           Administrator
+         </span>`
+      : `<select class="role-select" onchange="changeRole(${user.id}, this.value)">
+           <option value="viewer"${user.role==='viewer'?' selected':''}>Viewer</option>
+           <option value="editor"${user.role==='editor'?' selected':''}>Editor</option>
+           <option value="admin"${user.role==='admin'?' selected':''}>Administrator</option>
+         </select>`;
+
+    const removeBtn = user.isYou
+      ? `<button class="btn btn-ghost btn-xs" disabled title="You cannot remove your own access" style="opacity:.3;cursor:not-allowed;min-width:58px">Remove</button>`
+      : locked
+        ? `<button class="btn btn-ghost btn-xs" disabled title="Cannot remove the last Administrator" style="opacity:.3;cursor:not-allowed;min-width:58px">Remove</button>`
+        : `<button class="btn btn-danger btn-xs" onclick="showRemoveModal(${user.id})" style="min-width:58px">Remove</button>`;
+
+    return `
+      <div class="access-user-row" id="user-row-${user.id}">
+        <div class="access-av" style="background:${color}">${esc(getInitials(user.name))}</div>
+        <div class="access-info">
+          <div class="access-name">
+            ${esc(user.name)}
+            ${user.isYou ? '<span class="you-badge">You</span>' : ''}
+          </div>
+          <div class="access-email">${esc(user.email)}</div>
+          <div class="access-audit">Last changed by ${esc(user.changedBy)} · ${esc(user.changedDate)}</div>
+        </div>
+        <div class="access-controls" id="ctrl-${user.id}">
+          ${roleCtrl}
+          ${removeBtn}
+        </div>
+      </div>`;
+  }).join('');
+
+  renderPending();
+}
+
+function renderPending() {
+  const card = document.getElementById('pending-card');
+  const list = document.getElementById('pending-list');
+  const count = document.getElementById('pending-count');
+  if (!card || !list) return;
+
+  card.style.display = pendingInvites.length ? 'block' : 'none';
+  if (count) count.textContent = `${pendingInvites.length} pending`;
+
+  list.innerHTML = pendingInvites.map(inv => {
+    const daysText = inv.daysAgo === 0 ? 'Just now' : `${inv.daysAgo} day${inv.daysAgo !== 1 ? 's' : ''} ago`;
+    return `
+      <div class="pending-row">
+        <div class="pending-av">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#9CA3AF" stroke-width="1.5"><path d="M2 13c0-2.76 2.24-5 5-5h2c2.76 0 5 2.24 5 5"/><circle cx="8" cy="5" r="2.5"/></svg>
+        </div>
+        <div class="access-info">
+          <div class="access-name mono" style="font-weight:500;font-size:12.5px">${esc(inv.email)}</div>
+          <div class="access-audit">Invited as ${getRoleLabel(inv.role)} · by ${esc(inv.invitedBy)} · ${daysText} · Expires in ${inv.expiresIn} days</div>
+        </div>
+        <div class="access-controls">
+          <span class="badge ${getRoleBadgeClass(inv.role)}">${getRoleLabel(inv.role)}</span>
+          <button class="btn btn-ghost btn-xs">Resend</button>
+          <button class="btn btn-danger btn-xs" onclick="cancelInvite(${inv.id})">Cancel</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function changeRole(userId, newRole) {
+  const user = accessUsers.find(u => u.id === userId);
+  if (!user) return;
+  user.role = newRole;
+  user.changedBy = 'Marius';
+  user.changedDate = 'Just now';
+
+  const ctrl = document.getElementById(`ctrl-${userId}`);
+  if (ctrl) {
+    const flash = document.createElement('span');
+    flash.className = 'saved-flash';
+    flash.innerHTML = `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 8l4 4 8-8"/></svg> Saved`;
+    ctrl.appendChild(flash);
+    setTimeout(() => flash.remove(), 1700);
+  }
+
+  // re-render only if admin count changed (to update guards)
+  const needsFullRender = (newRole === 'admin') || adminCount() <= 1;
+  if (needsFullRender) renderAccessView();
+  else {
+    const auditEl = document.querySelector(`#user-row-${userId} .access-audit`);
+    if (auditEl) auditEl.textContent = `Last changed by Marius · Just now`;
+  }
+}
+
+function showRemoveModal(userId) {
+  const user = accessUsers.find(u => u.id === userId);
+  if (!user) return;
+  removeTargetId = userId;
+  document.getElementById('modal-user-name').textContent = user.name;
+  document.getElementById('modal-user-email').textContent = user.email;
+  document.getElementById('modal-user-role').textContent = getRoleLabel(user.role);
+  document.getElementById('modal-remove').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-remove').classList.remove('open');
+  removeTargetId = null;
+}
+
+function confirmRemove() {
+  if (!removeTargetId) return;
+  accessUsers = accessUsers.filter(u => u.id !== removeTargetId);
+  closeModal();
+  renderAccessView();
+}
+
+function cancelInvite(invId) {
+  pendingInvites = pendingInvites.filter(i => i.id !== invId);
+  renderPending();
+}
+
+function openInvite() {
+  const panel = document.getElementById('invite-panel');
+  if (!panel) return;
+  panel.style.display = 'block';
+  document.getElementById('invite-email').focus();
+}
+
+function closeInvite() {
+  const panel = document.getElementById('invite-panel');
+  if (panel) panel.style.display = 'none';
+  document.getElementById('invite-email').value = '';
+}
+
+function sendInvite() {
+  const emailEl = document.getElementById('invite-email');
+  const email = emailEl.value.trim();
+  const role = document.getElementById('invite-role').value;
+
+  if (!email || !email.includes('@')) {
+    emailEl.style.borderColor = 'var(--red)';
+    emailEl.focus();
+    setTimeout(() => emailEl.style.borderColor = '', 1400);
+    return;
+  }
+
+  pendingInvites.push({ id: Date.now(), email, role, invitedBy: 'Marius', daysAgo: 0, expiresIn: 7 });
+  closeInvite();
+  renderPending();
+
+  const card = document.getElementById('pending-card');
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Close modal on overlay click
+document.getElementById('modal-remove').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Restore session
 const saved = sessionStorage.getItem('pvm-view');
 if (saved && document.getElementById('view-' + saved)) showView(saved);
 </script>
