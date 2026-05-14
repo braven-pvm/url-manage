@@ -69,13 +69,16 @@ describe("AdminLayout", () => {
       within(desktopNavigation).getByRole("link", { name: "Access" }),
     ).toHaveAttribute("href", "/access");
     expect(
-      screen.getByRole("link", { name: "+ New redirect" }),
-    ).toHaveAttribute("href", "/redirects/new");
+      screen.getAllByRole("link", { name: "Settings" }).length,
+    ).toBe(2);
     expect(
-      screen
-        .getAllByRole("link", { name: "Settings" })
-        .every((link) => link.getAttribute("href") === "/settings"),
+      screen.getAllByRole("link", { name: "Settings" }).every(
+        (link) => link.getAttribute("href") === "/settings",
+      ),
     ).toBe(true);
+    expect(
+      screen.getAllByRole("link", { name: "New Redirect" }).length,
+    ).toBe(2);
     expect(screen.getByRole("button", { name: "User menu" })).toBeInTheDocument();
     expect(screen.getByText("admin@pvm.co.za")).toBeInTheDocument();
     expect(screen.getByText("Administrator")).toBeInTheDocument();

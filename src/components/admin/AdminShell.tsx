@@ -82,8 +82,6 @@ export function AdminShell({
   const breadcrumb = getBreadcrumb(pathname);
   const redirectCountLabel =
     typeof redirectCount === "number" ? redirectCount.toLocaleString("en-ZA") : null;
-  const canEdit = hasAdminRole(adminRole, "EDITOR");
-  const canAdminister = hasAdminRole(adminRole, "ADMINISTRATOR");
   const visibleNavGroups = navGroups
     .map((group) => ({
       ...group,
@@ -185,24 +183,6 @@ export function AdminShell({
                 {breadcrumb.current}
               </span>
             </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {canAdminister ? (
-              <Link
-                className="hidden rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--pvm-fg)] shadow-sm transition hover:border-[var(--pvm-fg)] sm:inline-flex"
-                href="/settings"
-              >
-                Settings
-              </Link>
-            ) : null}
-            {canEdit ? (
-              <Link
-                className="rounded-md bg-[var(--pvm-fg)] px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#123253]"
-                href="/redirects/new"
-              >
-                + New redirect
-              </Link>
-            ) : null}
           </div>
         </div>
         <nav
