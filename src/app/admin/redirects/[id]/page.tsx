@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { DeleteRedirectButton } from "@/components/admin/DeleteRedirectButton";
 import { PendingButton } from "@/components/admin/PendingButton";
+import { QrPanel } from "@/components/admin/QrPanel";
 import { RedirectForm } from "@/components/admin/RedirectForm";
 import {
   AdminCard,
@@ -315,6 +316,8 @@ export default async function RedirectDetailPage({
           </div>
         </AdminCard>
       </div>
+
+      <QrPanel code={redirect.code} />
 
       <AdminCard>
         <CardHeader
