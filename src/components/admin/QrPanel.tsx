@@ -17,6 +17,12 @@ const PRESETS: Array<{ label: string; bg: string | null; fg: string | null }> = 
   { label: "Custom", bg: null, fg: null },
 ];
 
+const DOWNLOAD_HINTS: Record<QrFormat, string> = {
+  svg: "Print-ready · vector · 4mm quiet zone",
+  png: "Raster · 1000 px · 4mm quiet zone",
+  pdf: "A4 PDF · print-ready · 4mm quiet zone",
+};
+
 function swatchBg(label: string): string {
   switch (label) {
     case "Brand": return "#1a2b4a";
@@ -87,7 +93,7 @@ function openPrintWindow(imgSrc: string, onDone?: () => void) {
   if (onDone) win.addEventListener("afterprint", onDone);
 }
 
-// ── icon components ─────────────────────────────────────────────────────────
+// ── icon components ──────────────────────────────────────────────────────────
 
 function DotIcon({ style, active }: { style: QrDots; active: boolean }) {
   const fill = active ? "var(--pvm-fg)" : "#6B7280";
@@ -106,10 +112,21 @@ function DotIcon({ style, active }: { style: QrDots; active: boolean }) {
   );
 }
 
-function LogoBtn({ active, children, onClick }: { active: boolean; children: ReactNode; onClick: () => void }) {
+// Logo option button — `grow` makes it flex-1 for the mobile row layout
+function LogoBtn({
+  active,
+  children,
+  grow,
+  onClick,
+}: {
+  active: boolean;
+  children: ReactNode;
+  grow?: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
-      className={`flex flex-1 items-center justify-center gap-[7px] rounded-[7px] border-[1.5px] bg-white px-2.5 py-[9px] text-[12.5px] font-medium transition-all ${
+      className={`flex items-center justify-center gap-[7px] rounded-[7px] border-[1.5px] bg-white px-2.5 py-[9px] text-[12.5px] font-medium transition-all ${grow ? "flex-1" : "w-full"} ${
         active
           ? "border-[var(--pvm-fg)] bg-[rgba(13,31,53,.03)] text-[var(--pvm-fg)]"
           : "border-[var(--pvm-border)] text-[var(--pvm-muted)] hover:border-gray-400"
@@ -164,10 +181,8 @@ function UploadIcon() {
 function CopyIcon() {
   return (
     <svg fill="none" height="13" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 16 16" width="13">
-      <rect height="5" rx=".8" width="5" x="2" y="2" />
-      <rect height="5" rx=".8" width="5" x="9" y="2" />
-      <rect height="5" rx=".8" width="5" x="2" y="9" />
-      <path d="M9 11.5h4M11 9.5v4" />
+      <rect height="8" rx="1" width="8" x="6" y="6" />
+      <path d="M4 10H3a1 1 0 01-1-1V3a1 1 0 011-1h6a1 1 0 011 1v1" />
     </svg>
   );
 }
@@ -181,13 +196,24 @@ function DownloadIcon() {
   );
 }
 
+// ── section label ────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-[.07em] text-[var(--pvm-muted)]">
+      {children}
+    </p>
+  );
+}
+
 // ── main component ───────────────────────────────────────────────────────────
 
 export function QrPanel({
+  category,
   code,
   name,
   shortUrl,
-}: Readonly<{ code: string; name: string; shortUrl: string }>) {
+}: Readonly<{ category?: string; code: string; name: string; shortUrl: string }>) {
   const [format, setFormat] = useState<QrFormat>("svg");
   const [fg, setFg] = useState("#1a2b4a");
   const [bg, setBg] = useState("#ffffff");
@@ -202,7 +228,6 @@ export function QrPanel({
   const [copied, setCopied] = useState(false);
   const latestBlobUrl = useRef<string | null>(null);
 
-  // POST preview: always SVG so the <img> can render it
   useEffect(() => {
     if (logoMode !== "upload" || !logoFile) {
       setBlobUrl((prev) => {
@@ -293,238 +318,317 @@ export function QrPanel({
   const previewSrc = isUploadMode ? blobUrl : getHref;
   const needsButton = format === "pdf" || isUploadMode;
   const downloadDisabled = isUploadMode && !isUploadReady && format !== "pdf";
+  const displayUrl = shortUrl.replace(/^https?:\/\//, "");
+
+  // ── shared sub-sections (used in both mobile & desktop) ──────────────────
+
+  const formatControl = (
+    <div>
+      <SectionLabel>Download Format</SectionLabel>
+      <div className="inline-flex gap-0.5 rounded-[7px] border border-[var(--pvm-border)] bg-[#EEF1F5] p-[3px]">
+        {(["svg", "png", "pdf"] as QrFormat[]).map((f) => (
+          <button
+            className={`rounded-[5px] px-3.5 py-[5px] text-[12.5px] font-medium leading-none transition-all ${
+              format === f
+                ? "bg-white text-[var(--pvm-fg)] shadow-sm ring-1 ring-black/[.06]"
+                : "text-[var(--pvm-muted)] hover:text-[var(--pvm-fg)]"
+            }`}
+            key={f}
+            onClick={() => setFormat(f)}
+            type="button"
+          >
+            {f.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const colorScheme = (
+    <div>
+      <SectionLabel>Color Scheme</SectionLabel>
+      <div className="flex gap-1.5">
+        {PRESETS.map((preset) => (
+          <button
+            className="flex flex-col items-center gap-[5px]"
+            key={preset.label}
+            onClick={() => applyPreset(preset.label, preset.fg, preset.bg)}
+            type="button"
+          >
+            <div
+              className={`relative h-11 w-11 rounded-[9px] border-2 transition-all ${
+                activePreset === preset.label
+                  ? "border-[var(--pvm-fg)] shadow-[0_0_0_3px_rgba(26,43,74,.12)]"
+                  : "border-transparent"
+              }`}
+              style={{ background: swatchBg(preset.label) }}
+            >
+              <div className="pointer-events-none absolute inset-0 rounded-[7px] border border-black/[.08]" />
+            </div>
+            <span
+              className={`text-[11px] font-medium ${
+                activePreset === preset.label ? "text-[var(--pvm-fg)]" : "text-[var(--pvm-muted)]"
+              }`}
+            >
+              {preset.label}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {activePreset === "Custom" && (
+        <div className="mt-3 flex items-center gap-3 rounded-lg border border-[var(--pvm-border)] bg-[#F8FAFC] px-3.5 py-3">
+          <div className="flex flex-1 items-center gap-2">
+            <span className="text-xs text-[var(--pvm-muted)]">Foreground</span>
+            <div className="h-[30px] w-9 overflow-hidden rounded-md border-[1.5px] border-[var(--pvm-border)]">
+              <input
+                aria-label="Foreground color"
+                className="-m-[7px] h-[44px] w-[50px] cursor-pointer border-none bg-transparent"
+                onChange={(e) => setFg(e.target.value)}
+                type="color"
+                value={fg}
+              />
+            </div>
+          </div>
+          <span className="text-lg text-[var(--pvm-border)]">·</span>
+          <div className="flex flex-1 items-center gap-2">
+            <span className="text-xs text-[var(--pvm-muted)]">Background</span>
+            <div className="h-[30px] w-9 overflow-hidden rounded-md border-[1.5px] border-[var(--pvm-border)]">
+              <input
+                aria-label="Background color"
+                className="-m-[7px] h-[44px] w-[50px] cursor-pointer border-none bg-transparent"
+                onChange={(e) => setBg(e.target.value)}
+                type="color"
+                value={bg}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const dotStyle = (
+    <div>
+      <SectionLabel>Dot Style</SectionLabel>
+      <div className="flex gap-1.5">
+        {(["square", "rounded", "circle"] as QrDots[]).map((d) => (
+          <button
+            className={`flex flex-1 flex-col items-center gap-[7px] rounded-lg border-[1.5px] bg-white px-2 py-2.5 transition-all ${
+              dots === d
+                ? "border-[var(--pvm-fg)] bg-[rgba(13,31,53,.03)]"
+                : "border-[var(--pvm-border)] hover:border-gray-400"
+            }`}
+            key={d}
+            onClick={() => setDots(d)}
+            type="button"
+          >
+            <DotIcon active={dots === d} style={d} />
+            <span className={`text-[11.5px] font-medium ${dots === d ? "text-[var(--pvm-fg)]" : "text-[var(--pvm-muted)]"}`}>
+              {d.charAt(0).toUpperCase() + d.slice(1)}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Logo buttons — `grow` prop controls flex-1 (mobile row) vs w-full (desktop col)
+  const logoButtons = (grow: boolean) => (
+    <>
+      <LogoBtn active={logoMode === "none"} grow={grow} onClick={() => handleLogoModeChange("none")}>
+        <XIcon />
+        None
+      </LogoBtn>
+      <LogoBtn active={logoMode === "default"} grow={grow} onClick={() => handleLogoModeChange("default")}>
+        <PvmBadge />
+        PVM Logo
+      </LogoBtn>
+      <LogoBtn active={logoMode === "upload"} grow={grow} onClick={() => handleLogoModeChange("upload")}>
+        <UploadIcon />
+        Upload
+      </LogoBtn>
+    </>
+  );
+
+  const logoExtras = (
+    <>
+      {logoMode !== "none" && (
+        <div className="flex flex-wrap items-center gap-4">
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-[var(--pvm-muted)]">Logo color</span>
+            <div className="h-[30px] w-9 overflow-hidden rounded-md border-[1.5px] border-[var(--pvm-border)]">
+              <input
+                aria-label="Logo color"
+                className="-m-[7px] h-[44px] w-[50px] cursor-pointer border-none bg-transparent"
+                onChange={(e) => setLogoColor(e.target.value)}
+                type="color"
+                value={logoColor}
+              />
+            </div>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              checked={logoTransparent}
+              onChange={(e) => setLogoTransparent(e.target.checked)}
+              type="checkbox"
+            />
+            <span>Transparent background</span>
+          </label>
+        </div>
+      )}
+      {logoMode === "upload" && (
+        <input
+          accept="image/svg+xml"
+          aria-label="Upload logo file"
+          className="text-sm"
+          onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+          type="file"
+        />
+      )}
+    </>
+  );
+
+  const copyBtn = (full?: boolean) => (
+    <button
+      className={`flex items-center gap-1.5 rounded-[7px] border border-[var(--pvm-border)] bg-white px-4 py-2 text-[13px] font-medium shadow-sm transition hover:bg-[#F8FAFC] ${full ? "w-full justify-center" : ""}`}
+      onClick={handleCopyLink}
+      type="button"
+    >
+      <CopyIcon />
+      {copied ? "Copied!" : "Copy link"}
+    </button>
+  );
+
+  const downloadBtn = (full?: boolean) => needsButton ? (
+    <button
+      className={`flex items-center gap-1.5 rounded-[7px] bg-[var(--pvm-fg)] px-4 py-2 text-[13px] font-medium text-white shadow-sm transition hover:bg-[#1a3a5c] disabled:opacity-50 ${full ? "w-full justify-center" : "flex-1 justify-center"}`}
+      disabled={downloadDisabled}
+      onClick={handleDownload}
+      type="button"
+    >
+      <DownloadIcon />
+      {format === "pdf" ? "Print PDF" : `Download ${format.toUpperCase()}`}
+    </button>
+  ) : (
+    <a
+      className={`flex items-center gap-1.5 rounded-[7px] bg-[var(--pvm-fg)] px-4 py-2 text-[13px] font-medium text-white shadow-sm transition hover:bg-[#1a3a5c] ${full ? "w-full justify-center" : "flex-1 justify-center"}`}
+      download={`qr-${code}.${format}`}
+      href={getHref}
+    >
+      <DownloadIcon />
+      Download {format.toUpperCase()}
+    </a>
+  );
+
+  // ── render ───────────────────────────────────────────────────────────────
 
   return (
     <AdminCard className="overflow-hidden">
-      {/* Yellow accent bar */}
+      {/* Accent bar */}
       <div className="h-[3px] bg-[#F5C400]" />
 
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--pvm-border)] px-[22px] py-[18px]">
+      <div className="flex items-start justify-between border-b border-[var(--pvm-border)] px-6 py-4">
         <div>
-          <p className="text-sm font-semibold tracking-tight">QR Code</p>
-          <p className="mt-0.5 text-[11.5px] text-[var(--pvm-muted)]">{shortUrl}</p>
+          <p className="font-semibold">QR Code</p>
+          <p className="mt-0.5 text-[11.5px] text-[var(--pvm-muted)]">
+            <span className="lg:hidden">{shortUrl}</span>
+            <span className="hidden lg:inline">Stable code for packaging and print — destination updates automatically</span>
+          </p>
         </div>
-        <span className="rounded-[5px] border border-[var(--pvm-border)] bg-[#F8FAFC] px-2 py-1 font-mono text-[10.5px] text-[var(--pvm-muted)]">
-          {name}
-        </span>
-      </div>
-
-      {/* Preview */}
-      <div className="flex items-center justify-center border-b border-[var(--pvm-border)] bg-[#F8FAFC] py-[22px]">
-        <div className="flex h-[160px] w-[160px] items-center justify-center overflow-hidden rounded-xl border border-[var(--pvm-border)] bg-white shadow-sm">
-          {isUploadMode && !logoFile ? (
-            <p className="text-center text-xs text-[var(--pvm-muted)]">Select a file to preview</p>
-          ) : (
-            <img
-              alt="QR code preview"
-              className={`h-[140px] w-[140px] transition-opacity ${previewLoading ? "opacity-50" : "opacity-100"}`}
-              src={previewSrc ?? ""}
-            />
+        <div className="ml-4 flex shrink-0 items-center gap-2">
+          {/* Mobile: name chip */}
+          <span className="rounded-[5px] border border-[var(--pvm-border)] bg-[#F8FAFC] px-2 py-1 font-mono text-[10.5px] text-[var(--pvm-muted)] lg:hidden">
+            {name}
+          </span>
+          {/* Desktop: category + URL chips */}
+          {category && (
+            <span className="hidden rounded-[5px] border border-[var(--pvm-border)] bg-[#F8FAFC] px-2 py-1 text-[10.5px] text-[var(--pvm-muted)] lg:inline-block">
+              {category}
+            </span>
           )}
+          <span className="hidden rounded-[5px] border border-[var(--pvm-border)] bg-[#F8FAFC] px-2 py-1 font-mono text-[10.5px] text-[var(--pvm-muted)] lg:inline-block">
+            {displayUrl}
+          </span>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-col gap-[18px] p-[22px]">
+      {/* Body */}
+      <div className="flex flex-col lg:flex-row lg:divide-x lg:divide-[var(--pvm-border)]">
 
-        {/* Format */}
-        <div>
-          <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-[.07em] text-[var(--pvm-muted)]">Format</p>
-          <div className="inline-flex gap-0.5 rounded-[7px] border border-[var(--pvm-border)] bg-[#EEF1F5] p-[3px]">
-            {(["svg", "png", "pdf"] as QrFormat[]).map((f) => (
-              <button
-                className={`rounded-[5px] px-3.5 py-[5px] text-[12.5px] font-medium leading-none transition-all ${
-                  format === f
-                    ? "bg-white text-[var(--pvm-fg)] shadow-sm ring-1 ring-black/[.06]"
-                    : "text-[var(--pvm-muted)] hover:text-[var(--pvm-fg)]"
-                }`}
-                key={f}
-                onClick={() => setFormat(f)}
-                type="button"
-              >
-                {f.toUpperCase()}
-              </button>
-            ))}
+        {/* Left col: QR preview */}
+        <div className="flex flex-col items-center justify-center border-b border-[var(--pvm-border)] bg-[#F8FAFC] py-6 lg:w-[240px] lg:border-b-0 lg:bg-transparent lg:py-8">
+          {/* Mobile: framed preview */}
+          <div className="flex h-[160px] w-[160px] items-center justify-center overflow-hidden rounded-xl border border-[var(--pvm-border)] bg-white shadow-sm lg:hidden">
+            {isUploadMode && !logoFile ? (
+              <p className="text-center text-xs text-[var(--pvm-muted)]">Select a file to preview</p>
+            ) : (
+              <img
+                alt="QR code preview"
+                className={`h-[140px] w-[140px] transition-opacity ${previewLoading ? "opacity-50" : "opacity-100"}`}
+                src={previewSrc ?? ""}
+              />
+            )}
           </div>
-        </div>
 
-        {/* Color preset */}
-        <div>
-          <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-[.07em] text-[var(--pvm-muted)]">Color Preset</p>
-          <div className="flex gap-1.5">
-            {PRESETS.map((preset) => (
-              <button
-                className="flex flex-col items-center gap-[5px]"
-                key={preset.label}
-                onClick={() => applyPreset(preset.label, preset.fg, preset.bg)}
-                type="button"
-              >
-                <div
-                  className={`relative h-11 w-11 rounded-[9px] border-2 transition-all ${
-                    activePreset === preset.label
-                      ? "border-[var(--pvm-fg)] shadow-[0_0_0_3px_rgba(26,43,74,.12)]"
-                      : "border-transparent"
-                  }`}
-                  style={{ background: swatchBg(preset.label) }}
-                >
-                  <div className="pointer-events-none absolute inset-0 rounded-[7px] border border-black/[.08]" />
-                </div>
-                <span
-                  className={`text-[11px] font-medium ${
-                    activePreset === preset.label ? "text-[var(--pvm-fg)]" : "text-[var(--pvm-muted)]"
-                  }`}
-                >
-                  {preset.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Custom colors row */}
-        {activePreset === "Custom" && (
-          <div className="flex items-center gap-3 rounded-lg border border-[var(--pvm-border)] bg-[#F8FAFC] px-3.5 py-3">
-            <div className="flex flex-1 items-center gap-2">
-              <span className="text-xs text-[var(--pvm-muted)]">Foreground</span>
-              <div className="h-[30px] w-9 overflow-hidden rounded-md border-[1.5px] border-[var(--pvm-border)]">
-                <input
-                  aria-label="Foreground color"
-                  className="-m-[7px] h-[44px] w-[50px] cursor-pointer border-none bg-transparent"
-                  onChange={(e) => setFg(e.target.value)}
-                  type="color"
-                  value={fg}
-                />
+          {/* Desktop: larger unframed preview */}
+          <div className="hidden lg:block">
+            {isUploadMode && !logoFile ? (
+              <div className="flex h-[190px] w-[190px] items-center justify-center rounded-xl border border-[var(--pvm-border)] bg-[#F8FAFC]">
+                <p className="text-center text-xs text-[var(--pvm-muted)]">Select a file<br />to preview</p>
               </div>
-            </div>
-            <span className="text-lg text-[var(--pvm-border)]">·</span>
-            <div className="flex flex-1 items-center gap-2">
-              <span className="text-xs text-[var(--pvm-muted)]">Background</span>
-              <div className="h-[30px] w-9 overflow-hidden rounded-md border-[1.5px] border-[var(--pvm-border)]">
-                <input
-                  aria-label="Background color"
-                  className="-m-[7px] h-[44px] w-[50px] cursor-pointer border-none bg-transparent"
-                  onChange={(e) => setBg(e.target.value)}
-                  type="color"
-                  value={bg}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Dot style */}
-        <div>
-          <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-[.07em] text-[var(--pvm-muted)]">Dot Style</p>
-          <div className="flex gap-1.5">
-            {(["square", "rounded", "circle"] as QrDots[]).map((d) => (
-              <button
-                className={`flex flex-1 flex-col items-center gap-[7px] rounded-lg border-[1.5px] bg-white px-2 py-2.5 transition-all ${
-                  dots === d
-                    ? "border-[var(--pvm-fg)] bg-[rgba(13,31,53,.03)]"
-                    : "border-[var(--pvm-border)] hover:border-gray-400"
-                }`}
-                key={d}
-                onClick={() => setDots(d)}
-                type="button"
-              >
-                <DotIcon active={dots === d} style={d} />
-                <span
-                  className={`text-[11.5px] font-medium ${dots === d ? "text-[var(--pvm-fg)]" : "text-[var(--pvm-muted)]"}`}
-                >
-                  {d.charAt(0).toUpperCase() + d.slice(1)}
-                </span>
-              </button>
-            ))}
+            ) : (
+              <img
+                alt="QR code preview"
+                className={`h-[190px] w-[190px] rounded-lg border border-[var(--pvm-border)] transition-opacity ${previewLoading ? "opacity-50" : "opacity-100"}`}
+                src={previewSrc ?? ""}
+              />
+            )}
+            <p className="mt-3 text-center text-[11.5px] text-[var(--pvm-muted)]">{displayUrl}</p>
           </div>
         </div>
 
-        {/* Logo overlay */}
-        <div>
-          <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-[.07em] text-[var(--pvm-muted)]">Logo Overlay</p>
-          <div className="flex gap-1.5">
-            <LogoBtn active={logoMode === "none"} onClick={() => handleLogoModeChange("none")}>
-              <XIcon />
-              None
-            </LogoBtn>
-            <LogoBtn active={logoMode === "default"} onClick={() => handleLogoModeChange("default")}>
-              <PvmBadge />
-              PVM Logo
-            </LogoBtn>
-            <LogoBtn active={logoMode === "upload"} onClick={() => handleLogoModeChange("upload")}>
-              <UploadIcon />
-              Upload
-            </LogoBtn>
+        {/* Middle col: controls */}
+        <div className="flex flex-1 flex-col gap-5 border-b border-[var(--pvm-border)] p-6 lg:border-b-0">
+          {formatControl}
+          {colorScheme}
+          {dotStyle}
+
+          {/* Mobile-only: logo overlay */}
+          <div className="lg:hidden">
+            <SectionLabel>Logo Overlay</SectionLabel>
+            <div className="flex gap-1.5">
+              {logoButtons(true)}
+            </div>
+            <div className="mt-2 flex flex-col gap-2">
+              {logoExtras}
+            </div>
+          </div>
+        </div>
+
+        {/* Right col: logo + actions (desktop only) */}
+        <div className="hidden lg:flex lg:w-[220px] lg:flex-col lg:gap-2 lg:p-6">
+          <SectionLabel>Logo Overlay</SectionLabel>
+          <div className="flex flex-col gap-1.5">
+            {logoButtons(false)}
+          </div>
+          <div className="mt-1 flex flex-col gap-2">
+            {logoExtras}
           </div>
 
-          {logoMode !== "none" && (
-            <div className="mt-2 flex flex-wrap items-center gap-4">
-              <label className="flex items-center gap-2 text-sm">
-                <span className="text-[var(--pvm-muted)]">Logo color</span>
-                <div className="h-[30px] w-9 overflow-hidden rounded-md border-[1.5px] border-[var(--pvm-border)]">
-                  <input
-                    aria-label="Logo color"
-                    className="-m-[7px] h-[44px] w-[50px] cursor-pointer border-none bg-transparent"
-                    onChange={(e) => setLogoColor(e.target.value)}
-                    type="color"
-                    value={logoColor}
-                  />
-                </div>
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <input
-                  checked={logoTransparent}
-                  onChange={(e) => setLogoTransparent(e.target.checked)}
-                  type="checkbox"
-                />
-                <span>Transparent background</span>
-              </label>
-            </div>
-          )}
-
-          {logoMode === "upload" && (
-            <input
-              accept="image/svg+xml"
-              aria-label="Upload logo file"
-              className="mt-2 text-sm"
-              onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
-              type="file"
-            />
-          )}
+          <div className="mt-auto flex flex-col gap-2 border-t border-[var(--pvm-border)] pt-4">
+            {copyBtn(true)}
+            {downloadBtn(true)}
+            <p className="text-center text-[10.5px] text-[var(--pvm-muted)]">{DOWNLOAD_HINTS[format]}</p>
+          </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center gap-2 border-t border-[var(--pvm-border)] px-[22px] py-4">
-        <button
-          className="flex items-center gap-1.5 rounded-[7px] border border-[var(--pvm-border)] bg-white px-4 py-2 text-[13px] font-medium shadow-sm transition hover:bg-[#F8FAFC]"
-          onClick={handleCopyLink}
-          type="button"
-        >
-          <CopyIcon />
-          {copied ? "Copied!" : "Copy link"}
-        </button>
-
-        {needsButton ? (
-          <button
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-[7px] bg-[var(--pvm-fg)] px-4 py-2 text-[13px] font-medium text-white shadow-sm transition hover:bg-[#1a3a5c] disabled:opacity-50"
-            disabled={downloadDisabled}
-            onClick={handleDownload}
-            type="button"
-          >
-            <DownloadIcon />
-            {format === "pdf" ? "Print PDF" : `Download ${format.toUpperCase()}`}
-          </button>
-        ) : (
-          <a
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-[7px] bg-[var(--pvm-fg)] px-4 py-2 text-[13px] font-medium text-white shadow-sm transition hover:bg-[#1a3a5c]"
-            download={`qr-${code}.${format}`}
-            href={getHref}
-          >
-            <DownloadIcon />
-            Download {format.toUpperCase()}
-          </a>
-        )}
+      {/* Mobile footer */}
+      <div className="flex items-center gap-2 border-t border-[var(--pvm-border)] px-6 py-4 lg:hidden">
+        {copyBtn()}
+        {downloadBtn()}
       </div>
     </AdminCard>
   );

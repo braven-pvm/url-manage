@@ -317,7 +317,7 @@ export default async function RedirectDetailPage({
         </AdminCard>
       </div>
 
-      <QrPanel code={redirect.code} name={redirect.title} shortUrl={shortUrl} />
+      <QrPanel category={redirect.category ?? undefined} code={redirect.code} name={redirect.title} shortUrl={shortUrl} />
 
       <AdminCard>
         <CardHeader
