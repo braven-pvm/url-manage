@@ -56,7 +56,7 @@ export function CardHeader({
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="text-[13px] font-semibold text-[var(--pvm-fg)]">{title}</h2>
+        <h2 className="text-[13px] font-bold text-[var(--pvm-fg)]">{title}</h2>
         {subtitle ? (
           <p className="mt-1 text-[11.5px] text-[var(--pvm-muted)]">{subtitle}</p>
         ) : null}
