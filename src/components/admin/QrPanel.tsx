@@ -411,10 +411,10 @@ export function QrPanel({
   const dotStyle = (
     <div>
       <SectionLabel>Dot Style</SectionLabel>
-      <div className="flex gap-1.5">
+      <div className="grid grid-cols-3 gap-1.5">
         {(["square", "rounded", "circle"] as QrDots[]).map((d) => (
           <button
-            className={`flex flex-1 flex-col items-center gap-[7px] rounded-lg border-[1.5px] bg-white px-2 py-2.5 transition-all ${
+            className={`flex flex-col items-center gap-[7px] rounded-lg border-[1.5px] bg-white px-2 py-2.5 transition-all ${
               dots === d
                 ? "border-[var(--pvm-fg)] bg-[rgba(13,31,53,.03)]"
                 : "border-[var(--pvm-border)] hover:border-gray-400"
@@ -558,7 +558,7 @@ export function QrPanel({
       <div className="flex flex-col lg:flex-row lg:divide-x lg:divide-[var(--pvm-border)]">
 
         {/* Left col: QR preview */}
-        <div className="flex flex-col items-center justify-center border-b border-[var(--pvm-border)] bg-[#F8FAFC] py-6 lg:w-[240px] lg:border-b-0 lg:bg-transparent lg:py-8">
+        <div className="flex flex-col items-center justify-center border-b border-[var(--pvm-border)] bg-[#F8FAFC] py-6 lg:w-[240px] lg:border-b-0 lg:bg-transparent lg:p-0">
           {/* Mobile: framed preview */}
           <div className="flex h-[160px] w-[160px] items-center justify-center overflow-hidden rounded-xl border border-[var(--pvm-border)] bg-white shadow-sm lg:hidden">
             {isUploadMode && !logoFile ? (
@@ -572,20 +572,20 @@ export function QrPanel({
             )}
           </div>
 
-          {/* Desktop: larger unframed preview */}
-          <div className="hidden lg:block">
+          {/* Desktop: fills the column */}
+          <div className="hidden w-full lg:block">
             {isUploadMode && !logoFile ? (
-              <div className="flex h-[190px] w-[190px] items-center justify-center rounded-xl border border-[var(--pvm-border)] bg-[#F8FAFC]">
+              <div className="flex aspect-square w-full items-center justify-center border-[var(--pvm-border)] bg-[#F8FAFC]">
                 <p className="text-center text-xs text-[var(--pvm-muted)]">Select a file<br />to preview</p>
               </div>
             ) : (
               <img
                 alt="QR code preview"
-                className={`h-[190px] w-[190px] rounded-lg border border-[var(--pvm-border)] transition-opacity ${previewLoading ? "opacity-50" : "opacity-100"}`}
+                className={`aspect-square w-full object-contain transition-opacity ${previewLoading ? "opacity-50" : "opacity-100"}`}
                 src={previewSrc ?? ""}
               />
             )}
-            <p className="mt-3 text-center text-[11.5px] text-[var(--pvm-muted)]">{displayUrl}</p>
+            <p className="border-t border-[var(--pvm-border)] py-2 text-center text-[11.5px] text-[var(--pvm-muted)]">{displayUrl}</p>
           </div>
         </div>
 
