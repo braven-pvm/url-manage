@@ -9,6 +9,7 @@ export interface QrOptions {
   bg?: string;
   dots?: QrDots;
   logoData?: string;
+  logoTransparent?: boolean;
   size?: number;
 }
 
@@ -17,7 +18,7 @@ const DEFAULT_BG = "#ffffff";
 const QUIET = 4;
 const LOGO_SIZE_RATIO = 0.22;
 const LOGO_CORNER_RATIO = 0.12;
-const LOGO_PADDING_RATIO = 0.15;
+const LOGO_PADDING_RATIO = 0.05;
 
 const CIRCLE_RADIUS = 0.45;
 const ROUNDED_INSET = 0.1;
@@ -25,7 +26,7 @@ const ROUNDED_SIZE = 0.8;
 const ROUNDED_CORNER = 0.2;
 
 export function generateQrSvg(options: QrOptions): string {
-  const { url, fg = DEFAULT_FG, bg = DEFAULT_BG, dots = "square", logoData } = options;
+  const { url, fg = DEFAULT_FG, bg = DEFAULT_BG, dots = "square", logoData, logoTransparent } = options;
 
   if (!url) throw new Error("url is required");
 
@@ -66,7 +67,9 @@ export function generateQrSvg(options: QrOptions): string {
     const innerX = logoX + padding;
     const innerY = logoY + padding;
     const innerSize = logoSize - padding * 2;
-    const logoRect = `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="${cornerRadius}" fill="${bg}"/>`;
+    const logoRect = logoTransparent
+      ? ""
+      : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="${cornerRadius}" fill="${bg}"/>`;
     const logoImage = `<image href="${logoData}" x="${innerX}" y="${innerY}" width="${innerSize}" height="${innerSize}" preserveAspectRatio="xMidYMid meet"/>`;
     logoOverlay = `${logoRect}${logoImage}`;
   }

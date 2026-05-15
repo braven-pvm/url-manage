@@ -12,7 +12,7 @@ const VALID_DOTS = new Set<QrDots>(["square", "rounded", "circle"]);
 const VALID_SIZES = new Set<number>([500, 1000, 2000]);
 const VALID_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml"]);
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
-const DEFAULT_LOGO_PATH = path.join(process.cwd(), "assets", "PVM.png");
+const DEFAULT_LOGO_PATH = path.join(process.cwd(), "assets", "PVM-no_bck.png");
 
 function parseFg(value: string | null): string {
   return value && HEX_COLOR_RE.test(value) ? value : "#1a2b4a";
@@ -89,8 +89,9 @@ export async function GET(
     }
   }
 
+  const logoTransparent = searchParams.get("logoBg") === "none";
   const url = `https://${env.PUBLIC_REDIRECT_HOST}/${code}`;
-  const options = { bg, dots, fg, logoData, size, url };
+  const options = { bg, dots, fg, logoData, logoTransparent, size, url };
 
   if (format === "png") {
     const buffer = await generateQrPng(options);
@@ -131,9 +132,10 @@ export async function POST(
   const bg = parseBg(formData.get("bg") as string | null);
   const dots = parseDots(formData.get("dots") as string | null);
   const size = parseSize(formData.get("size") as string | null);
+  const logoTransparent = formData.get("logoBg") === "none";
 
   const url = `https://${env.PUBLIC_REDIRECT_HOST}/${code}`;
-  const options = { bg, dots, fg, logoData, size, url };
+  const options = { bg, dots, fg, logoData, logoTransparent, size, url };
 
   if (format === "png") {
     const buffer = await generateQrPng(options);
