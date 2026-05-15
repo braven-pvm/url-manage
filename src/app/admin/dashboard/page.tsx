@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import {
   AdminCard,
@@ -153,28 +154,28 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AccentMetricCard
           detail="Live redirect records"
-          icon="R"
+          icon={<IconRedirect />}
           label="Total Redirects"
           tone="blue"
           value={formatNumber(redirectCount)}
         />
         <AccentMetricCard
           detail="All recorded click events"
-          icon="C"
+          icon={<IconClicks />}
           label="Total Clicks"
           tone="green"
           value={formatNumber(clickCount)}
         />
         <AccentMetricCard
           detail="Since local midnight"
-          icon="T"
+          icon={<IconClock />}
           label="Clicks Today"
           tone="amber"
           value={formatNumber(todayClickCount)}
         />
         <AccentMetricCard
           detail="Unknown short URL requests"
-          icon="F"
+          icon={<IconFallback />}
           label="Fallback Clicks"
           tone="purple"
           value={formatNumber(fallbackClickCount)}
@@ -331,7 +332,7 @@ function AccentMetricCard({
   value,
 }: Readonly<{
   detail: string;
-  icon: string;
+  icon: ReactNode;
   label: string;
   tone: BadgeTone;
   value: string;
@@ -349,12 +350,49 @@ function AccentMetricCard({
           <p className="mt-3 text-[11.5px] text-[var(--pvm-muted)]">{detail}</p>
         </div>
         <span
-          className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-bold ${toneSoftClass[tone]}`}
+          className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${toneSoftClass[tone]}`}
         >
           {icon}
         </span>
       </div>
     </AdminCard>
+  );
+}
+
+function IconRedirect() {
+  return (
+    <svg fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 16 16" width="15">
+      <path d="M2 8h9" />
+      <path d="M8 5l3 3-3 3" />
+      <path d="M13 3v10" />
+    </svg>
+  );
+}
+
+function IconClicks() {
+  return (
+    <svg fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 16 16" width="15">
+      <path d="M5 2.5v7l2-2 2 4 1.5-.7-2-4 2.5-.3L5 2.5z" />
+    </svg>
+  );
+}
+
+function IconClock() {
+  return (
+    <svg fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 16 16" width="15">
+      <circle cx="8" cy="8" r="5.5" />
+      <path d="M8 5.5V8l2 1.5" />
+    </svg>
+  );
+}
+
+function IconFallback() {
+  return (
+    <svg fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 16 16" width="15">
+      <path d="M8 2L2 13h12L8 2z" />
+      <path d="M8 6.5v3" />
+      <circle cx="8" cy="11" fill="currentColor" r=".6" stroke="none" />
+    </svg>
   );
 }
 
