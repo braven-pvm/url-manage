@@ -207,9 +207,14 @@ export default async function AdminDashboardPage() {
                     <Link className="font-semibold text-[var(--pvm-fg)] hover:underline" href={`/redirects/${redirect.id}`}>
                       {redirect.title}
                     </Link>
-                    <p className="mt-1 font-mono text-xs text-[var(--pvm-muted)]">
+                    <a
+                      className="mt-1 block font-mono text-xs text-[var(--pvm-teal)] hover:underline"
+                      href={`https://${shortUrlBase}/${redirect.code}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
                       {shortUrlBase}/{redirect.code}
-                    </p>
+                    </a>
                   </td>
                   <td className="px-4 py-4">
                     <Badge tone={purposeTone(redirect.purpose)}>
