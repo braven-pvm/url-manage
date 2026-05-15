@@ -26,6 +26,13 @@ const ROUNDED_INSET = 0.1;
 const ROUNDED_SIZE = 0.8;
 const ROUNDED_CORNER = 0.2;
 
+function isLightColor(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+}
+
 function inlineSvgLogo(svgText: string, x: number, y: number, size: number, fill: string): string {
   const viewBoxMatch = svgText.match(/viewBox="([^"]+)"/i);
   const vb = viewBoxMatch ? viewBoxMatch[1].trim().split(/\s+/).map(Number) : [0, 0, 100, 100];
@@ -38,8 +45,10 @@ function inlineSvgLogo(svgText: string, x: number, y: number, size: number, fill
 
   const innerMatch = svgText.match(/<svg[^>]*>([\s\S]*)<\/svg>/i);
   const inner = innerMatch ? innerMatch[1].trim() : "";
-  // Strip explicit fill values so the group fill controls the color; preserve fill="none"
-  const recolored = inner.replace(/\sfill="(?!none")[^"]*"/gi, "");
+  // Dark fills become logoColor; light fills (counters/holes) become transparent; preserve fill="none"
+  const recolored = inner.replace(/\sfill="(#[0-9a-fA-F]{6})"/gi, (_, color) =>
+    isLightColor(color) ? ' fill="none"' : ` fill="${fill}"`,
+  );
 
   return `<g transform="translate(${tx},${ty}) scale(${scale})" fill="${fill}">${recolored}</g>`;
 }

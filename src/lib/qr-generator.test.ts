@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { generateQrSvg } from "./qr-generator";
 
-const SAMPLE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><path d="M0 0h100v50H0z" fill="#000"/></svg>';
+const SAMPLE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><path d="M0 0h100v50H0z" fill="#000000"/></svg>';
 
 describe("generateQrSvg", () => {
   it("returns valid SVG markup", () => {
@@ -58,10 +58,18 @@ describe("generateQrSvg", () => {
     expect(svg).toContain('fill="#ff0000"');
   });
 
-  it("strips explicit fills from inlined SVG paths", () => {
+  it("maps dark explicit fills to logoColor in inlined logo paths", () => {
     const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoSvg: SAMPLE_SVG, logoColor: "#ffffff" });
-    // The path's original fill="#000" should be stripped; only the group fill remains
+    // Dark fill="#000" mapped to logoColor; original value not present
     expect(svg).not.toContain('fill="#000"');
+    expect(svg).toContain('fill="#ffffff"');
+  });
+
+  it("maps light explicit fills to fill=none to preserve letter counters", () => {
+    const lightFillSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0 0h100v100H0z" fill="#FCFCFC"/></svg>';
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoSvg: lightFillSvg, logoColor: "#1a2b4a" });
+    expect(svg).toContain('fill="none"');
+    expect(svg).not.toContain('fill="#FCFCFC"');
   });
 
   it("renders no logo overlay when logoSvg is not provided", () => {
