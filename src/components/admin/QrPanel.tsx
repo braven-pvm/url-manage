@@ -24,11 +24,15 @@ function buildGetHref(
   bg: string,
   dots: QrDots,
   logoMode: LogoMode,
+  logoColor: string,
   logoTransparent: boolean,
 ): string {
   const params = new URLSearchParams({ bg, dots, fg, format, size: String(size) });
   if (logoMode === "default") params.set("logo", "default");
-  if (logoMode !== "none" && logoTransparent) params.set("logoBg", "none");
+  if (logoMode !== "none") {
+    params.set("logoColor", logoColor);
+    if (logoTransparent) params.set("logoBg", "none");
+  }
   return `/api/qr/${code}?${params.toString()}`;
 }
 
@@ -40,6 +44,7 @@ async function postQr(
   fg: string,
   bg: string,
   dots: QrDots,
+  logoColor: string,
   logoTransparent: boolean,
 ): Promise<Blob> {
   const form = new FormData();
@@ -48,6 +53,7 @@ async function postQr(
   form.append("fg", fg);
   form.append("format", format);
   form.append("logo", file);
+  form.append("logoColor", logoColor);
   form.append("size", String(size));
   if (logoTransparent) form.append("logoBg", "none");
   const res = await fetch(`/api/qr/${code}`, { body: form, method: "POST" });
@@ -62,6 +68,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
   const [activePreset, setActivePreset] = useState<string | null>("Brand");
   const [dots, setDots] = useState<QrDots>("square");
   const [logoMode, setLogoMode] = useState<LogoMode>("none");
+  const [logoColor, setLogoColor] = useState("#1a2b4a");
   const [logoTransparent, setLogoTransparent] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -81,7 +88,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
     let cancelled = false;
     setPreviewLoading(true);
 
-    postQr(code, logoFile, format, size, fg, bg, dots, logoTransparent)
+    postQr(code, logoFile, format, size, fg, bg, dots, logoColor, logoTransparent)
       .then((blob) => {
         if (cancelled) return;
         const objectUrl = URL.createObjectURL(blob);
@@ -97,7 +104,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
     return () => {
       cancelled = true;
     };
-  }, [logoMode, logoFile, format, size, fg, bg, dots, logoTransparent, code]);
+  }, [logoMode, logoFile, format, size, fg, bg, dots, logoColor, logoTransparent, code]);
 
   // Keep ref in sync so the unmount cleanup always has the latest value
   useEffect(() => {
@@ -115,6 +122,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
   function applyPreset(preset: (typeof PRESETS)[number]) {
     setFg(preset.fg);
     setBg(preset.bg);
+    setLogoColor(preset.fg);
     setActivePreset(preset.label);
   }
 
@@ -125,7 +133,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
 
   async function handleDownload() {
     if (!logoFile) return;
-    const blob = await postQr(code, logoFile, format, size, fg, bg, dots, logoTransparent);
+    const blob = await postQr(code, logoFile, format, size, fg, bg, dots, logoColor, logoTransparent);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -136,7 +144,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
 
   const isUploadMode = logoMode === "upload";
   const isUploadReady = isUploadMode && !!logoFile;
-  const getHref = buildGetHref(code, format, size, fg, bg, dots, logoMode, logoTransparent);
+  const getHref = buildGetHref(code, format, size, fg, bg, dots, logoMode, logoColor, logoTransparent);
   const previewSrc = isUploadMode ? blobUrl : getHref;
 
   return (
@@ -286,7 +294,7 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
                 [
                   { label: "None", mode: "none" as LogoMode, ariaLabel: "No logo" },
                   { label: "PVM Logo", mode: "default" as LogoMode, ariaLabel: "PVM Logo" },
-                  { label: "Upload", mode: "upload" as LogoMode, ariaLabel: "Upload logo" },
+                  { label: "Upload SVG", mode: "upload" as LogoMode, ariaLabel: "Upload logo" },
                 ] as const
               ).map(({ label, mode, ariaLabel }) => (
                 <label className="flex cursor-pointer items-center gap-1.5 text-sm" key={mode}>
@@ -303,18 +311,30 @@ export function QrPanel({ code }: Readonly<{ code: string }>) {
               ))}
             </div>
             {logoMode !== "none" && (
-              <label className="mt-2 flex cursor-pointer items-center gap-2 text-sm">
-                <input
-                  checked={logoTransparent}
-                  onChange={(e) => setLogoTransparent(e.target.checked)}
-                  type="checkbox"
-                />
-                <span>Transparent background</span>
-              </label>
+              <div className="mt-2 flex flex-wrap items-center gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <span className="text-[var(--pvm-muted)]">Logo color</span>
+                  <input
+                    aria-label="Logo color"
+                    className="h-8 w-12 cursor-pointer rounded border border-[var(--pvm-border)]"
+                    onChange={(e) => setLogoColor(e.target.value)}
+                    type="color"
+                    value={logoColor}
+                  />
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    checked={logoTransparent}
+                    onChange={(e) => setLogoTransparent(e.target.checked)}
+                    type="checkbox"
+                  />
+                  <span>Transparent background</span>
+                </label>
+              </div>
             )}
             {logoMode === "upload" && (
               <input
-                accept="image/png,image/jpeg,image/svg+xml"
+                accept="image/svg+xml"
                 aria-label="Upload logo file"
                 className="mt-2 text-sm"
                 onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}

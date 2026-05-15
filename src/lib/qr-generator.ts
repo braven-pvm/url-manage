@@ -8,7 +8,8 @@ export interface QrOptions {
   fg?: string;
   bg?: string;
   dots?: QrDots;
-  logoData?: string;
+  logoSvg?: string;
+  logoColor?: string;
   logoTransparent?: boolean;
   size?: number;
 }
@@ -25,8 +26,26 @@ const ROUNDED_INSET = 0.1;
 const ROUNDED_SIZE = 0.8;
 const ROUNDED_CORNER = 0.2;
 
+function inlineSvgLogo(svgText: string, x: number, y: number, size: number, fill: string): string {
+  const viewBoxMatch = svgText.match(/viewBox="([^"]+)"/i);
+  const vb = viewBoxMatch ? viewBoxMatch[1].trim().split(/\s+/).map(Number) : [0, 0, 100, 100];
+  const vbWidth = vb[2];
+  const vbHeight = vb[3];
+
+  const scale = Math.min(size / vbWidth, size / vbHeight);
+  const tx = x + (size - scale * vbWidth) / 2;
+  const ty = y + (size - scale * vbHeight) / 2;
+
+  const innerMatch = svgText.match(/<svg[^>]*>([\s\S]*)<\/svg>/i);
+  const inner = innerMatch ? innerMatch[1].trim() : "";
+  // Strip explicit fill values so the group fill controls the color; preserve fill="none"
+  const recolored = inner.replace(/\sfill="(?!none")[^"]*"/gi, "");
+
+  return `<g transform="translate(${tx},${ty}) scale(${scale})" fill="${fill}">${recolored}</g>`;
+}
+
 export function generateQrSvg(options: QrOptions): string {
-  const { url, fg = DEFAULT_FG, bg = DEFAULT_BG, dots = "square", logoData, logoTransparent } = options;
+  const { url, fg = DEFAULT_FG, bg = DEFAULT_BG, dots = "square", logoSvg, logoColor, logoTransparent } = options;
 
   if (!url) throw new Error("url is required");
 
@@ -57,7 +76,7 @@ export function generateQrSvg(options: QrOptions): string {
   }
 
   let logoOverlay = "";
-  if (logoData) {
+  if (logoSvg) {
     const center = gridSize / 2;
     const logoSize = gridSize * LOGO_SIZE_RATIO;
     const logoX = center - logoSize / 2;
@@ -67,11 +86,12 @@ export function generateQrSvg(options: QrOptions): string {
     const innerX = logoX + padding;
     const innerY = logoY + padding;
     const innerSize = logoSize - padding * 2;
+
     const logoRect = logoTransparent
       ? ""
       : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="${cornerRadius}" fill="${bg}"/>`;
-    const logoImage = `<image href="${logoData}" x="${innerX}" y="${innerY}" width="${innerSize}" height="${innerSize}" preserveAspectRatio="xMidYMid meet"/>`;
-    logoOverlay = `${logoRect}${logoImage}`;
+    const logoInline = inlineSvgLogo(logoSvg, innerX, innerY, innerSize, logoColor ?? fg);
+    logoOverlay = `${logoRect}${logoInline}`;
   }
 
   return [

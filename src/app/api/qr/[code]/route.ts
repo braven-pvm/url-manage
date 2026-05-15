@@ -10,9 +10,8 @@ import { generateQrPng, generateQrSvg, type QrDots } from "@/lib/qr-generator";
 const CACHE_CONTROL = "public, max-age=3600";
 const VALID_DOTS = new Set<QrDots>(["square", "rounded", "circle"]);
 const VALID_SIZES = new Set<number>([500, 1000, 2000]);
-const VALID_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml"]);
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
-const DEFAULT_LOGO_PATH = path.join(process.cwd(), "assets", "PVM-no_bck.png");
+const DEFAULT_LOGO_PATH = path.join(process.cwd(), "assets", "PVM-no_bck.svg");
 
 function parseFg(value: string | null): string {
   return value && HEX_COLOR_RE.test(value) ? value : "#1a2b4a";
@@ -20,6 +19,10 @@ function parseFg(value: string | null): string {
 
 function parseBg(value: string | null): string {
   return value && HEX_COLOR_RE.test(value) ? value : "#ffffff";
+}
+
+function parseColor(value: string | null): string | undefined {
+  return value && HEX_COLOR_RE.test(value) ? value : undefined;
 }
 
 function parseDots(value: string | null): QrDots {
@@ -31,9 +34,8 @@ function parseSize(value: string | null): number {
   return VALID_SIZES.has(n) ? n : 1000;
 }
 
-async function readDefaultLogoData(): Promise<string> {
-  const buffer = await fs.readFile(DEFAULT_LOGO_PATH);
-  return `data:image/png;base64,${buffer.toString("base64")}`;
+async function readDefaultLogoSvg(): Promise<string> {
+  return fs.readFile(DEFAULT_LOGO_PATH, "utf-8");
 }
 
 async function resolveRedirect(code: string) {
@@ -80,18 +82,20 @@ export async function GET(
   const bg = parseBg(searchParams.get("bg"));
   const dots = parseDots(searchParams.get("dots"));
   const size = parseSize(searchParams.get("size"));
-  let logoData: string | undefined;
+  const logoColor = parseColor(searchParams.get("logoColor"));
+  const logoTransparent = searchParams.get("logoBg") === "none";
+
+  let logoSvg: string | undefined;
   if (searchParams.get("logo") === "default") {
     try {
-      logoData = await readDefaultLogoData();
+      logoSvg = await readDefaultLogoSvg();
     } catch {
       // logo file not found — proceed without overlay
     }
   }
 
-  const logoTransparent = searchParams.get("logoBg") === "none";
   const url = `https://${env.PUBLIC_REDIRECT_HOST}/${code}`;
-  const options = { bg, dots, fg, logoData, logoTransparent, size, url };
+  const options = { bg, dots, fg, logoColor, logoSvg, logoTransparent, size, url };
 
   if (format === "png") {
     const buffer = await generateQrPng(options);
@@ -119,23 +123,22 @@ export async function POST(
     return NextResponse.json({ error: "logo file is required" }, { status: 400 });
   }
 
-  if (!VALID_IMAGE_TYPES.has(file.type)) {
-    return NextResponse.json({ error: "unsupported image type" }, { status: 400 });
+  if (file.type !== "image/svg+xml") {
+    return NextResponse.json({ error: "only SVG files are supported" }, { status: 400 });
   }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const base64 = Buffer.from(arrayBuffer).toString("base64");
-  const logoData = `data:${file.type};base64,${base64}`;
+  const logoSvg = await file.text();
 
   const format = formData.get("format") === "png" ? "png" : "svg";
   const fg = parseFg(formData.get("fg") as string | null);
   const bg = parseBg(formData.get("bg") as string | null);
   const dots = parseDots(formData.get("dots") as string | null);
   const size = parseSize(formData.get("size") as string | null);
+  const logoColor = parseColor(formData.get("logoColor") as string | null);
   const logoTransparent = formData.get("logoBg") === "none";
 
   const url = `https://${env.PUBLIC_REDIRECT_HOST}/${code}`;
-  const options = { bg, dots, fg, logoData, logoTransparent, size, url };
+  const options = { bg, dots, fg, logoColor, logoSvg, logoTransparent, size, url };
 
   if (format === "png") {
     const buffer = await generateQrPng(options);

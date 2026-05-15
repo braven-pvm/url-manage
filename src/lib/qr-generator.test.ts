@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { generateQrSvg } from "./qr-generator";
 
+const SAMPLE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><path d="M0 0h100v50H0z" fill="#000"/></svg>';
+
 describe("generateQrSvg", () => {
   it("returns valid SVG markup", () => {
     const svg = generateQrSvg({ url: "https://go.pvm.co.za/test" });
@@ -35,17 +37,36 @@ describe("generateQrSvg", () => {
     expect(svg).not.toContain("<circle");
   });
 
-  it("embeds logoData as image element with preserveAspectRatio", () => {
-    const logoData = "data:image/png;base64,abc123";
-    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoData });
-    expect(svg).toContain("<image");
-    expect(svg).toContain(logoData);
-    expect(svg).toContain('preserveAspectRatio="xMidYMid meet"');
+  it("inlines logoSvg as a positioned group element", () => {
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoSvg: SAMPLE_SVG });
+    expect(svg).toContain("<g transform=");
+    expect(svg).toContain("scale(");
   });
 
-  it("renders no image element when logoData is not provided", () => {
+  it("applies fg color to inlined logo when no logoColor specified", () => {
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoSvg: SAMPLE_SVG, fg: "#aabbcc" });
+    expect(svg).toContain('fill="#aabbcc"');
+  });
+
+  it("applies logoColor to inlined logo independently of fg", () => {
+    const svg = generateQrSvg({
+      url: "https://go.pvm.co.za/test",
+      logoSvg: SAMPLE_SVG,
+      fg: "#111111",
+      logoColor: "#ff0000",
+    });
+    expect(svg).toContain('fill="#ff0000"');
+  });
+
+  it("strips explicit fills from inlined SVG paths", () => {
+    const svg = generateQrSvg({ url: "https://go.pvm.co.za/test", logoSvg: SAMPLE_SVG, logoColor: "#ffffff" });
+    // The path's original fill="#000" should be stripped; only the group fill remains
+    expect(svg).not.toContain('fill="#000"');
+  });
+
+  it("renders no logo overlay when logoSvg is not provided", () => {
     const svg = generateQrSvg({ url: "https://go.pvm.co.za/test" });
-    expect(svg).not.toContain("<image");
+    expect(svg).not.toContain("<g transform=");
   });
 
   it("encodes different URLs into different QR data", () => {
