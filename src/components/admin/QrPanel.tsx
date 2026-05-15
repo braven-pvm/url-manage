@@ -411,7 +411,7 @@ export function QrPanel({
   const dotStyle = (
     <div>
       <SectionLabel>Dot Style</SectionLabel>
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 gap-1.5 max-w-[360px]">
         {(["square", "rounded", "circle"] as QrDots[]).map((d) => (
           <button
             className={`flex flex-col items-center gap-[7px] rounded-lg border-[1.5px] bg-white px-2 py-2.5 transition-all ${
@@ -558,7 +558,7 @@ export function QrPanel({
       <div className="flex flex-col lg:flex-row lg:divide-x lg:divide-[var(--pvm-border)]">
 
         {/* Left col: QR preview */}
-        <div className="flex flex-col items-center justify-center border-b border-[var(--pvm-border)] bg-[#F8FAFC] py-6 lg:w-[240px] lg:border-b-0 lg:bg-transparent lg:p-0">
+        <div className="flex flex-col items-center justify-center border-b border-[var(--pvm-border)] bg-[#F8FAFC] py-6 lg:w-[360px] lg:border-b-0 lg:bg-transparent lg:p-0">
           {/* Mobile: framed preview */}
           <div className="flex h-[160px] w-[160px] items-center justify-center overflow-hidden rounded-xl border border-[var(--pvm-border)] bg-white shadow-sm lg:hidden">
             {isUploadMode && !logoFile ? (

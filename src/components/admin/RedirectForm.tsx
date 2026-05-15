@@ -249,24 +249,36 @@ export function RedirectForm({
         </AdminCard>
 
         <AdminCard>
-          <CardHeader
-            actions={
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-[var(--pvm-muted)]">
-                Coming soon
-              </span>
-            }
-            title="QR Code"
-          />
+          <CardHeader title="QR Code" />
           <div className="flex flex-col items-center gap-3 p-5">
-            <div className="grid aspect-square w-28 place-items-center rounded-md border border-dashed border-[var(--pvm-border)] bg-white text-center text-xs font-medium leading-4 text-[var(--pvm-muted)]">
-              <div>
-                <QrStubIcon />
-                <span>Generated after saving</span>
-              </div>
-            </div>
-            <p className="text-center text-xs leading-5 text-[var(--pvm-muted)]">
-              Save the redirect first to lock the code.
-            </p>
+            {redirect?.code ? (
+              <>
+                <img
+                  alt="QR code preview"
+                  className="w-full rounded-md border border-[var(--pvm-border)]"
+                  src={`/api/qr/${redirect.code}?fg=%231a2b4a&bg=%23ffffff&dots=square&format=svg`}
+                />
+                <a
+                  className="text-xs font-medium text-[var(--pvm-teal)] hover:underline"
+                  download={`qr-${redirect.code}.svg`}
+                  href={`/api/qr/${redirect.code}?fg=%231a2b4a&bg=%23ffffff&dots=square&format=svg&size=1000`}
+                >
+                  Download SVG
+                </a>
+              </>
+            ) : (
+              <>
+                <div className="grid aspect-square w-28 place-items-center rounded-md border border-dashed border-[var(--pvm-border)] bg-white text-center text-xs font-medium leading-4 text-[var(--pvm-muted)]">
+                  <div>
+                    <QrStubIcon />
+                    <span>Generated after saving</span>
+                  </div>
+                </div>
+                <p className="text-center text-xs leading-5 text-[var(--pvm-muted)]">
+                  Save the redirect first to lock the code.
+                </p>
+              </>
+            )}
           </div>
         </AdminCard>
       </div>
