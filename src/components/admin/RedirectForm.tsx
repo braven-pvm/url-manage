@@ -42,9 +42,9 @@ export function RedirectForm({
     selectedCategory,
   ]);
   const fieldClass =
-    "mt-1.5 w-full rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2.5 text-sm text-[var(--pvm-fg)] outline-none transition placeholder:text-[var(--pvm-muted)] focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-600";
+    "mt-1.5 w-full rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2.5 text-sm text-slate-500 outline-none transition placeholder:text-[var(--pvm-muted)] focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500";
   const labelClass =
-    "text-[12px] font-bold uppercase tracking-[0.06em] text-[var(--pvm-fg)]";
+    "text-[12px] font-bold uppercase tracking-[0.06em] text-gray-900";
 
   return (
     <form
@@ -70,7 +70,7 @@ export function RedirectForm({
                   {shortUrlPrefix}
                 </span>
                 <input
-                  className="min-w-0 flex-1 bg-white px-3 py-2.5 font-mono text-sm text-[var(--pvm-fg)] outline-none placeholder:text-[var(--pvm-muted)] disabled:bg-slate-100 disabled:text-slate-600"
+                  className="min-w-0 flex-1 bg-white px-3 py-2.5 font-mono text-sm text-slate-600 outline-none placeholder:text-[var(--pvm-muted)] disabled:bg-slate-100 disabled:text-slate-500"
                   defaultValue={redirect?.code ?? ""}
                   disabled={isEdit}
                   id="code"
@@ -101,7 +101,7 @@ export function RedirectForm({
               </label>
               <div className="mt-1.5 flex gap-2">
                 <input
-                  className="min-w-0 flex-1 rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2.5 font-mono text-xs text-[var(--pvm-fg)] outline-none transition placeholder:text-[var(--pvm-muted)] focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100"
+                  className="min-w-0 flex-1 rounded-md border border-[var(--pvm-border)] bg-white px-3 py-2.5 font-mono text-xs text-slate-600 outline-none transition placeholder:text-[var(--pvm-muted)] focus:border-[var(--pvm-teal)] focus:ring-2 focus:ring-blue-100"
                   defaultValue={redirect?.destinationUrl ?? ""}
                   id="destinationUrl"
                   name="destinationUrl"
